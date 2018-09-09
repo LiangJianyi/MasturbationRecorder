@@ -41,9 +41,25 @@ namespace MasturbationRecorder {
 		}
 
 		private void RectanglesLayout() {
+			DateTime today = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day);
+			DateTime todayOfLastyear = new DateTime(today.Year - 1, today.Month, today.Day);
+			TimeSpan fuck = today - todayOfLastyear;
 			int columnDistance = 10;
 			int rowDistance = 10;
-
+			int monthTitleSpace = 40;
+			int bottomSpace = 20;
+			int leftSpace = 133;
+			int rightSpace = leftSpace;
+			int rectCount = fuck.Days;
+			int totalWeek = fuck.Days / 7;
+			int remainDaysOfYear = fuck.Days % 7;
+			if (remainDaysOfYear == 0) {
+				this.RectanglesCanvas.Width = (totalWeek - 1) * columnDistance;
+			}
+			else {
+				this.RectanglesCanvas.Width = totalWeek * columnDistance;
+			}
+			this.RectanglesCanvas.Height = rowDistance * 6;
 		}
 
 		private void Current_SizeChanged(object sender, Windows.UI.Core.WindowSizeChangedEventArgs e) {
