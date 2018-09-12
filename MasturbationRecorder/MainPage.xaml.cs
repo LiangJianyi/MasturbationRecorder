@@ -12,6 +12,7 @@ using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
+using Windows.UI.Xaml.Shapes;
 
 namespace MasturbationRecorder {
 	using Debug = System.Diagnostics.Debug;
@@ -44,6 +45,8 @@ namespace MasturbationRecorder {
 			DateTime today = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day);
 			DateTime todayOfLastyear = new DateTime(today.Year - 1, today.Month, today.Day);
 			TimeSpan fuck = today - todayOfLastyear;
+			int rectWidth = 20;
+			int rectHeight = 20;
 			int columnDistance = 10;
 			int rowDistance = 10;
 			int monthTitleSpace = 40;
@@ -54,12 +57,28 @@ namespace MasturbationRecorder {
 			int totalWeek = fuck.Days / 7;
 			int remainDaysOfYear = fuck.Days % 7;
 			if (remainDaysOfYear == 0) {
-				this.RectanglesCanvas.Width = (totalWeek - 1) * columnDistance;
+				this.RectanglesCanvas.Width = (totalWeek - 1) * columnDistance + leftSpace + rightSpace;
 			}
 			else {
-				this.RectanglesCanvas.Width = totalWeek * columnDistance;
+				this.RectanglesCanvas.Width = totalWeek * columnDistance + leftSpace + rightSpace;
 			}
-			this.RectanglesCanvas.Height = rowDistance * 6;
+			this.RectanglesCanvas.Height = rowDistance * 6 + bottomSpace + monthTitleSpace;
+			for (int i = 0; i < totalWeek; i++) {
+				int left;
+				if (i==0) {
+					left = leftSpace;
+				}
+				else {
+					left = columnDistance + rectWidth;
+				}
+				for (int j = 0; j < 7; j++) {
+					Rectangle rect = new Rectangle();
+					rect.Width = 20;
+					rect.Height = 20;
+					rect.Fill = new SolidColorBrush(Windows.UI.Colors.YellowGreen);
+					RectanglesCanvas.Children.Add(rect); 
+				}
+			}
 		}
 
 		private void Current_SizeChanged(object sender, Windows.UI.Core.WindowSizeChangedEventArgs e) {
