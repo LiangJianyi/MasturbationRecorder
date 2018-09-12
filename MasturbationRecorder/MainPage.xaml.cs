@@ -42,17 +42,20 @@ namespace MasturbationRecorder {
 		}
 
 		private void RectanglesLayout() {
+			RectanglesCanvas.Children.Clear();
+
 			DateTime today = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day);
 			DateTime todayOfLastyear = new DateTime(today.Year - 1, today.Month, today.Day);
 			TimeSpan fuck = today - todayOfLastyear;
-			int rectWidth = 20;
-			int rectHeight = 20;
-			int columnDistance = 10;
-			int rowDistance = 10;
-			int monthTitleSpace = 40;
-			int bottomSpace = 20;
-			int leftSpace = 133;
-			int rightSpace = leftSpace;
+			const int rectWidth = 20;
+			const int rectHeight = 20;
+			const int columnDistance = 10;
+			const int rowDistance = 10;
+			const int monthTitleSpace = 40;
+			const int bottomSpace = 20;
+			const int leftSpace = 133;
+			const int topSpace = 200;
+			const int rightSpace = leftSpace;
 			int rectCount = fuck.Days;
 			int totalWeek = fuck.Days / 7;
 			int remainDaysOfYear = fuck.Days % 7;
@@ -63,20 +66,28 @@ namespace MasturbationRecorder {
 				this.RectanglesCanvas.Width = totalWeek * columnDistance + leftSpace + rightSpace;
 			}
 			this.RectanglesCanvas.Height = rowDistance * 6 + bottomSpace + monthTitleSpace;
-			for (int i = 0; i < totalWeek; i++) {
-				int left;
-				if (i==0) {
-					left = leftSpace;
+			for (int i = 0, canvasLeft = 0; i < totalWeek; i++) {
+				if (i == 0) {
+					canvasLeft = leftSpace;
 				}
 				else {
-					left = columnDistance + rectWidth;
+					canvasLeft += (columnDistance + rectWidth);
 				}
-				for (int j = 0; j < 7; j++) {
-					Rectangle rect = new Rectangle();
-					rect.Width = 20;
-					rect.Height = 20;
-					rect.Fill = new SolidColorBrush(Windows.UI.Colors.YellowGreen);
-					RectanglesCanvas.Children.Add(rect); 
+				for (int j = 0, canvasTop = 0; j < 7; j++) {
+					if (j == 0) {
+						canvasTop = topSpace;
+					}
+					else {
+						canvasTop += (rowDistance + rectHeight);
+					}
+					Rectangle rect = new Rectangle {
+						Width = rectWidth,
+						Height = rectHeight,
+						Fill = new SolidColorBrush(Windows.UI.Colors.YellowGreen)
+					};
+					RectanglesCanvas.Children.Add(rect);
+					Canvas.SetLeft(rect, canvasLeft);
+					Canvas.SetTop(rect, canvasTop);
 				}
 			}
 		}
