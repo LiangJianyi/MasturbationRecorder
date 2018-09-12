@@ -8,18 +8,9 @@
     mc:Ignorable="d"
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
-    <Grid>
-        <Grid BorderBrush="LightGray" BorderThickness="2">
-            <Canvas Name="RectanglesCanvas" Width="300" Height="300" HorizontalAlignment="Center" VerticalAlignment="Center">
-                <Rectangle Width="20" Height="20" Fill="YellowGreen" Canvas.Left="20" Canvas.Top="20"/>
-                <Rectangle Width="20" Height="20" Fill="YellowGreen" Canvas.Left="20" Canvas.Top="47"/>
-                <Rectangle Width="20" Height="20" Fill="YellowGreen" Canvas.Left="20" Canvas.Top="71"/>
-                <Rectangle Width="20" Height="20" Fill="YellowGreen" Canvas.Left="20" Canvas.Top="98"/>
-                <Rectangle Width="20" Height="20" Fill="YellowGreen" Canvas.Left="45" Canvas.Top="20"/>
-                <Rectangle Width="20" Height="20" Fill="YellowGreen" Canvas.Left="45" Canvas.Top="47"/>
-                <Rectangle Width="20" Height="20" Fill="YellowGreen" Canvas.Left="45" Canvas.Top="71"/>
-                <Rectangle Width="20" Height="20" Fill="YellowGreen" Canvas.Left="45" Canvas.Top="98"/>
-            </Canvas>
-        </Grid>
+    <Grid Name="Root">
+        <Border BorderBrush="LightGray" BorderThickness="2" HorizontalAlignment="Center" VerticalAlignment="Center">
+            <Canvas Name="RectanglesCanvas" Width="300" Height="300" HorizontalAlignment="Center" VerticalAlignment="Center"></Canvas>
+        </Border>
     </Grid>
 </Page>

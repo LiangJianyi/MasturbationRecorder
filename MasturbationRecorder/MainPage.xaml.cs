@@ -42,19 +42,17 @@ namespace MasturbationRecorder {
 		}
 
 		private void RectanglesLayout() {
-			RectanglesCanvas.Children.Clear();
-
 			DateTime today = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day);
 			DateTime todayOfLastyear = new DateTime(today.Year - 1, today.Month, today.Day);
 			TimeSpan fuck = today - todayOfLastyear;
 			const int rectWidth = 10;
 			const int rectHeight = 10;
-			const int columnDistance = 5;
-			const int rowDistance = 5;
+			const int columnDistance = 3;
+			const int rowDistance = 3;
 			const int monthTitleSpace = 40;
 			const int bottomSpace = 20;
-			const int leftSpace = 133;
-			const int topSpace = 200;
+			const int leftSpace = 80;
+			const int topSpace = 37;
 			const int rightSpace = leftSpace;
 			int rectCount = fuck.Days;
 			int totalWeek = fuck.Days / 7;
@@ -67,6 +65,8 @@ namespace MasturbationRecorder {
 			}
 			this.RectanglesCanvas.Height = rowDistance * 6 + bottomSpace + monthTitleSpace + 7 * rectHeight;
 			Debug.WriteLine($"RectanglesCanvas widht and height: {this.RectanglesCanvas.ActualWidth}, {this.RectanglesCanvas.ActualHeight}");
+			(Root.Children.First() as Border).Width = this.RectanglesCanvas.Width;
+			(Root.Children.First() as Border).Height = this.RectanglesCanvas.Height + 50;
 			for (int i = 0, canvasLeft = 0; i < totalWeek; i++) {
 				if (i == 0) {
 					canvasLeft = leftSpace;
