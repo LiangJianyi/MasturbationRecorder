@@ -123,13 +123,13 @@ namespace MasturbationRecorder {
 			}
 			this.RectanglesCanvas.Height = rowDistance * 6 + bottomSpace + monthTitleSpace + 7 * rectHeight;
 			for (int column = totalWeek; column >= 0; column--) {
-				if (column != totalWeek) {
+				if (column == totalWeek) {
 					for (int row = Convert.ToInt32(today.DayOfWeek); row >= 0; row--) {
 						CreateRectangle(
 							rectWidth: rectWidth,
 							rectHeight: rectHeight,
 							canvasLeft: column * rectWidth + columnDistance * (column - 1) + leftSpace,
-							canvasTop: row * rectHeight + (row == 0 ? 0 : rowDistance * (row - 1)) + topSpace
+							canvasTop: row * rectHeight + row * rowDistance + topSpace
 						);
 					}
 				}
@@ -139,7 +139,7 @@ namespace MasturbationRecorder {
 							rectWidth: rectWidth,
 							rectHeight: rectHeight,
 							canvasLeft: column * rectWidth + columnDistance * (column - 1) + leftSpace,
-							canvasTop: row * rectHeight + (row == 0 ? 0 : rowDistance * (row - 1)) + topSpace
+							canvasTop: row * rectHeight + row * rowDistance + topSpace
 						);
 					}
 				}
