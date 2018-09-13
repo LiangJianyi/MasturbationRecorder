@@ -25,7 +25,7 @@ namespace MasturbationRecorder {
 			this.InitializeComponent();
 			//Debug.WriteLine($"{this._window.Bounds.Width} , {this._window.Bounds.Height}");
 			CalculateDateTime();
-			this.RectanglesLayout();
+			this.RectanglesLayout2();
 		}
 
 		private static void CalculateDateTime() {
@@ -96,6 +96,53 @@ namespace MasturbationRecorder {
 
 				}
 				Jump: continue;
+			}
+		}
+
+		private void RectanglesLayout2() {
+			DateTime today = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day);
+			DateTime todayOfLastyear = new DateTime(today.Year - 1, today.Month, today.Day);
+			TimeSpan fuck = today - todayOfLastyear;
+			const int rectWidth = 10;
+			const int rectHeight = 10;
+			const int columnDistance = 3;
+			const int rowDistance = 3;
+			const int monthTitleSpace = 40;
+			const int bottomSpace = 20;
+			const int leftSpace = 80;
+			const int topSpace = 37;
+			const int rightSpace = leftSpace;
+			int rectCount = fuck.Days;
+			int totalWeek = fuck.Days / 7;
+			int remainDaysOfYear = fuck.Days % 7;
+			if (remainDaysOfYear == 0) {
+				this.RectanglesCanvas.Width = (totalWeek - 1) * columnDistance + leftSpace + rightSpace + totalWeek * rectWidth;
+			}
+			else {
+				this.RectanglesCanvas.Width = totalWeek * columnDistance + leftSpace + rightSpace + totalWeek * rectWidth + rectWidth;
+			}
+			this.RectanglesCanvas.Height = rowDistance * 6 + bottomSpace + monthTitleSpace + 7 * rectHeight;
+			for (int column = totalWeek; column >= 0; column--) {
+				if (column != totalWeek) {
+					for (int row = Convert.ToInt32(today.DayOfWeek); row >= 0; row--) {
+						CreateRectangle(
+							rectWidth: rectWidth,
+							rectHeight: rectHeight,
+							canvasLeft: column * rectWidth + columnDistance * (column - 1) + leftSpace,
+							canvasTop: row * rectHeight + (row == 0 ? 0 : rowDistance * (row - 1)) + topSpace
+						);
+					}
+				}
+				else {
+					for (int row = 6; row >= 0; row--) {
+						CreateRectangle(
+							rectWidth: rectWidth,
+							rectHeight: rectHeight,
+							canvasLeft: column * rectWidth + columnDistance * (column - 1) + leftSpace,
+							canvasTop: row * rectHeight + (row == 0 ? 0 : rowDistance * (row - 1)) + topSpace
+						);
+					}
+				}
 			}
 		}
 
