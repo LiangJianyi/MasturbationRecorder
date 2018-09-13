@@ -146,11 +146,13 @@ namespace MasturbationRecorder {
 			}
 		}
 
-		private void CreateRectangle(int rectWidth, int rectHeight, int canvasLeft, int canvasTop) {
+		private void CreateRectangle(int rectWidth, int rectHeight, int canvasLeft, int canvasTop, DateTime dateTime, LinkedList<DateTime> lik, Func<LinkedList<DateTime>, DateTime, SolidColorBrush> func) {
 			Rectangle rect = new Rectangle {
+				Name = dateTime.ToShortDateString(),
 				Width = rectWidth,
 				Height = rectHeight,
-				Fill = new SolidColorBrush(Windows.UI.Colors.YellowGreen)
+				//Fill = new SolidColorBrush(Windows.UI.Colors.YellowGreen)
+				Fill = func(lik, dateTime)
 			};
 			RectanglesCanvas.Children.Add(rect);
 			Canvas.SetLeft(rect, canvasLeft);
@@ -161,12 +163,13 @@ namespace MasturbationRecorder {
 			Debug.WriteLine($"{this._window.Bounds.Width} , {this._window.Bounds.Height}");
 		}
 
-		private static void SetGridLayout(Grid grid, int rowCount = 0, int columnCount = 0) {
-			for (int c = 0; c < columnCount; c++) {
-				grid.ColumnDefinitions.Add(new ColumnDefinition());
+		private static SolidColorBrush GetBackgroundOfRectanglesByDateTime(LinkedList<DateTime> lik, DateTime dateTime) {
+			if (lik==null) {
+				return new SolidColorBrush(Windows.UI.Colors.YellowGreen);
 			}
-			for (int r = 0; r < rowCount; r++) {
-				grid.RowDefinitions.Add(new RowDefinition());
+			else {
+				var groupDateTimeByTotal = from k in lik group k by k;
+				var moreTotalForDateTime = from dt in groupDateTimeByTotal select new { @DateTime = dt.Key, Total = dt.Count() };
 			}
 		}
 	}
