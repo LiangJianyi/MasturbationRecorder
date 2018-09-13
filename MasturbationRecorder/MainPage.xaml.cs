@@ -67,30 +67,47 @@ namespace MasturbationRecorder {
 			Debug.WriteLine($"RectanglesCanvas widht and height: {this.RectanglesCanvas.ActualWidth}, {this.RectanglesCanvas.ActualHeight}");
 			(Root.Children.First() as Border).Width = this.RectanglesCanvas.Width;
 			(Root.Children.First() as Border).Height = this.RectanglesCanvas.Height + 50;
-			for (int i = 0, canvasLeft = 0; i < totalWeek; i++) {
-				if (i == 0) {
+			Rectangle[][] rectangles = new Rectangle[53][];
+			for (int column = 0, canvasLeft = 0; column <= 52; column++) {
+				if (column == 0) {
 					canvasLeft = leftSpace;
 				}
 				else {
 					canvasLeft += (columnDistance + rectWidth);
 				}
-				for (int j = 0, canvasTop = 0; j < 7; j++) {
-					if (j == 0) {
+				for (int row = 0, canvasTop = 0; row <= 6; row++) {
+					if (row == 0) {
 						canvasTop = topSpace;
 					}
 					else {
 						canvasTop += (rowDistance + rectHeight);
 					}
-					Rectangle rect = new Rectangle {
-						Width = rectWidth,
-						Height = rectHeight,
-						Fill = new SolidColorBrush(Windows.UI.Colors.YellowGreen)
-					};
-					RectanglesCanvas.Children.Add(rect);
-					Canvas.SetLeft(rect, canvasLeft);
-					Canvas.SetTop(rect, canvasTop);
+					if (column == 52) {
+						if (row > Convert.ToInt32(today.DayOfWeek)) {
+							goto Jump;
+						}
+						else {
+							CreateRectangle(rectWidth, rectHeight, canvasLeft, canvasTop);
+						}
+					}
+					else {
+						CreateRectangle(rectWidth, rectHeight, canvasLeft, canvasTop);
+					}
+
 				}
+				Jump: continue;
 			}
+		}
+
+		private void CreateRectangle(int rectWidth, int rectHeight, int canvasLeft, int canvasTop) {
+			Rectangle rect = new Rectangle {
+				Width = rectWidth,
+				Height = rectHeight,
+				Fill = new SolidColorBrush(Windows.UI.Colors.YellowGreen)
+			};
+			RectanglesCanvas.Children.Add(rect);
+			Canvas.SetLeft(rect, canvasLeft);
+			Canvas.SetTop(rect, canvasTop);
 		}
 
 		private void Current_SizeChanged(object sender, Windows.UI.Core.WindowSizeChangedEventArgs e) {
