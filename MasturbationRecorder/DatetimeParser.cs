@@ -41,19 +41,29 @@ namespace MasturbationRecorder {
 			return text.Split(' ');
 		}
 
-		internal static DateTime ParseALine(string text) {
+		private static ulong GetRepeatCount(string text) {
+			if (text[0] == 'x' || text[0] == 'X') {
+				return Convert.ToUInt64(text.Substring(1, text.Length - 1));
+			}
+			else {
+				throw new ArgumentException("Repeatable incrementor formal error.");
+			}
+		}
+
+		internal static (DateTime, ulong) ParseALine(string text) {
 			string[] tokens = GetToken(text);
 			if (tokens.Length == 3) {
 				ushort monthValue = StringToUInt16(tokens[0]);
 				ushort dayValue = Convert.ToUInt16(tokens[1]);
 				ushort yearValue = Convert.ToUInt16(tokens[2]);
-				return new DateTime(yearValue, monthValue, dayValue);
+				return (new DateTime(yearValue, monthValue, dayValue), 1);
 			}
 			else if (tokens.Length == 4) {
 				ushort monthValue = StringToUInt16(tokens[0]);
 				ushort dayValue = Convert.ToUInt16(tokens[1]);
 				ushort yearValue = Convert.ToUInt16(tokens[2]);
-				return new DateTime(yearValue, monthValue, dayValue);
+				ulong count = GetRepeatCount(tokens[3]);
+				return (new DateTime(yearValue, monthValue, dayValue), 1);
 			}
 			else {
 				throw new ArgumentOutOfRangeException("Date time format error.");
