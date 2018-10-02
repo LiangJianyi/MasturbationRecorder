@@ -63,7 +63,7 @@ namespace MasturbationRecorder {
 				ushort dayValue = Convert.ToUInt16(tokens[1]);
 				ushort yearValue = Convert.ToUInt16(tokens[2]);
 				ulong count = GetRepeatCount(tokens[3]);
-				return (new DateTime(yearValue, monthValue, dayValue), 1);
+				return (new DateTime(yearValue, monthValue, dayValue), count);
 			}
 			else {
 				throw new ArgumentOutOfRangeException("Date time format error.");
