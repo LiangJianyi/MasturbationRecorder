@@ -5,6 +5,9 @@ using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
+using Windows.Storage;
+using Windows.Storage.Pickers;
+using Windows.UI.ViewManagement;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Controls.Primitives;
@@ -164,13 +167,45 @@ namespace MasturbationRecorder {
 		}
 
 		private static SolidColorBrush GetBackgroundOfRectanglesByDateTime(LinkedList<DateTime> lik, DateTime dateTime) {
-			if (lik==null) {
+			if (lik == null) {
 				return new SolidColorBrush(Windows.UI.Colors.YellowGreen);
 			}
 			else {
 				var groupDateTimeByTotal = from k in lik group k by k;
-				var moreTotalForDateTime = from dt in groupDateTimeByTotal select new { @DateTime = dt.Key, Total = dt.Count() };
+				var classifyColorBaseOnTotal = from dt in groupDateTimeByTotal select new { @DateTime = dt.Key, Total = dt.Count() };
+				var moreLess = classifyColorBaseOnTotal.Min().Total;
+				var moreBiger = classifyColorBaseOnTotal.Max().Total;
+				var levelRange = moreBiger - moreLess >= 4 ? 5 : (moreBiger - moreLess) + 1;
+				
 			}
+		}
+
+		private async void Button_ClickAsync(object sender, RoutedEventArgs e) {
+			FileOpenPicker openPicker = new FileOpenPicker();
+			openPicker.ViewMode = PickerViewMode.Thumbnail;
+			openPicker.SuggestedStartLocation = PickerLocationId.ComputerFolder;
+			openPicker.FileTypeFilter.Add(".txt");
+			openPicker.FileTypeFilter.Add(".mast");
+
+			StorageFile file = await openPicker.PickSingleFileAsync();
+			if (file != null) {
+				// Application now has read/write access to the picked file
+				Debug.WriteLine("Picked document: ");
+			}
+			else {
+				Debug.WriteLine("Operation cancelled.");
+			}
+		}
+
+		private bool EnsureUnsnapped() {
+			// FilePicker APIs will not work if the application is in a snapped state.
+			// If an app wants to show a FilePicker while snapped, it must attempt to unsnap first
+			bool unsnapped = ((ApplicationView.Value != ApplicationViewState.Snapped) || ApplicationView.TryUnsnap());
+			//if (!unsnapped) {
+			//	NotifyUser("Cannot unsnap the sample.", NotifyType.StatusMessage);
+			//}
+
+			return unsnapped;
 		}
 	}
 }
