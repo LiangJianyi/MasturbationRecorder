@@ -172,11 +172,48 @@ namespace MasturbationRecorder {
 			}
 			else {
 				var groupDateTimeByTotal = from k in lik group k by k;
-				var classifyColorBaseOnTotal = from dt in groupDateTimeByTotal select new { @DateTime = dt.Key, Total = dt.Count() };
-				var moreLess = classifyColorBaseOnTotal.Min().Total;
-				var moreBiger = classifyColorBaseOnTotal.Max().Total;
+				var classifyLevelBaseOnTotal = from dt in groupDateTimeByTotal select new { @DateTime = dt.Key, Total = dt.Count() };
+				var moreLess = classifyLevelBaseOnTotal.Min().Total;
+				var moreBiger = classifyLevelBaseOnTotal.Max().Total;
 				var levelRange = moreBiger - moreLess >= 4 ? 5 : (moreBiger - moreLess) + 1;
-				
+				List<SolidColorBrush> classifyColorBaseOnTotal() {
+					switch (levelRange) {
+						case 1:
+							return new List<SolidColorBrush>() {
+								new SolidColorBrush(Windows.UI.Colors.DarkGreen)
+							};
+						case 2:
+							return new List<SolidColorBrush>() {
+								new SolidColorBrush(Windows.UI.Colors.DarkGreen),
+								new SolidColorBrush(Windows.UI.Colors.Green)
+							};
+						case 3:
+							return new List<SolidColorBrush>() {
+								new SolidColorBrush(Windows.UI.Colors.DarkGreen),
+								new SolidColorBrush(Windows.UI.Colors.Green),
+								new SolidColorBrush(Windows.UI.Colors.LawnGreen)
+							};
+						case 4:
+							return new List<SolidColorBrush>() {
+								new SolidColorBrush(Windows.UI.Colors.DarkGreen),
+								new SolidColorBrush(Windows.UI.Colors.Green),
+								new SolidColorBrush(Windows.UI.Colors.LawnGreen),
+								new SolidColorBrush(Windows.UI.Colors.GreenYellow)
+							};
+						case 5:
+							return new List<SolidColorBrush>() {
+								new SolidColorBrush(Windows.UI.Colors.DarkGreen),
+								new SolidColorBrush(Windows.UI.Colors.Green),
+								new SolidColorBrush(Windows.UI.Colors.LawnGreen),
+								new SolidColorBrush(Windows.UI.Colors.GreenYellow),
+								new SolidColorBrush(Windows.UI.Colors.YellowGreen)
+							};
+						default:
+							throw new InvalidDataException($"levelRange out of range: {levelRange}");
+					}
+				}
+				var classifyLevelColor = classifyColorBaseOnTotal();
+
 			}
 		}
 
