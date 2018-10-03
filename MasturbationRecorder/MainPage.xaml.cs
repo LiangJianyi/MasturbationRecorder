@@ -28,7 +28,7 @@ namespace MasturbationRecorder {
 			this.InitializeComponent();
 			//Debug.WriteLine($"{this._window.Bounds.Width} , {this._window.Bounds.Height}");
 			CalculateDateTime();
-			this.RectanglesLayout2();
+			this.RectanglesLayout();
 		}
 
 		private static void CalculateDateTime() {
@@ -67,64 +67,6 @@ namespace MasturbationRecorder {
 				this.RectanglesCanvas.Width = totalWeek * columnDistance + leftSpace + rightSpace + totalWeek * rectWidth + rectWidth;
 			}
 			this.RectanglesCanvas.Height = rowDistance * 6 + bottomSpace + monthTitleSpace + 7 * rectHeight;
-			Debug.WriteLine($"RectanglesCanvas widht and height: {this.RectanglesCanvas.ActualWidth}, {this.RectanglesCanvas.ActualHeight}");
-			(Root.Children.First() as Border).Width = this.RectanglesCanvas.Width;
-			(Root.Children.First() as Border).Height = this.RectanglesCanvas.Height + 50;
-			Rectangle[][] rectangles = new Rectangle[53][];
-			for (int column = 0, canvasLeft = 0; column <= 52; column++) {
-				if (column == 0) {
-					canvasLeft = leftSpace;
-				}
-				else {
-					canvasLeft += (columnDistance + rectWidth);
-				}
-				for (int row = 0, canvasTop = 0; row <= 6; row++) {
-					if (row == 0) {
-						canvasTop = topSpace;
-					}
-					else {
-						canvasTop += (rowDistance + rectHeight);
-					}
-					if (column == 52) {
-						if (row > Convert.ToInt32(today.DayOfWeek)) {
-							goto Jump;
-						}
-						else {
-							CreateRectangle(rectWidth, rectHeight, canvasLeft, canvasTop);
-						}
-					}
-					else {
-						CreateRectangle(rectWidth, rectHeight, canvasLeft, canvasTop);
-					}
-
-				}
-				Jump: continue;
-			}
-		}
-
-		private void RectanglesLayout2() {
-			DateTime today = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day);
-			DateTime todayOfLastyear = new DateTime(today.Year - 1, today.Month, today.Day);
-			TimeSpan fuck = today - todayOfLastyear;
-			const int rectWidth = 10;
-			const int rectHeight = 10;
-			const int columnDistance = 3;
-			const int rowDistance = 3;
-			const int monthTitleSpace = 40;
-			const int bottomSpace = 20;
-			const int leftSpace = 80;
-			const int topSpace = 37;
-			const int rightSpace = leftSpace;
-			int rectCount = fuck.Days;
-			int totalWeek = fuck.Days / 7;
-			int remainDaysOfYear = fuck.Days % 7;
-			if (remainDaysOfYear == 0) {
-				this.RectanglesCanvas.Width = (totalWeek - 1) * columnDistance + leftSpace + rightSpace + totalWeek * rectWidth;
-			}
-			else {
-				this.RectanglesCanvas.Width = totalWeek * columnDistance + leftSpace + rightSpace + totalWeek * rectWidth + rectWidth;
-			}
-			this.RectanglesCanvas.Height = rowDistance * 6 + bottomSpace + monthTitleSpace + 7 * rectHeight;
 			for (int column = totalWeek; column >= 0; column--) {
 				if (column == totalWeek) {
 					for (int row = Convert.ToInt32(today.DayOfWeek); row >= 0; row--) {
@@ -132,7 +74,8 @@ namespace MasturbationRecorder {
 							rectWidth: rectWidth,
 							rectHeight: rectHeight,
 							canvasLeft: column * rectWidth + columnDistance * (column - 1) + leftSpace,
-							canvasTop: row * rectHeight + row * rowDistance + topSpace
+							canvasTop: row * rectHeight + row * rowDistance + topSpace,
+							dateTime: DateTime.Now
 						);
 					}
 				}
@@ -142,24 +85,35 @@ namespace MasturbationRecorder {
 							rectWidth: rectWidth,
 							rectHeight: rectHeight,
 							canvasLeft: column * rectWidth + columnDistance * (column - 1) + leftSpace,
-							canvasTop: row * rectHeight + row * rowDistance + topSpace
+							canvasTop: row * rectHeight + row * rowDistance + topSpace,
+							dateTime: DateTime.Now
 						);
 					}
 				}
 			}
 		}
 
-		private void CreateRectangle(int rectWidth, int rectHeight, int canvasLeft, int canvasTop, DateTime dateTime, LinkedList<DateTime> lik, Func<LinkedList<DateTime>, DateTime, SolidColorBrush> func) {
+		private void CreateRectangle(int rectWidth, int rectHeight, int canvasLeft, int canvasTop, DateTime dateTime) {
 			Rectangle rect = new Rectangle {
 				Name = dateTime.ToShortDateString(),
 				Width = rectWidth,
 				Height = rectHeight,
-				//Fill = new SolidColorBrush(Windows.UI.Colors.YellowGreen)
-				Fill = func(lik, dateTime)
+				Fill = new SolidColorBrush(Windows.UI.Colors.LightGray),
+				//Fill = func(lik, dateTime)
 			};
+			rect.PointerEntered += Rect_PointerEntered;
+			rect.PointerExited += Rect_PointerExited;
 			RectanglesCanvas.Children.Add(rect);
 			Canvas.SetLeft(rect, canvasLeft);
 			Canvas.SetTop(rect, canvasTop);
+		}
+
+		private void Rect_PointerExited(object sender, PointerRoutedEventArgs e) {
+			Debug.WriteLine("Rect_PointerExited");
+		}
+
+		private void Rect_PointerEntered(object sender, PointerRoutedEventArgs e) {
+			Debug.WriteLine("Rect_PointerEntered");
 		}
 
 		private void Current_SizeChanged(object sender, Windows.UI.Core.WindowSizeChangedEventArgs e) {
@@ -175,9 +129,9 @@ namespace MasturbationRecorder {
 				var classifyLevelBaseOnTotal = from dt in groupDateTimeByTotal select new { @DateTime = dt.Key, Total = dt.Count() };
 				var moreLess = classifyLevelBaseOnTotal.Min().Total;
 				var moreBiger = classifyLevelBaseOnTotal.Max().Total;
-				var levelRange = moreBiger - moreLess >= 4 ? 5 : (moreBiger - moreLess) + 1;
+				var levelScore = moreBiger - moreLess >= 4 ? 5 : (moreBiger - moreLess) + 1;
 				List<SolidColorBrush> classifyColorBaseOnTotal() {
-					switch (levelRange) {
+					switch (levelScore) {
 						case 1:
 							return new List<SolidColorBrush>() {
 								new SolidColorBrush(Windows.UI.Colors.DarkGreen)
@@ -209,11 +163,13 @@ namespace MasturbationRecorder {
 								new SolidColorBrush(Windows.UI.Colors.YellowGreen)
 							};
 						default:
-							throw new InvalidDataException($"levelRange out of range: {levelRange}");
+							throw new InvalidDataException($"levelRange out of range: {levelScore}");
 					}
 				}
-				var classifyLevelColor = classifyColorBaseOnTotal();
-
+				List<SolidColorBrush> classifyLevelColor = classifyColorBaseOnTotal();
+				var totalOfCurrentDateTime = (from item in classifyLevelBaseOnTotal
+											  where item.DateTime == dateTime
+											  select item.Total).First();
 			}
 		}
 
