@@ -109,11 +109,11 @@ namespace MasturbationRecorder {
 		}
 
 		private void Rect_PointerExited(object sender, PointerRoutedEventArgs e) {
-			Debug.WriteLine("Rect_PointerExited");
+			Debug.WriteLine($"Pointer exit from the {(sender as Rectangle).Name}");
 		}
 
 		private void Rect_PointerEntered(object sender, PointerRoutedEventArgs e) {
-			Debug.WriteLine("Rect_PointerEntered");
+			Debug.WriteLine($"Pointer enter to the {(sender as Rectangle).Name}");
 		}
 
 		private void Current_SizeChanged(object sender, Windows.UI.Core.WindowSizeChangedEventArgs e) {
@@ -188,10 +188,11 @@ namespace MasturbationRecorder {
 				var totalOfCurrentDateTime = (from item in classifyLevelBaseOnTotal
 											  where item.DateTime == dateTime
 											  select item.Total).First();
+				return classifyLevelColor[totalOfCurrentDateTime];
 			}
 		}
 
-		private async void Button_ClickAsync(object sender, RoutedEventArgs e) {
+		private async void Button_Click(object sender, RoutedEventArgs e) {
 			FileOpenPicker openPicker = new FileOpenPicker();
 			openPicker.ViewMode = PickerViewMode.Thumbnail;
 			openPicker.SuggestedStartLocation = PickerLocationId.ComputerFolder;
