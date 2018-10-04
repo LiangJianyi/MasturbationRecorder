@@ -153,31 +153,32 @@ namespace MasturbationRecorder {
 						case 2:
 							return new Dictionary<int, SolidColorBrush>() {
 								{ 0, new SolidColorBrush(Windows.UI.Colors.LightGray) },
-								{ 1, new SolidColorBrush(Windows.UI.Colors.DarkGreen) },
-								{ 2, new SolidColorBrush(Windows.UI.Colors.Green) }
+								{ 1, new SolidColorBrush(Windows.UI.Colors.Green) },
+								{ 2, new SolidColorBrush(Windows.UI.Colors.DarkGreen) }
 							};
 						case 3:
 							return new Dictionary<int, SolidColorBrush>() {
 								{ 0, new SolidColorBrush(Windows.UI.Colors.LightGray) },
-								{ 1, new SolidColorBrush(Windows.UI.Colors.DarkGreen) },
+								{ 1, new SolidColorBrush(Windows.UI.Colors.LawnGreen) },
 								{ 2, new SolidColorBrush(Windows.UI.Colors.Green) },
-								{ 3, new SolidColorBrush(Windows.UI.Colors.LawnGreen) }
+								{ 3, new SolidColorBrush(Windows.UI.Colors.DarkGreen) }
 							};
 						case 4:
 							return new Dictionary<int, SolidColorBrush>() {
 								{ 0, new SolidColorBrush(Windows.UI.Colors.LightGray) },
-								{ 1, new SolidColorBrush(Windows.UI.Colors.DarkGreen) },
-								{ 2, new SolidColorBrush(Windows.UI.Colors.Green) },
-								{ 3, new SolidColorBrush(Windows.UI.Colors.LawnGreen) },
-								{ 4, new SolidColorBrush(Windows.UI.Colors.GreenYellow) }
+								{ 1, new SolidColorBrush(Windows.UI.Colors.GreenYellow) },
+								{ 2, new SolidColorBrush(Windows.UI.Colors.LawnGreen) },
+								{ 3, new SolidColorBrush(Windows.UI.Colors.Green) },
+								{ 4, new SolidColorBrush(Windows.UI.Colors.DarkGreen) }
 							};
 						case 5:
 							return new Dictionary<int, SolidColorBrush>() {
-								{ 1, new SolidColorBrush(Windows.UI.Colors.DarkGreen) },
-								{ 2, new SolidColorBrush(Windows.UI.Colors.Green) },
+								{ 0, new SolidColorBrush(Windows.UI.Colors.LightGray) },
+								{ 1, new SolidColorBrush(Windows.UI.Colors.YellowGreen) },
+								{ 2, new SolidColorBrush(Windows.UI.Colors.GreenYellow) },
 								{ 3, new SolidColorBrush(Windows.UI.Colors.LawnGreen) },
-								{ 4, new SolidColorBrush(Windows.UI.Colors.GreenYellow) },
-								{ 5, new SolidColorBrush(Windows.UI.Colors.YellowGreen) }
+								{ 4, new SolidColorBrush(Windows.UI.Colors.Green) },
+								{ 5, new SolidColorBrush(Windows.UI.Colors.DarkGreen) }
 							};
 						default:
 							throw new InvalidDataException($"levelRange out of range: {levelScore}");
