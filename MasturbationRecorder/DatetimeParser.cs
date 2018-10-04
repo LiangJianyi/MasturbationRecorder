@@ -33,7 +33,7 @@ namespace MasturbationRecorder {
 				case "dec":
 					return 12;
 				default:
-					throw new ArgumentException("Month acronym error.");
+					throw new ArgumentException($"Month acronym error: {month}");
 			}
 		}
 

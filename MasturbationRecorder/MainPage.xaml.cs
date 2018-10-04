@@ -22,6 +22,7 @@ namespace MasturbationRecorder {
 
 	public sealed partial class MainPage : Page {
 		private Window _window = Window.Current;
+		private LinkedList<DateTime> _dateTimes = new LinkedList<DateTime>();
 
 		public MainPage() {
 			this._window.SizeChanged += Current_SizeChanged;
@@ -99,7 +100,6 @@ namespace MasturbationRecorder {
 				Width = rectWidth,
 				Height = rectHeight,
 				Fill = new SolidColorBrush(Windows.UI.Colors.LightGray),
-				//Fill = func(lik, dateTime)
 			};
 			rect.PointerEntered += Rect_PointerEntered;
 			rect.PointerExited += Rect_PointerExited;
@@ -120,7 +120,7 @@ namespace MasturbationRecorder {
 			Debug.WriteLine($"{this._window.Bounds.Width} , {this._window.Bounds.Height}");
 		}
 
-		private static SolidColorBrush GetBackgroundOfRectanglesByDateTime(LinkedList<DateTime> lik, DateTime dateTime) {
+		private SolidColorBrush GetBackgroundOfRectanglesByDateTime(LinkedList<DateTime> lik, DateTime dateTime) {
 			if (lik == null) {
 				return new SolidColorBrush(Windows.UI.Colors.YellowGreen);
 			}
@@ -211,8 +211,21 @@ namespace MasturbationRecorder {
 				foreach (var line in lines) {
 					if (line != "") {   // 忽略空行
 						(DateTime dateTime, ulong count) = DatetimeParser.ParseALine(line);
-
+						LinkedList<DateTime> sublik = new LinkedList<DateTime>();
+						for (ulong i = 2; i <= count; i++) {
+							if (i == 2) {
+								sublik.AddFirst(dateTime);
+							}
+							else {
+								sublik.AddAfter(sublik.Last, dateTime);
+							}
+						}
+						this._dateTimes = new LinkedList<DateTime>(this._dateTimes.Concat(sublik));
 					}
+				}
+				Debug.WriteLine("Outputing datetime file content:");
+				foreach (var item in this._dateTimes) {
+					Debug.WriteLine(item.ToShortDateString());
 				}
 			}
 			else {
