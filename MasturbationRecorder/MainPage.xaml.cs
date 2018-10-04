@@ -203,6 +203,17 @@ namespace MasturbationRecorder {
 			if (file != null) {
 				// Application now has read/write access to the picked file
 				Debug.WriteLine("Picked document: ");
+				//Windows.Storage.AccessCache.StorageApplicationPermissions.FutureAccessList.Add(file);
+				string text = await FileIO.ReadTextAsync(file);
+				Debug.WriteLine(text);
+				Debug.WriteLine((from t in text where t == '\n' select t).Count() + 1);
+				IEnumerable<string> lines = DatetimeParser.SplitByLine(text);
+				foreach (var line in lines) {
+					if (line != "") {   // 忽略空行
+						(DateTime dateTime, ulong count) = DatetimeParser.ParseALine(line);
+
+					}
+				}
 			}
 			else {
 				Debug.WriteLine("Operation cancelled.");

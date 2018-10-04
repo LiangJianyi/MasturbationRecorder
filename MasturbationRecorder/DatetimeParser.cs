@@ -69,5 +69,9 @@ namespace MasturbationRecorder {
 				throw new ArgumentOutOfRangeException("Date time format error.");
 			}
 		}
+
+		internal static IEnumerable<string> SplitByLine(string text) {
+			return text.Split('\n');
+		}
 	}
 }
