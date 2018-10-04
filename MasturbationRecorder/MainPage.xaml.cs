@@ -126,47 +126,64 @@ namespace MasturbationRecorder {
 			}
 			else {
 				var groupDateTimeByTotal = from k in lik group k by k;
-				var classifyLevelBaseOnTotal = from dt in groupDateTimeByTotal select new { @DateTime = dt.Key, Total = dt.Count() };
+				var classifyLevelBaseOnTotal = from dt in groupDateTimeByTotal
+											   select new StatistTotalByDateTime { DateTime = dt.Key, Total = dt.Count() };
 				var moreLess = classifyLevelBaseOnTotal.Min().Total;
 				var moreBiger = classifyLevelBaseOnTotal.Max().Total;
-				var levelScore = moreBiger - moreLess >= 4 ? 5 : (moreBiger - moreLess) + 1;
-				List<SolidColorBrush> classifyColorBaseOnTotal() {
+				int GetLevelScore() {
+					if (moreBiger == 0 && moreLess == 0) {
+						return 0;
+					}
+					else {
+						return moreBiger - moreLess >= 4 ? 5 : (moreBiger - moreLess) + 1;
+					}
+				}
+				var levelScore = GetLevelScore();
+				IDictionary<int, SolidColorBrush> classifyColorByLevelScore() {
 					switch (levelScore) {
+						case 0:
+							return new Dictionary<int, SolidColorBrush>() {
+								{ 0, new SolidColorBrush(Windows.UI.Colors.LightGray) }
+							};
 						case 1:
-							return new List<SolidColorBrush>() {
-								new SolidColorBrush(Windows.UI.Colors.DarkGreen)
+							return new Dictionary<int, SolidColorBrush>() {
+								{ 0, new SolidColorBrush(Windows.UI.Colors.LightGray) },
+								{ 1, new SolidColorBrush(Windows.UI.Colors.DarkGreen) }
 							};
 						case 2:
-							return new List<SolidColorBrush>() {
-								new SolidColorBrush(Windows.UI.Colors.DarkGreen),
-								new SolidColorBrush(Windows.UI.Colors.Green)
+							return new Dictionary<int, SolidColorBrush>() {
+								{ 0, new SolidColorBrush(Windows.UI.Colors.LightGray) },
+								{ 1, new SolidColorBrush(Windows.UI.Colors.DarkGreen) },
+								{ 2, new SolidColorBrush(Windows.UI.Colors.Green) }
 							};
 						case 3:
-							return new List<SolidColorBrush>() {
-								new SolidColorBrush(Windows.UI.Colors.DarkGreen),
-								new SolidColorBrush(Windows.UI.Colors.Green),
-								new SolidColorBrush(Windows.UI.Colors.LawnGreen)
+							return new Dictionary<int, SolidColorBrush>() {
+								{ 0, new SolidColorBrush(Windows.UI.Colors.LightGray) },
+								{ 1, new SolidColorBrush(Windows.UI.Colors.DarkGreen) },
+								{ 2, new SolidColorBrush(Windows.UI.Colors.Green) },
+								{ 3, new SolidColorBrush(Windows.UI.Colors.LawnGreen) }
 							};
 						case 4:
-							return new List<SolidColorBrush>() {
-								new SolidColorBrush(Windows.UI.Colors.DarkGreen),
-								new SolidColorBrush(Windows.UI.Colors.Green),
-								new SolidColorBrush(Windows.UI.Colors.LawnGreen),
-								new SolidColorBrush(Windows.UI.Colors.GreenYellow)
+							return new Dictionary<int, SolidColorBrush>() {
+								{ 0, new SolidColorBrush(Windows.UI.Colors.LightGray) },
+								{ 1, new SolidColorBrush(Windows.UI.Colors.DarkGreen) },
+								{ 2, new SolidColorBrush(Windows.UI.Colors.Green) },
+								{ 3, new SolidColorBrush(Windows.UI.Colors.LawnGreen) },
+								{ 4, new SolidColorBrush(Windows.UI.Colors.GreenYellow) }
 							};
 						case 5:
-							return new List<SolidColorBrush>() {
-								new SolidColorBrush(Windows.UI.Colors.DarkGreen),
-								new SolidColorBrush(Windows.UI.Colors.Green),
-								new SolidColorBrush(Windows.UI.Colors.LawnGreen),
-								new SolidColorBrush(Windows.UI.Colors.GreenYellow),
-								new SolidColorBrush(Windows.UI.Colors.YellowGreen)
+							return new Dictionary<int, SolidColorBrush>() {
+								{ 1, new SolidColorBrush(Windows.UI.Colors.DarkGreen) },
+								{ 2, new SolidColorBrush(Windows.UI.Colors.Green) },
+								{ 3, new SolidColorBrush(Windows.UI.Colors.LawnGreen) },
+								{ 4, new SolidColorBrush(Windows.UI.Colors.GreenYellow) },
+								{ 5, new SolidColorBrush(Windows.UI.Colors.YellowGreen) }
 							};
 						default:
 							throw new InvalidDataException($"levelRange out of range: {levelScore}");
 					}
 				}
-				List<SolidColorBrush> classifyLevelColor = classifyColorBaseOnTotal();
+				IDictionary<int, SolidColorBrush> classifyLevelColor = classifyColorByLevelScore();
 				var totalOfCurrentDateTime = (from item in classifyLevelBaseOnTotal
 											  where item.DateTime == dateTime
 											  select item.Total).First();
@@ -199,6 +216,26 @@ namespace MasturbationRecorder {
 			//}
 
 			return unsnapped;
+		}
+
+		class StatistTotalByDateTime : IComparable<StatistTotalByDateTime> {
+			public DateTime DateTime;
+			public int Total;
+			public int CompareTo(StatistTotalByDateTime other) {
+				if (this.Total < other.Total) {
+					return -1;
+				}
+				else if (this.Total == other.Total) {
+					return 0;
+				}
+				else {
+					return 1;
+				}
+			}
+			public static bool operator >(StatistTotalByDateTime left, StatistTotalByDateTime right) => left.CompareTo(right) == 1;
+			public static bool operator <(StatistTotalByDateTime left, StatistTotalByDateTime right) => left.CompareTo(right) == -1;
+			public static bool operator >=(StatistTotalByDateTime left, StatistTotalByDateTime right) => left.CompareTo(right) >= 0;
+			public static bool operator <=(StatistTotalByDateTime left, StatistTotalByDateTime right) => left.CompareTo(right) <= 0;
 		}
 	}
 }
