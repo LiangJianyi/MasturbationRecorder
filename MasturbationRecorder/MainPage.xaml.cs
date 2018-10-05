@@ -212,8 +212,8 @@ namespace MasturbationRecorder {
 					if (line != "") {   // 忽略空行
 						(DateTime dateTime, ulong count) = DatetimeParser.ParseALine(line);
 						LinkedList<DateTime> sublik = new LinkedList<DateTime>();
-						for (ulong i = 2; i <= count; i++) {
-							if (i == 2) {
+						for (ulong i = 1; i <= count; i++) {
+							if (i == 1) {
 								sublik.AddFirst(dateTime);
 							}
 							else {
