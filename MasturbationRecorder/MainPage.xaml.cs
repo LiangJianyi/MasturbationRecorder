@@ -22,27 +22,12 @@ namespace MasturbationRecorder {
 
 	public sealed partial class MainPage : Page {
 		private Window _window = Window.Current;
-		private LinkedList<DateTime> _dateTimes = new LinkedList<DateTime>();
 
 		public MainPage() {
 			this._window.SizeChanged += Current_SizeChanged;
 			this.InitializeComponent();
 			//Debug.WriteLine($"{this._window.Bounds.Width} , {this._window.Bounds.Height}");
-			CalculateDateTime();
 			this.RectanglesLayout();
-		}
-
-		private static void CalculateDateTime() {
-			DateTime now = DateTime.Now;
-			DateTime today = new DateTime(now.Year, now.Month, now.Day);
-			DateTime todayOfLastyear = new DateTime(today.Year - 1, today.Month, today.Day);
-			Debug.WriteLine($"today is {today.DayOfWeek}");
-			Debug.WriteLine($"todayOfLastyear is {todayOfLastyear.DayOfWeek}");
-			TimeSpan fuck = today - todayOfLastyear;
-			Debug.WriteLine(fuck);
-			Debug.WriteLine(fuck.Days);
-			Debug.WriteLine(fuck.TotalDays);
-			Debug.WriteLine($"Week: {((uint)(fuck.TotalDays / 7))}   Remain days: {fuck.TotalDays % 7}");
 		}
 
 		private void RectanglesLayout() {
@@ -120,14 +105,18 @@ namespace MasturbationRecorder {
 			Debug.WriteLine($"{this._window.Bounds.Width} , {this._window.Bounds.Height}");
 		}
 
-		private SolidColorBrush GetBackgroundOfRectanglesByDateTime(LinkedList<DateTime> lik, DateTime dateTime) {
-			if (lik == null) {
+		private SolidColorBrush GetBackgroundOfRectanglesByDateTime(LinkedList<DateTime> dateTimes, DateTime currentDateTime) {
+			if (dateTimes == null || dateTimes.Count == 0) {
 				return new SolidColorBrush(Windows.UI.Colors.YellowGreen);
 			}
 			else {
-				var groupDateTimeByTotal = from k in lik group k by k;
+				var groupDateTimeByTotal = from k in dateTimes group k by k;
 				var classifyLevelBaseOnTotal = from dt in groupDateTimeByTotal
 											   select new StatistTotalByDateTime { DateTime = dt.Key, Total = dt.Count() };
+				//var classifyLevelBaseOnTotal2=from k in _dateTimes group
+				foreach (var statist in classifyLevelBaseOnTotal) {
+					Debug.WriteLine($"DateTime: {statist.DateTime}  Total: {statist.Total}");
+				}
 				var moreLess = classifyLevelBaseOnTotal.Min().Total;
 				var moreBiger = classifyLevelBaseOnTotal.Max().Total;
 				int GetLevelScore() {
@@ -185,9 +174,15 @@ namespace MasturbationRecorder {
 					}
 				}
 				IDictionary<int, SolidColorBrush> classifyLevelColor = classifyColorByLevelScore();
-				var totalOfCurrentDateTime = (from item in classifyLevelBaseOnTotal
-											  where item.DateTime == dateTime
+				var totalOfCurrentDateTime = 0;
+				try {
+					totalOfCurrentDateTime = (from item in classifyLevelBaseOnTotal
+											  where item.DateTime == currentDateTime
 											  select item.Total).First();
+				}
+				catch (InvalidOperationException ex) {
+					Debug.WriteLine(ex.Message);
+				}
 				return classifyLevelColor[totalOfCurrentDateTime];
 			}
 		}
@@ -208,6 +203,7 @@ namespace MasturbationRecorder {
 				Debug.WriteLine(text);
 				Debug.WriteLine((from t in text where t == '\n' select t).Count() + 1);
 				IEnumerable<string> lines = DatetimeParser.SplitByLine(text);
+				LinkedList<DateTime> dateTimes = new LinkedList<DateTime>();
 				foreach (var line in lines) {
 					if (line != "") {   // 忽略空行
 						(DateTime dateTime, ulong count) = DatetimeParser.ParseALine(line);
@@ -220,11 +216,12 @@ namespace MasturbationRecorder {
 								sublik.AddAfter(sublik.Last, dateTime);
 							}
 						}
-						this._dateTimes = new LinkedList<DateTime>(this._dateTimes.Concat(sublik));
+						dateTimes = new LinkedList<DateTime>(dateTimes.Concat(sublik));
 					}
 				}
+				this.Tintor(dateTimes);
 				Debug.WriteLine("Outputing datetime file content:");
-				foreach (var item in this._dateTimes) {
+				foreach (var item in dateTimes) {
 					Debug.WriteLine(item.ToShortDateString());
 				}
 			}
@@ -233,15 +230,13 @@ namespace MasturbationRecorder {
 			}
 		}
 
-		private bool EnsureUnsnapped() {
-			// FilePicker APIs will not work if the application is in a snapped state.
-			// If an app wants to show a FilePicker while snapped, it must attempt to unsnap first
-			bool unsnapped = ((ApplicationView.Value != ApplicationViewState.Snapped) || ApplicationView.TryUnsnap());
-			//if (!unsnapped) {
-			//	NotifyUser("Cannot unsnap the sample.", NotifyType.StatusMessage);
-			//}
-
-			return unsnapped;
+		/// <summary>
+		/// 遍历所有 Rectangle 根据 _datetimes 进行着色
+		/// </summary>
+		private void Tintor(LinkedList<DateTime> dateTimes) {
+			foreach (Rectangle rect in RectanglesCanvas.Children) {
+				rect.Fill = GetBackgroundOfRectanglesByDateTime(dateTimes, DateTime.Parse(rect.Name));
+			}
 		}
 
 		class StatistTotalByDateTime : IComparable<StatistTotalByDateTime> {
