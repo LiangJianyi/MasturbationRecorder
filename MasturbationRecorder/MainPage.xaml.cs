@@ -53,26 +53,27 @@ namespace MasturbationRecorder {
 				this.RectanglesCanvas.Width = totalWeek * columnDistance + leftSpace + rightSpace + totalWeek * rectWidth + rectWidth;
 			}
 			this.RectanglesCanvas.Height = rowDistance * 6 + bottomSpace + monthTitleSpace + 7 * rectHeight;
+			DateTime dateOfEachRectangle = today;
 			for (int column = totalWeek; column >= 0; column--) {
 				if (column == totalWeek) {
-					for (int row = Convert.ToInt32(today.DayOfWeek); row >= 0; row--) {
+					for (int row = Convert.ToInt32(today.DayOfWeek); row >= 0; row--, dateOfEachRectangle = dateOfEachRectangle.AddDays(-1)) {
 						CreateRectangle(
 							rectWidth: rectWidth,
 							rectHeight: rectHeight,
 							canvasLeft: column * rectWidth + columnDistance * (column - 1) + leftSpace,
 							canvasTop: row * rectHeight + row * rowDistance + topSpace,
-							dateTime: DateTime.Now
+							dateTime: dateOfEachRectangle
 						);
 					}
 				}
 				else {
-					for (int row = 6; row >= 0; row--) {
+					for (int row = 6; row >= 0; row--, dateOfEachRectangle = dateOfEachRectangle.AddDays(-1)) {
 						CreateRectangle(
 							rectWidth: rectWidth,
 							rectHeight: rectHeight,
 							canvasLeft: column * rectWidth + columnDistance * (column - 1) + leftSpace,
 							canvasTop: row * rectHeight + row * rowDistance + topSpace,
-							dateTime: DateTime.Now
+							dateTime: dateOfEachRectangle
 						);
 					}
 				}
@@ -86,19 +87,13 @@ namespace MasturbationRecorder {
 				Height = rectHeight,
 				Fill = new SolidColorBrush(Windows.UI.Colors.LightGray),
 			};
-			rect.PointerEntered += Rect_PointerEntered;
-			rect.PointerExited += Rect_PointerExited;
+			ToolTip toolTip = new ToolTip {
+				Content = dateTime.ToShortDateString()
+			};
+			ToolTipService.SetToolTip(rect, toolTip);
 			RectanglesCanvas.Children.Add(rect);
 			Canvas.SetLeft(rect, canvasLeft);
 			Canvas.SetTop(rect, canvasTop);
-		}
-
-		private void Rect_PointerExited(object sender, PointerRoutedEventArgs e) {
-			Debug.WriteLine($"Pointer exit from the {(sender as Rectangle).Name}");
-		}
-
-		private void Rect_PointerEntered(object sender, PointerRoutedEventArgs e) {
-			Debug.WriteLine($"Pointer enter to the {(sender as Rectangle).Name}");
 		}
 
 		private void Current_SizeChanged(object sender, Windows.UI.Core.WindowSizeChangedEventArgs e) {
@@ -113,7 +108,6 @@ namespace MasturbationRecorder {
 				var groupDateTimeByTotal = from k in dateTimes group k by k;
 				var classifyLevelBaseOnTotal = from dt in groupDateTimeByTotal
 											   select new StatistTotalByDateTime { DateTime = dt.Key, Total = dt.Count() };
-				//var classifyLevelBaseOnTotal2=from k in _dateTimes group
 				foreach (var statist in classifyLevelBaseOnTotal) {
 					Debug.WriteLine($"DateTime: {statist.DateTime}  Total: {statist.Total}");
 				}
@@ -127,9 +121,8 @@ namespace MasturbationRecorder {
 						return moreBiger - moreLess >= 4 ? 5 : (moreBiger - moreLess) + 1;
 					}
 				}
-				var levelScore = GetLevelScore();
 				IDictionary<int, SolidColorBrush> classifyColorByLevelScore() {
-					switch (levelScore) {
+					switch (GetLevelScore()) {
 						case 0:
 							return new Dictionary<int, SolidColorBrush>() {
 								{ 0, new SolidColorBrush(Windows.UI.Colors.LightGray) }
@@ -170,7 +163,7 @@ namespace MasturbationRecorder {
 								{ 5, new SolidColorBrush(Windows.UI.Colors.DarkGreen) }
 							};
 						default:
-							throw new InvalidDataException($"levelRange out of range: {levelScore}");
+							throw new InvalidDataException($"levelRange out of range: {GetLevelScore()}");
 					}
 				}
 				IDictionary<int, SolidColorBrush> classifyLevelColor = classifyColorByLevelScore();
@@ -196,12 +189,10 @@ namespace MasturbationRecorder {
 
 			StorageFile file = await openPicker.PickSingleFileAsync();
 			if (file != null) {
-				// Application now has read/write access to the picked file
-				Debug.WriteLine("Picked document: ");
 				//Windows.Storage.AccessCache.StorageApplicationPermissions.FutureAccessList.Add(file);
 				string text = await FileIO.ReadTextAsync(file);
 				Debug.WriteLine(text);
-				Debug.WriteLine((from t in text where t == '\n' select t).Count() + 1);
+				Debug.WriteLine($"line count:{(from t in text where t == '\n' select t).Count() + 1}");
 				IEnumerable<string> lines = DatetimeParser.SplitByLine(text);
 				LinkedList<DateTime> dateTimes = new LinkedList<DateTime>();
 				foreach (var line in lines) {
@@ -235,6 +226,7 @@ namespace MasturbationRecorder {
 		/// </summary>
 		private void Tintor(LinkedList<DateTime> dateTimes) {
 			foreach (Rectangle rect in RectanglesCanvas.Children) {
+				Debug.WriteLine(DateTime.Parse(rect.Name));
 				rect.Fill = GetBackgroundOfRectanglesByDateTime(dateTimes, DateTime.Parse(rect.Name));
 			}
 		}
