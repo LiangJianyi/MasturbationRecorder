@@ -100,20 +100,20 @@ namespace MasturbationRecorder {
 			Debug.WriteLine($"{this._window.Bounds.Width} , {this._window.Bounds.Height}");
 		}
 
-		private SolidColorBrush GetBackgroundOfRectanglesByDateTime(LinkedList<DateTime> dateTimes, DateTime currentDateTime) {
+		private SolidColorBrush GetBackgroundOfRectanglesByDateTime(LinkedList<StatistTotalByDateTime> dateTimes, DateTime currentDateTime) {
 			if (dateTimes == null || dateTimes.Count == 0) {
 				return new SolidColorBrush(Windows.UI.Colors.YellowGreen);
 			}
 			else {
-				var groupDateTimeByTotal = from k in dateTimes group k by k;
-				var classifyLevelBaseOnTotal = from dt in groupDateTimeByTotal
-											   select new StatistTotalByDateTime { DateTime = dt.Key, Total = dt.Count() };
-				foreach (var statist in classifyLevelBaseOnTotal) {
-					Debug.WriteLine($"DateTime: {statist.DateTime}  Total: {statist.Total}");
-				}
-				var moreLess = classifyLevelBaseOnTotal.Min().Total;
-				var moreBiger = classifyLevelBaseOnTotal.Max().Total;
-				int GetLevelScore() {
+				//var groupDateTimeByTotal = from k in dateTimes group k by k;
+				//var classifyLevelBaseOnTotal = from dt in groupDateTimeByTotal
+				//							   select new StatistTotalByDateTime { DateTime = dt.Key, Total = dt.Count() };
+				//foreach (var statist in classifyLevelBaseOnTotal) {
+				//	Debug.WriteLine($"DateTime: {statist.DateTime}  Total: {statist.Total}");
+				//}
+				var moreLess = dateTimes.Min().Total;
+				var moreBiger = dateTimes.Max().Total;
+				ulong GetLevelScore() {
 					if (moreBiger == 0 && moreLess == 0) {
 						return 0;
 					}
@@ -121,32 +121,32 @@ namespace MasturbationRecorder {
 						return moreBiger - moreLess >= 4 ? 5 : (moreBiger - moreLess) + 1;
 					}
 				}
-				IDictionary<int, SolidColorBrush> classifyColorByLevelScore() {
+				IDictionary<ulong, SolidColorBrush> classifyColorByLevelScore() {
 					switch (GetLevelScore()) {
 						case 0:
-							return new Dictionary<int, SolidColorBrush>() {
+							return new Dictionary<ulong, SolidColorBrush>() {
 								{ 0, new SolidColorBrush(Windows.UI.Colors.LightGray) }
 							};
 						case 1:
-							return new Dictionary<int, SolidColorBrush>() {
+							return new Dictionary<ulong, SolidColorBrush>() {
 								{ 0, new SolidColorBrush(Windows.UI.Colors.LightGray) },
 								{ 1, new SolidColorBrush(Windows.UI.Colors.DarkGreen) }
 							};
 						case 2:
-							return new Dictionary<int, SolidColorBrush>() {
+							return new Dictionary<ulong, SolidColorBrush>() {
 								{ 0, new SolidColorBrush(Windows.UI.Colors.LightGray) },
 								{ 1, new SolidColorBrush(Windows.UI.Colors.Green) },
 								{ 2, new SolidColorBrush(Windows.UI.Colors.DarkGreen) }
 							};
 						case 3:
-							return new Dictionary<int, SolidColorBrush>() {
+							return new Dictionary<ulong, SolidColorBrush>() {
 								{ 0, new SolidColorBrush(Windows.UI.Colors.LightGray) },
 								{ 1, new SolidColorBrush(Windows.UI.Colors.LawnGreen) },
 								{ 2, new SolidColorBrush(Windows.UI.Colors.Green) },
 								{ 3, new SolidColorBrush(Windows.UI.Colors.DarkGreen) }
 							};
 						case 4:
-							return new Dictionary<int, SolidColorBrush>() {
+							return new Dictionary<ulong, SolidColorBrush>() {
 								{ 0, new SolidColorBrush(Windows.UI.Colors.LightGray) },
 								{ 1, new SolidColorBrush(Windows.UI.Colors.GreenYellow) },
 								{ 2, new SolidColorBrush(Windows.UI.Colors.LawnGreen) },
@@ -154,7 +154,7 @@ namespace MasturbationRecorder {
 								{ 4, new SolidColorBrush(Windows.UI.Colors.DarkGreen) }
 							};
 						case 5:
-							return new Dictionary<int, SolidColorBrush>() {
+							return new Dictionary<ulong, SolidColorBrush>() {
 								{ 0, new SolidColorBrush(Windows.UI.Colors.LightGray) },
 								{ 1, new SolidColorBrush(Windows.UI.Colors.YellowGreen) },
 								{ 2, new SolidColorBrush(Windows.UI.Colors.GreenYellow) },
@@ -166,10 +166,10 @@ namespace MasturbationRecorder {
 							throw new InvalidDataException($"levelRange out of range: {GetLevelScore()}");
 					}
 				}
-				IDictionary<int, SolidColorBrush> classifyLevelColor = classifyColorByLevelScore();
-				var totalOfCurrentDateTime = 0;
+				IDictionary<ulong, SolidColorBrush> classifyLevelColor = classifyColorByLevelScore();
+				var totalOfCurrentDateTime = 0UL;
 				try {
-					totalOfCurrentDateTime = (from item in classifyLevelBaseOnTotal
+					totalOfCurrentDateTime = (from item in dateTimes
 											  where item.DateTime == currentDateTime
 											  select item.Total).First();
 				}
@@ -194,26 +194,16 @@ namespace MasturbationRecorder {
 				Debug.WriteLine(text);
 				Debug.WriteLine($"line count:{(from t in text where t == '\n' select t).Count() + 1}");
 				IEnumerable<string> lines = DatetimeParser.SplitByLine(text);
-				LinkedList<DateTime> dateTimes = new LinkedList<DateTime>();
+				LinkedList<StatistTotalByDateTime> dateTimes = new LinkedList<StatistTotalByDateTime>();
 				foreach (var line in lines) {
 					if (line != "") {   // 忽略空行
-						(DateTime dateTime, ulong count) = DatetimeParser.ParseALine(line);
-						LinkedList<DateTime> sublik = new LinkedList<DateTime>();
-						for (ulong i = 1; i <= count; i++) {
-							if (i == 1) {
-								sublik.AddFirst(dateTime);
-							}
-							else {
-								sublik.AddAfter(sublik.Last, dateTime);
-							}
-						}
-						dateTimes = new LinkedList<DateTime>(dateTimes.Concat(sublik));
+						StatistTotalByDateTime statist = DatetimeParser.ParseALine(line);
 					}
 				}
 				this.Tintor(dateTimes);
 				Debug.WriteLine("Outputing datetime file content:");
 				foreach (var item in dateTimes) {
-					Debug.WriteLine(item.ToShortDateString());
+					Debug.WriteLine(item.DateTime.ToShortDateString());
 				}
 			}
 			else {
@@ -224,31 +214,11 @@ namespace MasturbationRecorder {
 		/// <summary>
 		/// 遍历所有 Rectangle 根据 _datetimes 进行着色
 		/// </summary>
-		private void Tintor(LinkedList<DateTime> dateTimes) {
+		private void Tintor(LinkedList<StatistTotalByDateTime> dateTimes) {
 			foreach (Rectangle rect in RectanglesCanvas.Children) {
 				Debug.WriteLine(DateTime.Parse(rect.Name));
 				rect.Fill = GetBackgroundOfRectanglesByDateTime(dateTimes, DateTime.Parse(rect.Name));
 			}
-		}
-
-		class StatistTotalByDateTime : IComparable<StatistTotalByDateTime> {
-			public DateTime DateTime;
-			public int Total;
-			public int CompareTo(StatistTotalByDateTime other) {
-				if (this.Total < other.Total) {
-					return -1;
-				}
-				else if (this.Total == other.Total) {
-					return 0;
-				}
-				else {
-					return 1;
-				}
-			}
-			public static bool operator >(StatistTotalByDateTime left, StatistTotalByDateTime right) => left.CompareTo(right) == 1;
-			public static bool operator <(StatistTotalByDateTime left, StatistTotalByDateTime right) => left.CompareTo(right) == -1;
-			public static bool operator >=(StatistTotalByDateTime left, StatistTotalByDateTime right) => left.CompareTo(right) >= 0;
-			public static bool operator <=(StatistTotalByDateTime left, StatistTotalByDateTime right) => left.CompareTo(right) <= 0;
 		}
 	}
 }

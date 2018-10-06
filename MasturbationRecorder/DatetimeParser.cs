@@ -50,23 +50,23 @@ namespace MasturbationRecorder {
 			}
 		}
 
-		internal static (DateTime, ulong) ParseALine(string text) {
+		internal static StatistTotalByDateTime ParseALine(string text) {
 			string[] tokens = GetToken(text);
 			if (tokens.Length == 3) {
 				ushort monthValue = StringToUInt16(tokens[0]);
 				ushort dayValue = Convert.ToUInt16(tokens[1]);
 				ushort yearValue = Convert.ToUInt16(tokens[2]);
-				return (new DateTime(yearValue, monthValue, dayValue), 1);
+				return new StatistTotalByDateTime() { DateTime = new DateTime(yearValue, monthValue, dayValue), Total = 1 };
 			}
 			else if (tokens.Length == 4) {
 				ushort monthValue = StringToUInt16(tokens[0]);
 				ushort dayValue = Convert.ToUInt16(tokens[1]);
 				ushort yearValue = Convert.ToUInt16(tokens[2]);
 				ulong count = GetRepeatCount(tokens[3]);
-				return (new DateTime(yearValue, monthValue, dayValue), count);
+				return new StatistTotalByDateTime() { DateTime = new DateTime(yearValue, monthValue, dayValue), Total = count };
 			}
 			else {
-				throw new ArgumentOutOfRangeException("Date time format error.");
+				throw new ArgumentOutOfRangeException($"Date time format error: {tokens}");
 			}
 		}
 
