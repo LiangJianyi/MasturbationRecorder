@@ -47,9 +47,16 @@ namespace MasturbationRecorder {
 				foreach (var line in lines) {
 					if (line != "") {   // 忽略空行
 						StatistTotalByDateTime statist = DatetimeParser.ParseALine(line);
+						dateTimes.AddLast(statist);
 					}
 				}
-				this.Tintor(dateTimes);
+
+				// 遍历所有 Rectangle 根据 _datetimes 进行着色
+				foreach (Rectangle rect in RectanglesCanvas.Children) {
+					Debug.WriteLine(DateTime.Parse(rect.Name));
+					rect.Fill = GetBackgroundOfRectanglesByDateTime(dateTimes, DateTime.Parse(rect.Name));
+				}
+
 				Debug.WriteLine("Outputing datetime file content:");
 				foreach (var item in dateTimes) {
 					Debug.WriteLine(item.DateTime.ToShortDateString());
@@ -131,8 +138,11 @@ namespace MasturbationRecorder {
 		}
 
 		private SolidColorBrush GetBackgroundOfRectanglesByDateTime(LinkedList<StatistTotalByDateTime> dateTimes, DateTime currentDateTime) {
-			if (dateTimes == null || dateTimes.Count == 0) {
-				return new SolidColorBrush(Windows.UI.Colors.YellowGreen);
+			if (dateTimes == null) {
+				throw new ArgumentNullException("DateTimes cannot be empty.");
+			}
+			else if (dateTimes.Count==0) {
+				return new SolidColorBrush(Windows.UI.Colors.LightGray);
 			}
 			else {
 				//var groupDateTimeByTotal = from k in dateTimes group k by k;
@@ -210,10 +220,16 @@ namespace MasturbationRecorder {
 			}
 		}
 
-		private List<(ulong Ordinal, ulong Diff, SortedList<ulong, StatistTotalByDateTime> staticsList)>
+		/// <summary>
+		/// 根据时间链表中的每个节点的 Total 分别计算它们的差值（Diff），根据 Diff
+		/// 对节点分组
+		/// </summary>
+		/// <param name="dateTimes"></param>
+		/// <returns></returns>
+		private List<(ulong Ordinal, ulong Diff, SortedList<ulong, StatistTotalByDateTime> StaticsList)>
 			GroupDateTimesByDiff(LinkedList<StatistTotalByDateTime> dateTimes) {
-			List<(ulong Ordinal, ulong Diff, SortedList<ulong, StatistTotalByDateTime> staticsList)> res =
-				new List<(ulong Ordinal, ulong Diff, SortedList<ulong, StatistTotalByDateTime> staticsList)>();
+			List<(ulong Ordinal, ulong Diff, SortedList<ulong, StatistTotalByDateTime> StaticsList)> res =
+				new List<(ulong Ordinal, ulong Diff, SortedList<ulong, StatistTotalByDateTime> StaticsList)>();
 			ulong tempDiff = 0UL;
 			ulong ordinal = 0UL;
 			SortedList<ulong, StatistTotalByDateTime> values = new SortedList<ulong, StatistTotalByDateTime>();
@@ -235,22 +251,16 @@ namespace MasturbationRecorder {
 						AddUniqueToValues(current.Next);
 					}
 					else {
-						res.Add((Ordinal: ++ordinal, Diff: tempDiff, staticsList: values));
+						res.Add((Ordinal: ++ordinal, Diff: tempDiff, StaticsList: values));
+						/*
+						 * 请勿使用 values.Clear() 对其进行重置，因为 values 按引用传递给 StaticsList,
+						 * 修改 values 的元素会影响到 StaticsList，所以这里给 values 分配新的 SortedList 实例
+						 */
 						values = new SortedList<ulong, StatistTotalByDateTime>();
 					}
 				}
 			}
 			return res;
-		}
-
-		/// <summary>
-		/// 遍历所有 Rectangle 根据 _datetimes 进行着色
-		/// </summary>
-		private void Tintor(LinkedList<StatistTotalByDateTime> dateTimes) {
-			foreach (Rectangle rect in RectanglesCanvas.Children) {
-				Debug.WriteLine(DateTime.Parse(rect.Name));
-				rect.Fill = GetBackgroundOfRectanglesByDateTime(dateTimes, DateTime.Parse(rect.Name));
-			}
 		}
 	}
 }
