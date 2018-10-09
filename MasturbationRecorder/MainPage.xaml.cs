@@ -26,8 +26,38 @@ namespace MasturbationRecorder {
 		public MainPage() {
 			this._window.SizeChanged += Current_SizeChanged;
 			this.InitializeComponent();
-			//Debug.WriteLine($"{this._window.Bounds.Width} , {this._window.Bounds.Height}");
 			this.RectanglesLayout();
+		}
+
+		private async void Button_Click(object sender, RoutedEventArgs e) {
+			FileOpenPicker openPicker = new FileOpenPicker();
+			openPicker.ViewMode = PickerViewMode.Thumbnail;
+			openPicker.SuggestedStartLocation = PickerLocationId.ComputerFolder;
+			openPicker.FileTypeFilter.Add(".txt");
+			openPicker.FileTypeFilter.Add(".mast");
+
+			StorageFile file = await openPicker.PickSingleFileAsync();
+			if (file != null) {
+				//Windows.Storage.AccessCache.StorageApplicationPermissions.FutureAccessList.Add(file);
+				string text = await FileIO.ReadTextAsync(file);
+				Debug.WriteLine(text);
+				Debug.WriteLine($"line count:{(from t in text where t == '\n' select t).Count() + 1}");
+				IEnumerable<string> lines = DatetimeParser.SplitByLine(text);
+				LinkedList<StatistTotalByDateTime> dateTimes = new LinkedList<StatistTotalByDateTime>();
+				foreach (var line in lines) {
+					if (line != "") {   // 忽略空行
+						StatistTotalByDateTime statist = DatetimeParser.ParseALine(line);
+					}
+				}
+				this.Tintor(dateTimes);
+				Debug.WriteLine("Outputing datetime file content:");
+				foreach (var item in dateTimes) {
+					Debug.WriteLine(item.DateTime.ToShortDateString());
+				}
+			}
+			else {
+				Debug.WriteLine("Operation cancelled.");
+			}
 		}
 
 		private void RectanglesLayout() {
@@ -180,66 +210,37 @@ namespace MasturbationRecorder {
 			}
 		}
 
-		private void GroupDateTimesByDiff(LinkedList<StatistTotalByDateTime> dateTimes) {
-			List<(ulong Ordinal, ulong Diff, SortedList<ulong, StatistTotalByDateTime> staticsList)> res = 
+		private List<(ulong Ordinal, ulong Diff, SortedList<ulong, StatistTotalByDateTime> staticsList)>
+			GroupDateTimesByDiff(LinkedList<StatistTotalByDateTime> dateTimes) {
+			List<(ulong Ordinal, ulong Diff, SortedList<ulong, StatistTotalByDateTime> staticsList)> res =
 				new List<(ulong Ordinal, ulong Diff, SortedList<ulong, StatistTotalByDateTime> staticsList)>();
-			ulong temp = 0UL;
+			ulong tempDiff = 0UL;
 			ulong ordinal = 0UL;
 			SortedList<ulong, StatistTotalByDateTime> values = new SortedList<ulong, StatistTotalByDateTime>();
 			void AddUniqueToValues(LinkedListNode<StatistTotalByDateTime> node) {
 				try {
 					values.Add(node.Value.Total, node.Value);
 				}
-				catch (ArgumentException) { }
+				catch (ArgumentException) { }	// 如果被添加的节点已存在，直接忽略
 			}
 			for (var current = dateTimes.First; current.Next.Next != null; current = current.Next) {
-				if (temp == 0) {
-					temp = current.Next.Value.Total - current.Value.Total;
+				if (tempDiff == 0) {
+					tempDiff = current.Next.Value.Total - current.Value.Total;
 					AddUniqueToValues(current);
 					AddUniqueToValues(current.Next);
 				}
 				else {
-					if (temp == current.Next.Value.Total - current.Value.Total) {
+					if (tempDiff == current.Next.Value.Total - current.Value.Total) {
 						AddUniqueToValues(current);
 						AddUniqueToValues(current.Next);
 					}
 					else {
-						res.Add((Ordinal: ++ordinal, Diff: temp, staticsList: values));
+						res.Add((Ordinal: ++ordinal, Diff: tempDiff, staticsList: values));
 						values = new SortedList<ulong, StatistTotalByDateTime>();
 					}
 				}
 			}
-		}
-
-		private async void Button_Click(object sender, RoutedEventArgs e) {
-			FileOpenPicker openPicker = new FileOpenPicker();
-			openPicker.ViewMode = PickerViewMode.Thumbnail;
-			openPicker.SuggestedStartLocation = PickerLocationId.ComputerFolder;
-			openPicker.FileTypeFilter.Add(".txt");
-			openPicker.FileTypeFilter.Add(".mast");
-
-			StorageFile file = await openPicker.PickSingleFileAsync();
-			if (file != null) {
-				//Windows.Storage.AccessCache.StorageApplicationPermissions.FutureAccessList.Add(file);
-				string text = await FileIO.ReadTextAsync(file);
-				Debug.WriteLine(text);
-				Debug.WriteLine($"line count:{(from t in text where t == '\n' select t).Count() + 1}");
-				IEnumerable<string> lines = DatetimeParser.SplitByLine(text);
-				LinkedList<StatistTotalByDateTime> dateTimes = new LinkedList<StatistTotalByDateTime>();
-				foreach (var line in lines) {
-					if (line != "") {   // 忽略空行
-						StatistTotalByDateTime statist = DatetimeParser.ParseALine(line);
-					}
-				}
-				this.Tintor(dateTimes);
-				Debug.WriteLine("Outputing datetime file content:");
-				foreach (var item in dateTimes) {
-					Debug.WriteLine(item.DateTime.ToShortDateString());
-				}
-			}
-			else {
-				Debug.WriteLine("Operation cancelled.");
-			}
+			return res;
 		}
 
 		/// <summary>
