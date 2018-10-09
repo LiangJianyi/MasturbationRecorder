@@ -15,6 +15,7 @@ namespace MasturbationRecorder {
 				return 1;
 			}
 		}
+		public override string ToString() => $"DateTime: {DateTime}, Total: {Total}";
 		public static bool operator >(StatistTotalByDateTime left, StatistTotalByDateTime right) => left.CompareTo(right) == 1;
 		public static bool operator <(StatistTotalByDateTime left, StatistTotalByDateTime right) => left.CompareTo(right) == -1;
 		public static bool operator >=(StatistTotalByDateTime left, StatistTotalByDateTime right) => left.CompareTo(right) >= 0;

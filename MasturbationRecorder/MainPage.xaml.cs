@@ -45,11 +45,13 @@ namespace MasturbationRecorder {
 				IEnumerable<string> lines = DatetimeParser.SplitByLine(text);
 				LinkedList<StatistTotalByDateTime> dateTimes = new LinkedList<StatistTotalByDateTime>();
 				foreach (var line in lines) {
-					if (line != "") {   // 忽略空行
+					if (line != "" && line != "\r") {   // 忽略空行
 						StatistTotalByDateTime statist = DatetimeParser.ParseALine(line);
 						dateTimes.AddLast(statist);
 					}
 				}
+
+				TempTest(dateTimes);
 
 				// 遍历所有 Rectangle 根据 _datetimes 进行着色
 				foreach (Rectangle rect in RectanglesCanvas.Children) {
@@ -64,6 +66,26 @@ namespace MasturbationRecorder {
 			}
 			else {
 				Debug.WriteLine("Operation cancelled.");
+			}
+		}
+
+		private void TempTest(LinkedList<StatistTotalByDateTime> dateTimes) {
+			var res = this.GroupDateTimesByDiff(dateTimes);
+			string PrintStaticsList(SortedList<ulong, StatistTotalByDateTime> list) {
+				string text = null;
+				foreach (var statics in list) {
+					if (text == null) {
+						text = $"[\"{statics}\", ";
+					}
+					else {
+						text += $"\"{statics}\", ";
+					}
+				}
+				text = text.Remove(text.Length - 2, 2);
+				return text;
+			}
+			foreach (var item in res) {
+				Debug.WriteLine($"{item.Ordinal}  {item.Diff}  {PrintStaticsList(item.StaticsList)}");
 			}
 		}
 
@@ -141,7 +163,7 @@ namespace MasturbationRecorder {
 			if (dateTimes == null) {
 				throw new ArgumentNullException("DateTimes cannot be empty.");
 			}
-			else if (dateTimes.Count==0) {
+			else if (dateTimes.Count == 0) {
 				return new SolidColorBrush(Windows.UI.Colors.LightGray);
 			}
 			else {
@@ -237,9 +259,9 @@ namespace MasturbationRecorder {
 				try {
 					values.Add(node.Value.Total, node.Value);
 				}
-				catch (ArgumentException) { }	// 如果被添加的节点已存在，直接忽略
+				catch (ArgumentException) { }   // 如果被添加的节点已存在，直接忽略
 			}
-			for (var current = dateTimes.First; current.Next.Next != null; current = current.Next) {
+			for (var current = dateTimes.First; current.Next != null; current = current.Next) {
 				if (tempDiff == 0) {
 					tempDiff = current.Next.Value.Total - current.Value.Total;
 					AddUniqueToValues(current);
@@ -252,10 +274,13 @@ namespace MasturbationRecorder {
 					}
 					else {
 						res.Add((Ordinal: ++ordinal, Diff: tempDiff, StaticsList: values));
-						/*
-						 * 请勿使用 values.Clear() 对其进行重置，因为 values 按引用传递给 StaticsList,
-						 * 修改 values 的元素会影响到 StaticsList，所以这里给 values 分配新的 SortedList 实例
-						 */
+						tempDiff = current.Next.Value.Total - current.Value.Total;
+						current = current.Previous; // 通过回退一个节点的方式来暂停current的迭代
+													/*
+													 * 请勿使用 values.Clear() 对其进行重置，因为 values 按引用传递给 StaticsList,
+													 * 修改 values 的元素会影响到 StaticsList，所以这里通过给 values 分配新的 SortedList 实例
+													 * 来进行重置
+													 */
 						values = new SortedList<ulong, StatistTotalByDateTime>();
 					}
 				}
