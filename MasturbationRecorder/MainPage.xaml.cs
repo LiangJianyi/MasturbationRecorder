@@ -180,6 +180,37 @@ namespace MasturbationRecorder {
 			}
 		}
 
+		private void GroupDateTimesByDiff(LinkedList<StatistTotalByDateTime> dateTimes) {
+			List<(ulong Ordinal, ulong Diff, SortedList<ulong, StatistTotalByDateTime> staticsList)> res = 
+				new List<(ulong Ordinal, ulong Diff, SortedList<ulong, StatistTotalByDateTime> staticsList)>();
+			ulong temp = 0UL;
+			ulong ordinal = 0UL;
+			SortedList<ulong, StatistTotalByDateTime> values = new SortedList<ulong, StatistTotalByDateTime>();
+			void AddUniqueToValues(LinkedListNode<StatistTotalByDateTime> node) {
+				try {
+					values.Add(node.Value.Total, node.Value);
+				}
+				catch (ArgumentException) { }
+			}
+			for (var current = dateTimes.First; current.Next.Next != null; current = current.Next) {
+				if (temp == 0) {
+					temp = current.Next.Value.Total - current.Value.Total;
+					AddUniqueToValues(current);
+					AddUniqueToValues(current.Next);
+				}
+				else {
+					if (temp == current.Next.Value.Total - current.Value.Total) {
+						AddUniqueToValues(current);
+						AddUniqueToValues(current.Next);
+					}
+					else {
+						res.Add((Ordinal: ++ordinal, Diff: temp, staticsList: values));
+						values = new SortedList<ulong, StatistTotalByDateTime>();
+					}
+				}
+			}
+		}
+
 		private async void Button_Click(object sender, RoutedEventArgs e) {
 			FileOpenPicker openPicker = new FileOpenPicker();
 			openPicker.ViewMode = PickerViewMode.Thumbnail;
