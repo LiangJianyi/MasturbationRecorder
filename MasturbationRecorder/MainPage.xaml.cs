@@ -51,12 +51,15 @@ namespace MasturbationRecorder {
 					}
 				}
 
-				TempTest(dateTimes);
+				var res = this.GroupDateTimesByDiff(dateTimes);
 
 				// 遍历所有 Rectangle 根据 _datetimes 进行着色
 				foreach (Rectangle rect in RectanglesCanvas.Children) {
 					Debug.WriteLine(DateTime.Parse(rect.Name));
-					rect.Fill = GetBackgroundOfRectanglesByDateTime(dateTimes, DateTime.Parse(rect.Name));
+					rect.Fill = GetFillOfRectanglesByDifferentOfDateTimesTotal(dateTimesDiffTable: res,
+																	moreLess: dateTimes.Min().Total,
+																	moreBiger: dateTimes.Max().Total,
+																	currentDateTime: DateTime.Parse(rect.Name));
 				}
 
 				Debug.WriteLine("Outputing datetime file content:");
@@ -159,22 +162,34 @@ namespace MasturbationRecorder {
 			Debug.WriteLine($"{this._window.Bounds.Width} , {this._window.Bounds.Height}");
 		}
 
-		private SolidColorBrush GetBackgroundOfRectanglesByDateTime(LinkedList<StatistTotalByDateTime> dateTimes, DateTime currentDateTime) {
-			if (dateTimes == null) {
+		/// <summary>
+		/// 根据时间频率对 Rectangle 进行着色
+		/// </summary>
+		/// <param name="dateTimesDiffTable">
+		/// 接收一个元组列表，该列表由方法 GroupDateTimesByDiff 产生，其根据时间链表（LinkeList<StatistTotalByDateTime>）
+		/// 中每个相邻元素之间的 Total 差值进行分组和排序，每个元组之间呈升序排列（由 Ordinal 属性决定），元组之间的 Diff 不一定
+		/// 呈线性增长，其取决于对应的 StaticsList ，可以肯定的是，Ordinal 值越大，其对应的 StaticsList 中的 StatistTotalByDateTime
+		/// 的 Total 属性值也越大
+		/// </param>
+		/// <param name="moreLess"></param>
+		/// <param name="moreBiger"></param>
+		/// <param name="currentDateTime"></param>
+		/// <returns></returns>
+		private SolidColorBrush GetFillOfRectanglesByDifferentOfDateTimesTotal(
+			List<(ulong Ordinal, ulong Diff, SortedList<ulong, StatistTotalByDateTime> StaticsList)> dateTimesDiffTable,
+			ulong moreLess,
+			ulong moreBiger,
+			DateTime currentDateTime) {
+			if (dateTimesDiffTable == null) {
 				throw new ArgumentNullException("DateTimes cannot be empty.");
 			}
-			else if (dateTimes.Count == 0) {
+			else if (dateTimesDiffTable.Count == 0) {
 				return new SolidColorBrush(Windows.UI.Colors.LightGray);
 			}
 			else {
-				//var groupDateTimeByTotal = from k in dateTimes group k by k;
-				//var classifyLevelBaseOnTotal = from dt in groupDateTimeByTotal
-				//							   select new StatistTotalByDateTime { DateTime = dt.Key, Total = dt.Count() };
-				//foreach (var statist in classifyLevelBaseOnTotal) {
-				//	Debug.WriteLine($"DateTime: {statist.DateTime}  Total: {statist.Total}");
-				//}
-				var moreLess = dateTimes.Min().Total;
-				var moreBiger = dateTimes.Max().Total;
+				/// <summary>
+				/// 根据区间[moreLess, moreBiger]决定到底应该分多少级
+				/// </summary>
 				ulong GetLevelScore() {
 					if (moreBiger == 0 && moreLess == 0) {
 						return 0;
@@ -229,9 +244,35 @@ namespace MasturbationRecorder {
 					}
 				}
 				IDictionary<ulong, SolidColorBrush> classifyLevelColor = classifyColorByLevelScore();
+
+				// dateTimesDiffTable 每个级别有 classifyLevelByDiff 个元素((ulong Ordinal, ulong Diff, SortedList<ulong, StatistTotalByDateTime> StaticsList))，
+				// 如果 diffRemain 大于 0，则最后一个级别有 classifyLevelByDiff + diffRemain 个元素
+				var classifyLevelByDiff = Convert.ToUInt64(dateTimesDiffTable.LongCount()) / GetLevelScore();
+				var diffRemain = Convert.ToUInt64(dateTimesDiffTable.LongCount()) % GetLevelScore();
+
+				// 存放已经分级的 (ulong Ordinal, ulong Diff, SortedList<ulong, StatistTotalByDateTime> StaticsList) 对象，
+				// 长度由每一级元组对象的 StaticsList 总和决定，即 classifyLevelByDiff * StaticsList.Count
+				SortedList<ulong, StatistTotalByDateTime>[,] classifiedDateTimes = new SortedList<ulong, StatistTotalByDateTime>[GetLevelScore(), classifyLevelByDiff];
+				if (diffRemain == 0) {
+					for (int i = 0, row = 0, column = 0; i < dateTimesDiffTable.LongCount(); i++) {
+						if (row < classifiedDateTimes.GetUpperBound(0)) {
+							if (column < classifiedDateTimes.GetUpperBound(1)) {
+								classifiedDateTimes[row, column] = dateTimesDiffTable[i].StaticsList;
+								column += 1;
+							}
+							else {
+								column = 0;
+							}
+							row += 1;
+						}
+					}
+				}
+				else {
+
+				}
 				var totalOfCurrentDateTime = 0UL;
 				try {
-					totalOfCurrentDateTime = (from item in dateTimes
+					totalOfCurrentDateTime = (from item in dateTimesDiffTable
 											  where item.DateTime == currentDateTime
 											  select item.Total).First();
 				}
@@ -243,14 +284,19 @@ namespace MasturbationRecorder {
 		}
 
 		/// <summary>
-		/// 根据时间链表中的每个节点的 Total 分别计算它们的差值（Diff），根据 Diff
-		/// 对节点分组
+		/// 根据时间链表中的每个节点的 Total 分别计算它们的差值（Diff），
+		/// 根据 Diff 对节点分组
 		/// </summary>
-		/// <param name="dateTimes"></param>
-		/// <returns></returns>
+		/// <param name="dateTimes">接收一个时间链表</param>
+		/// <returns>
+		/// 返回一个元组列表，其根据时间链表（LinkeList<StatistTotalByDateTime>）
+		/// 中每个相邻元素之间的 Total 差值进行分组和排序，每个元组之间呈升序排列（由 Ordinal 属性决定），元组之间的 Diff 不一定
+		/// 呈线性增长，其取决于对应的 StaticsList ，可以肯定的是，Ordinal 值越大，
+		/// 其对应的 StaticsList 中的 StatistTotalByDateTime 的 Total 属性值也越大
+		/// </returns>
 		private List<(ulong Ordinal, ulong Diff, SortedList<ulong, StatistTotalByDateTime> StaticsList)>
 			GroupDateTimesByDiff(LinkedList<StatistTotalByDateTime> dateTimes) {
-			List<(ulong Ordinal, ulong Diff, SortedList<ulong, StatistTotalByDateTime> StaticsList)> res =
+			List<(ulong Ordinal, ulong Diff, SortedList<ulong, StatistTotalByDateTime> StaticsList)> datetimesDiffTable =
 				new List<(ulong Ordinal, ulong Diff, SortedList<ulong, StatistTotalByDateTime> StaticsList)>();
 			ulong tempDiff = 0UL;
 			ulong ordinal = 0UL;
@@ -262,30 +308,28 @@ namespace MasturbationRecorder {
 				catch (ArgumentException) { }   // 如果被添加的节点已存在，直接忽略
 			}
 			for (var current = dateTimes.First; current.Next != null; current = current.Next) {
-				if (tempDiff == 0) {
-					tempDiff = current.Next.Value.Total - current.Value.Total;
+				tempDiff = current.Next.Value.Total - current.Value.Total;
+				if (values.Count == 0 && datetimesDiffTable.Count == 0) {
 					AddUniqueToValues(current);
 					AddUniqueToValues(current.Next);
+					datetimesDiffTable.Add((Ordinal: ++ordinal, Diff: tempDiff, StaticsList: values));
 				}
-				else {
-					if (tempDiff == current.Next.Value.Total - current.Value.Total) {
-						AddUniqueToValues(current);
-						AddUniqueToValues(current.Next);
+				else if (values.Count > 0) {
+					if (datetimesDiffTable[Convert.ToInt32(ordinal - 1)].Diff == tempDiff) {
+						datetimesDiffTable[Convert.ToInt32(ordinal - 1)].StaticsList.Add(current.Next.Value.Total, current.Next.Value);
 					}
 					else {
-						res.Add((Ordinal: ++ordinal, Diff: tempDiff, StaticsList: values));
-						tempDiff = current.Next.Value.Total - current.Value.Total;
-						current = current.Previous; // 通过回退一个节点的方式来暂停current的迭代
-													/*
-													 * 请勿使用 values.Clear() 对其进行重置，因为 values 按引用传递给 StaticsList,
-													 * 修改 values 的元素会影响到 StaticsList，所以这里通过给 values 分配新的 SortedList 实例
-													 * 来进行重置
-													 */
 						values = new SortedList<ulong, StatistTotalByDateTime>();
+						AddUniqueToValues(current);
+						AddUniqueToValues(current.Next);
+						datetimesDiffTable.Add((Ordinal: ++ordinal, Diff: tempDiff, StaticsList: values));
 					}
 				}
+				else {
+					throw new Exception($"Unknow error: res.Count = {datetimesDiffTable.Count}, values.Count = {values.Count}");
+				}
 			}
-			return res;
+			return datetimesDiffTable;
 		}
 	}
 }
