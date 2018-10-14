@@ -276,7 +276,8 @@ namespace MasturbationRecorder {
 				try {
 					totalOfCurrentDateTime = (from subarr in classifiedDateTimes
 											  from sortlist in subarr
-											  from item in sortlist where item.Value.DateTime==currentDateTime
+											  from item in sortlist
+											  where item.Value.DateTime == currentDateTime
 											  select item.Value.Total).First();
 				}
 				catch (InvalidOperationException ex) {
