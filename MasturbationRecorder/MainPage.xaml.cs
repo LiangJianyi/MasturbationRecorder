@@ -56,10 +56,7 @@ namespace MasturbationRecorder {
 				// 遍历所有 Rectangle 根据 _datetimes 进行着色
 				foreach (Rectangle rect in RectanglesCanvas.Children) {
 					Debug.WriteLine(DateTime.Parse(rect.Name));
-					rect.Fill = GetFillOfRectanglesByDifferentOfDateTimesTotal(dateTimesDiffTable: res,
-																	moreLess: dateTimes.Min().Total,
-																	moreBiger: dateTimes.Max().Total,
-																	currentDateTime: DateTime.Parse(rect.Name));
+					rect.Fill = GetFillOfRectanglesByDifferentOfDateTimesTotal(res, DateTime.Parse(rect.Name));
 				}
 
 				Debug.WriteLine("Outputing datetime file content:");
@@ -177,8 +174,6 @@ namespace MasturbationRecorder {
 		/// <returns></returns>
 		private SolidColorBrush GetFillOfRectanglesByDifferentOfDateTimesTotal(
 			List<(ulong Ordinal, ulong Diff, SortedList<ulong, StatistTotalByDateTime> StaticsList)> dateTimesDiffTable,
-			ulong moreLess,
-			ulong moreBiger,
 			DateTime currentDateTime) {
 			if (dateTimesDiffTable == null) {
 				throw new ArgumentNullException("DateTimes cannot be empty.");
@@ -187,19 +182,21 @@ namespace MasturbationRecorder {
 				return new SolidColorBrush(Windows.UI.Colors.LightGray);
 			}
 			else {
-				/// <summary>
 				/// 根据区间[moreLess, moreBiger]决定到底应该分多少级
-				/// </summary>
-				ulong GetLevelScore() {
-					if (moreBiger == 0 && moreLess == 0) {
-						return 0;
-					}
-					else {
-						return moreBiger - moreLess >= 4 ? 5 : (moreBiger - moreLess) + 1;
-					}
-				}
+				//ulong GetLevelScore() {
+				//	if (moreBiger == 0 && moreLess == 0) {
+				//		return 0;
+				//	}
+				//	else {
+				//		return moreBiger - moreLess >= 4 ? 5 : (moreBiger - moreLess) + 1;
+				//	}
+				//}
+				/// 根据区间[moreLess, moreBiger]决定到底应该分多少级
+				long GetLevelScore2() => dateTimesDiffTable.LongCount() == 0 ? 0 :
+					dateTimesDiffTable.LongCount() >= 4 ? 5 : dateTimesDiffTable.LongCount() + 1;
+
 				IDictionary<ulong, SolidColorBrush> classifyColorByLevelScore() {
-					switch (GetLevelScore()) {
+					switch (GetLevelScore2()) {
 						case 0:
 							return new Dictionary<ulong, SolidColorBrush>() {
 								{ 0, new SolidColorBrush(Windows.UI.Colors.LightGray) }
@@ -240,41 +237,47 @@ namespace MasturbationRecorder {
 								{ 5, new SolidColorBrush(Windows.UI.Colors.DarkGreen) }
 							};
 						default:
-							throw new InvalidDataException($"levelRange out of range: {GetLevelScore()}");
+							throw new InvalidDataException($"levelRange out of range: {GetLevelScore2()}");
 					}
 				}
 				IDictionary<ulong, SolidColorBrush> classifyLevelColor = classifyColorByLevelScore();
 
 				// dateTimesDiffTable 每个级别有 classifyLevelByDiff 个元素((ulong Ordinal, ulong Diff, SortedList<ulong, StatistTotalByDateTime> StaticsList))，
 				// 如果 diffRemain 大于 0，则最后一个级别有 classifyLevelByDiff + diffRemain 个元素
-				var classifyLevelByDiff = Convert.ToUInt64(dateTimesDiffTable.LongCount()) / GetLevelScore();
-				var diffRemain = Convert.ToUInt64(dateTimesDiffTable.LongCount()) % GetLevelScore();
+				var classifyLevelByDiff = dateTimesDiffTable.LongCount() / GetLevelScore2();
+				var diffRemain = dateTimesDiffTable.LongCount() % GetLevelScore2();
 
 				// 存放已经分级的 (ulong Ordinal, ulong Diff, SortedList<ulong, StatistTotalByDateTime> StaticsList) 对象，
-				// 长度由每一级元组对象的 StaticsList 总和决定，即 classifyLevelByDiff * StaticsList.Count
-				SortedList<ulong, StatistTotalByDateTime>[,] classifiedDateTimes = new SortedList<ulong, StatistTotalByDateTime>[GetLevelScore(), classifyLevelByDiff];
-				if (diffRemain == 0) {
-					for (int i = 0, row = 0, column = 0; i < dateTimesDiffTable.LongCount(); i++) {
-						if (row < classifiedDateTimes.GetUpperBound(0)) {
-							if (column < classifiedDateTimes.GetUpperBound(1)) {
-								classifiedDateTimes[row, column] = dateTimesDiffTable[i].StaticsList;
-								column += 1;
+				// 长度由 GetLevelScore 决定，每个元素是另一个数组，长度由每一级元组对象的 StaticsList 中的元素总和决定，即 classifyLevelByDiff * StaticsList.Count
+				SortedList<ulong, StatistTotalByDateTime>[][] classifiedDateTimes =
+					new SortedList<ulong, StatistTotalByDateTime>[GetLevelScore2()][];
+				var dateTimesDiffTableIndex = 0;
+				for (var level = 0L; level < classifiedDateTimes.LongLength; level++) {
+					if (diffRemain == 0) {
+						for (var incre = 1L; incre <= classifyLevelByDiff; incre++) {
+							classifiedDateTimes[level][incre] = dateTimesDiffTable[dateTimesDiffTableIndex].StaticsList;
+						}
+					}
+					else {
+						if (level != classifiedDateTimes.LongLength) {
+							for (var incre = 1L; incre <= classifyLevelByDiff; incre++) {
+								classifiedDateTimes[level][incre] = dateTimesDiffTable[dateTimesDiffTableIndex].StaticsList;
 							}
-							else {
-								column = 0;
+						}
+						else {	// 遍历到最后一个级别，classifiedDateTimes 最后一个元素会长一些
+							for (var incre = 1L; incre <= classifyLevelByDiff + diffRemain; incre++) {
+								classifiedDateTimes[level][incre] = dateTimesDiffTable[dateTimesDiffTableIndex].StaticsList;
 							}
-							row += 1;
 						}
 					}
 				}
-				else {
 
-				}
 				var totalOfCurrentDateTime = 0UL;
 				try {
-					totalOfCurrentDateTime = (from item in dateTimesDiffTable
-											  where item.DateTime == currentDateTime
-											  select item.Total).First();
+					totalOfCurrentDateTime = (from subarr in classifiedDateTimes
+											  from sortlist in subarr
+											  from item in sortlist where item.Value.DateTime==currentDateTime
+											  select item.Value.Total).First();
 				}
 				catch (InvalidOperationException ex) {
 					Debug.WriteLine(ex.Message);
