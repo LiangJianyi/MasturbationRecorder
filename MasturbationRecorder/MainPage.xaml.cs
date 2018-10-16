@@ -182,22 +182,12 @@ namespace MasturbationRecorder {
 				return new SolidColorBrush(Windows.UI.Colors.LightGray);
 			}
 			else {
-				/// 根据区间[moreLess, moreBiger]决定到底应该分多少级
-				//ulong GetLevelScore() {
-				//	if (moreBiger == 0 && moreLess == 0) {
-				//		return 0;
-				//	}
-				//	else {
-				//		return moreBiger - moreLess >= 4 ? 5 : (moreBiger - moreLess) + 1;
-				//	}
-				//}
-
 				/// 根据 dateTimesDiffTable 的长度决定到底应该分多少级
-				long GetLevelScore2() => dateTimesDiffTable.LongCount() == 0 ? 0 :
+				long GetLevelScore() => dateTimesDiffTable.LongCount() == 0 ? 0 :
 					dateTimesDiffTable.LongCount() >= 4 ? 5 : dateTimesDiffTable.LongCount() + 1;
 
 				IDictionary<ulong, SolidColorBrush> classifyColorByLevelScore() {
-					switch (GetLevelScore2()) {
+					switch (GetLevelScore()) {
 						case 0:
 							return new Dictionary<ulong, SolidColorBrush>() {
 								{ 0, new SolidColorBrush(Windows.UI.Colors.LightGray) }
@@ -238,46 +228,62 @@ namespace MasturbationRecorder {
 								{ 5, new SolidColorBrush(Windows.UI.Colors.DarkGreen) }
 							};
 						default:
-							throw new InvalidDataException($"levelRange out of range: {GetLevelScore2()}");
+							throw new InvalidDataException($"levelRange out of range: {GetLevelScore()}");
 					}
 				}
 				IDictionary<ulong, SolidColorBrush> classifyLevelColor = classifyColorByLevelScore();
 
 				// dateTimesDiffTable 每个级别有 classifyLevelByDiff 个元素((ulong Ordinal, ulong Diff, SortedList<ulong, StatistTotalByDateTime> StaticsList))，
 				// 如果 diffRemain 大于 0，则最后一个级别有 classifyLevelByDiff + diffRemain 个元素
-				var classifyLevelByDiff = dateTimesDiffTable.LongCount() / GetLevelScore2();
-				var diffRemain = dateTimesDiffTable.LongCount() % GetLevelScore2();
+				var classifyLevelByDiff = dateTimesDiffTable.LongCount() / GetLevelScore();
+				var diffRemain = dateTimesDiffTable.LongCount() % GetLevelScore();
 
 				// 存放已经分级的 (ulong Ordinal, ulong Diff, SortedList<ulong, StatistTotalByDateTime> StaticsList) 对象，
-				// 长度由 GetLevelScore 决定，每个元素是另一个数组，长度由每一级元组对象的 StaticsList 中的元素总和决定，即 classifyLevelByDiff * StaticsList.Count
+				// 长度由 GetLevelScore 决定，每个元素是另一个数组，长度由每一级元组对象的总和决定，即 classifyLevelByDiff，
+				// 如果 diffRemain > 0，那么最后一个元素包含的数组有 classifyLevelByDiff + diffRemain
 				SortedList<ulong, StatistTotalByDateTime>[][] classifiedDateTimes =
-					new SortedList<ulong, StatistTotalByDateTime>[GetLevelScore2()][];
+					new SortedList<ulong, StatistTotalByDateTime>[GetLevelScore()][];
 
 				/*
-				 *	无法更改List <T>索引参数的类型，它必须是int。 但是你可以创建一个需要 ulong 索引的自定义类型。
+				 *	无法更改List <T>索引参数的类型，它必须是int。 将来可以考虑创建一个需要 ulong 索引的自定义类型。
 				 *	你不能创建一个足够大的数组来要求64位索引。如果要创建可以存储这么多内容的列表，则必须使用某种树结构或交错数组。 
 				 *	这需要大量的内存！
 				 */
-				int dateTimesDiffTableIndex = 0;
+				int dateTimesDiffTableIndex = -1;
 
 				for (var level = 0L; level < classifiedDateTimes.LongLength; level++) {
 					if (diffRemain == 0) {
-						for (var incre = 1L; incre <= classifyLevelByDiff; incre++) {
-							classifiedDateTimes[level][incre] = dateTimesDiffTable[dateTimesDiffTableIndex].StaticsList;
+						classifiedDateTimes[level] = new SortedList<ulong, StatistTotalByDateTime>[classifyLevelByDiff];
+						for (var incre = 0L; incre < classifyLevelByDiff; incre++) {
+							classifiedDateTimes[level][incre] = dateTimesDiffTable[++dateTimesDiffTableIndex].StaticsList;
 						}
 					}
 					else {
-						if (level != classifiedDateTimes.LongLength) {
-							for (var incre = 1L; incre <= classifyLevelByDiff; incre++) {
-								classifiedDateTimes[level][incre] = dateTimesDiffTable[dateTimesDiffTableIndex].StaticsList;
+						if (level != classifiedDateTimes.LongLength - 1) {
+							classifiedDateTimes[level] = new SortedList<ulong, StatistTotalByDateTime>[classifyLevelByDiff];
+							for (var incre = 0L; incre < classifyLevelByDiff; incre++) {
+								classifiedDateTimes[level][incre] = dateTimesDiffTable[++dateTimesDiffTableIndex].StaticsList;
 							}
 						}
-						else {	// 遍历到最后一个级别，classifiedDateTimes 最后一个元素会长一些
-							for (var incre = 1L; incre <= classifyLevelByDiff + diffRemain; incre++) {
-								classifiedDateTimes[level][incre] = dateTimesDiffTable[dateTimesDiffTableIndex].StaticsList;
+						else {  // 遍历到最后一个级别，classifiedDateTimes 最后一个元素会长一些
+							classifiedDateTimes[level] = new SortedList<ulong, StatistTotalByDateTime>[classifyLevelByDiff + diffRemain];
+							for (var incre = 0L; incre < classifyLevelByDiff + diffRemain; incre++) {
+								classifiedDateTimes[level][incre] = dateTimesDiffTable[++dateTimesDiffTableIndex].StaticsList;
 							}
 						}
 					}
+				}
+
+				//test
+				var level2 = 0;
+				foreach (var sortListArr in classifiedDateTimes) {
+					Debug.WriteLine($"Level: {++level2}");
+					foreach (var sortList in sortListArr) {
+						foreach (var item in sortList) {
+							Debug.Write($"{item.Key} ");
+						}
+					}
+					Debug.WriteLine("");
 				}
 
 				var totalOfCurrentDateTime = 0UL;
