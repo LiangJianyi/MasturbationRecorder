@@ -191,7 +191,8 @@ namespace MasturbationRecorder {
 				//		return moreBiger - moreLess >= 4 ? 5 : (moreBiger - moreLess) + 1;
 				//	}
 				//}
-				/// 根据区间[moreLess, moreBiger]决定到底应该分多少级
+
+				/// 根据 dateTimesDiffTable 的长度决定到底应该分多少级
 				long GetLevelScore2() => dateTimesDiffTable.LongCount() == 0 ? 0 :
 					dateTimesDiffTable.LongCount() >= 4 ? 5 : dateTimesDiffTable.LongCount() + 1;
 
@@ -251,7 +252,14 @@ namespace MasturbationRecorder {
 				// 长度由 GetLevelScore 决定，每个元素是另一个数组，长度由每一级元组对象的 StaticsList 中的元素总和决定，即 classifyLevelByDiff * StaticsList.Count
 				SortedList<ulong, StatistTotalByDateTime>[][] classifiedDateTimes =
 					new SortedList<ulong, StatistTotalByDateTime>[GetLevelScore2()][];
-				var dateTimesDiffTableIndex = 0;
+
+				/*
+				 *	无法更改List <T>索引参数的类型，它必须是int。 但是你可以创建一个需要 ulong 索引的自定义类型。
+				 *	你不能创建一个足够大的数组来要求64位索引。如果要创建可以存储这么多内容的列表，则必须使用某种树结构或交错数组。 
+				 *	这需要大量的内存！
+				 */
+				int dateTimesDiffTableIndex = 0;
+
 				for (var level = 0L; level < classifiedDateTimes.LongLength; level++) {
 					if (diffRemain == 0) {
 						for (var incre = 1L; incre <= classifyLevelByDiff; incre++) {
