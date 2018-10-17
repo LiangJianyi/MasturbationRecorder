@@ -168,12 +168,10 @@ namespace MasturbationRecorder {
 		/// 呈线性增长，其取决于对应的 StaticsList ，可以肯定的是，Ordinal 值越大，其对应的 StaticsList 中的 StatistTotalByDateTime
 		/// 的 Total 属性值也越大
 		/// </param>
-		/// <param name="moreLess"></param>
-		/// <param name="moreBiger"></param>
 		/// <param name="currentDateTime"></param>
 		/// <returns></returns>
 		private SolidColorBrush GetFillOfRectanglesByDifferentOfDateTimesTotal(
-			List<(ulong Ordinal, ulong Diff, SortedList<ulong, StatistTotalByDateTime> StaticsList)> dateTimesDiffTable,
+			List<(ulong Ordinal, long Diff, SortedList<ulong, StatistTotalByDateTime> StaticsList)> dateTimesDiffTable,
 			DateTime currentDateTime) {
 			if (dateTimesDiffTable == null) {
 				throw new ArgumentNullException("DateTimes cannot be empty.");
@@ -186,32 +184,32 @@ namespace MasturbationRecorder {
 				long GetLevelScore() => dateTimesDiffTable.LongCount() == 0 ? 0 :
 					dateTimesDiffTable.LongCount() >= 4 ? 5 : dateTimesDiffTable.LongCount() + 1;
 
-				IDictionary<ulong, SolidColorBrush> classifyColorByLevelScore() {
+				IDictionary<long, SolidColorBrush> classifyColorByLevelScore() {
 					switch (GetLevelScore()) {
 						case 0:
-							return new Dictionary<ulong, SolidColorBrush>() {
+							return new Dictionary<long, SolidColorBrush>() {
 								{ 0, new SolidColorBrush(Windows.UI.Colors.LightGray) }
 							};
 						case 1:
-							return new Dictionary<ulong, SolidColorBrush>() {
+							return new Dictionary<long, SolidColorBrush>() {
 								{ 0, new SolidColorBrush(Windows.UI.Colors.LightGray) },
 								{ 1, new SolidColorBrush(Windows.UI.Colors.DarkGreen) }
 							};
 						case 2:
-							return new Dictionary<ulong, SolidColorBrush>() {
+							return new Dictionary<long, SolidColorBrush>() {
 								{ 0, new SolidColorBrush(Windows.UI.Colors.LightGray) },
 								{ 1, new SolidColorBrush(Windows.UI.Colors.Green) },
 								{ 2, new SolidColorBrush(Windows.UI.Colors.DarkGreen) }
 							};
 						case 3:
-							return new Dictionary<ulong, SolidColorBrush>() {
+							return new Dictionary<long, SolidColorBrush>() {
 								{ 0, new SolidColorBrush(Windows.UI.Colors.LightGray) },
 								{ 1, new SolidColorBrush(Windows.UI.Colors.LawnGreen) },
 								{ 2, new SolidColorBrush(Windows.UI.Colors.Green) },
 								{ 3, new SolidColorBrush(Windows.UI.Colors.DarkGreen) }
 							};
 						case 4:
-							return new Dictionary<ulong, SolidColorBrush>() {
+							return new Dictionary<long, SolidColorBrush>() {
 								{ 0, new SolidColorBrush(Windows.UI.Colors.LightGray) },
 								{ 1, new SolidColorBrush(Windows.UI.Colors.GreenYellow) },
 								{ 2, new SolidColorBrush(Windows.UI.Colors.LawnGreen) },
@@ -219,7 +217,7 @@ namespace MasturbationRecorder {
 								{ 4, new SolidColorBrush(Windows.UI.Colors.DarkGreen) }
 							};
 						case 5:
-							return new Dictionary<ulong, SolidColorBrush>() {
+							return new Dictionary<long, SolidColorBrush>() {
 								{ 0, new SolidColorBrush(Windows.UI.Colors.LightGray) },
 								{ 1, new SolidColorBrush(Windows.UI.Colors.YellowGreen) },
 								{ 2, new SolidColorBrush(Windows.UI.Colors.GreenYellow) },
@@ -231,14 +229,14 @@ namespace MasturbationRecorder {
 							throw new InvalidDataException($"levelRange out of range: {GetLevelScore()}");
 					}
 				}
-				IDictionary<ulong, SolidColorBrush> classifyLevelColor = classifyColorByLevelScore();
+				IDictionary<long, SolidColorBrush> classifyLevelColor = classifyColorByLevelScore();
 
-				// dateTimesDiffTable 每个级别有 classifyLevelByDiff 个元素((ulong Ordinal, ulong Diff, SortedList<ulong, StatistTotalByDateTime> StaticsList))，
+				// dateTimesDiffTable 每个级别有 classifyLevelByDiff 个元素((ulong Ordinal, long Diff, SortedList<ulong, StatistTotalByDateTime> StaticsList))，
 				// 如果 diffRemain 大于 0，则最后一个级别有 classifyLevelByDiff + diffRemain 个元素
 				var classifyLevelByDiff = dateTimesDiffTable.LongCount() / GetLevelScore();
 				var diffRemain = dateTimesDiffTable.LongCount() % GetLevelScore();
 
-				// 存放已经分级的 (ulong Ordinal, ulong Diff, SortedList<ulong, StatistTotalByDateTime> StaticsList) 对象，
+				// 存放已经分级的 (ulong Ordinal, long Diff, SortedList<ulong, StatistTotalByDateTime> StaticsList) 对象，
 				// 长度由 GetLevelScore 决定，每个元素是另一个数组，长度由每一级元组对象的总和决定，即 classifyLevelByDiff，
 				// 如果 diffRemain > 0，那么最后一个元素包含的数组有 classifyLevelByDiff + diffRemain
 				SortedList<ulong, StatistTotalByDateTime>[][] classifiedDateTimes =
@@ -274,10 +272,13 @@ namespace MasturbationRecorder {
 					}
 				}
 
+				//test
+				Test_classifiedDateTimes(classifiedDateTimes);
+
 				// 除了 Ordinal 为 1 的元组（即第一级第一行），其它元组的 StaticsList 的首元素均要移除
-				for (long level = 0L; level < classifiedDateTimes.LongLength; level++) {
+				for (var level = 0L; level < classifiedDateTimes.LongLength; level++) {
 					if (level == 0L) {
-						for (long incre = 0L; incre < classifiedDateTimes[level].LongLength; incre++) {
+						for (var incre = 0L; incre < classifiedDateTimes[level].LongLength; incre++) {
 							if (incre > 0L) {
 								classifiedDateTimes[level][incre].RemoveAt(0);
 							}
@@ -293,21 +294,35 @@ namespace MasturbationRecorder {
 				//test
 				Test_classifiedDateTimes(classifiedDateTimes);
 
-				var totalOfCurrentDateTime = 0UL;
-				try {
-					totalOfCurrentDateTime = (from subarr in classifiedDateTimes
-											  from sortlist in subarr
-											  from item in sortlist
-											  where item.Value.DateTime == currentDateTime
-											  select item.Value.Total).First();
+				//var totalOfCurrentDateTime = 0UL;
+				//try {
+				//	totalOfCurrentDateTime = (from subarr in classifiedDateTimes
+				//							  from sortlist in subarr
+				//							  from item in sortlist
+				//							  where item.Value.DateTime == currentDateTime
+				//							  select item.Value.Total).First();
+				//}
+				//catch (InvalidOperationException ex) {
+				//	Debug.WriteLine(ex.Message);
+				//}
+
+				for (var level = 0L; level < classifiedDateTimes.LongLength; level++) {
+					foreach (var sortList in classifiedDateTimes[level]) {
+						foreach (var date in sortList) {
+							if (date.Value.DateTime == currentDateTime) {
+								return classifyLevelColor[level + 1];
+							}
+						}
+					}
 				}
-				catch (InvalidOperationException ex) {
-					Debug.WriteLine(ex.Message);
-				}
-				return classifyLevelColor[totalOfCurrentDateTime];
+				return classifyLevelColor[0L];
 			}
 		}
 
+		/// <summary>
+		/// classifiedDateTimes 的测试用例，不要删除
+		/// </summary>
+		/// <param name="classifiedDateTimes"></param>
 		private static void Test_classifiedDateTimes(SortedList<ulong, StatistTotalByDateTime>[][] classifiedDateTimes) {
 			var level2 = 0;
 			foreach (var sortListArr in classifiedDateTimes) {
@@ -332,11 +347,11 @@ namespace MasturbationRecorder {
 		/// 呈线性增长，其取决于对应的 StaticsList ，可以肯定的是，Ordinal 值越大，
 		/// 其对应的 StaticsList 中的 StatistTotalByDateTime 的 Total 属性值也越大
 		/// </returns>
-		private List<(ulong Ordinal, ulong Diff, SortedList<ulong, StatistTotalByDateTime> StaticsList)>
+		private List<(ulong Ordinal, long Diff, SortedList<ulong, StatistTotalByDateTime> StaticsList)>
 			GroupDateTimesByDiff(LinkedList<StatistTotalByDateTime> dateTimes) {
-			List<(ulong Ordinal, ulong Diff, SortedList<ulong, StatistTotalByDateTime> StaticsList)> datetimesDiffTable =
-				new List<(ulong Ordinal, ulong Diff, SortedList<ulong, StatistTotalByDateTime> StaticsList)>();
-			ulong tempDiff = 0UL;
+			List<(ulong Ordinal, long Diff, SortedList<ulong, StatistTotalByDateTime> StaticsList)> datetimesDiffTable =
+				new List<(ulong Ordinal, long Diff, SortedList<ulong, StatistTotalByDateTime> StaticsList)>();
+			long tempDiff = 0L;
 			ulong ordinal = 0UL;
 			SortedList<ulong, StatistTotalByDateTime> values = new SortedList<ulong, StatistTotalByDateTime>();
 			void AddUniqueToValues(LinkedListNode<StatistTotalByDateTime> node) {
@@ -346,7 +361,7 @@ namespace MasturbationRecorder {
 				catch (ArgumentException) { }   // 如果被添加的节点已存在，直接忽略
 			}
 			for (var current = dateTimes.First; current.Next != null; current = current.Next) {
-				tempDiff = current.Next.Value.Total - current.Value.Total;
+				tempDiff = Convert.ToInt64(current.Next.Value.Total - current.Value.Total);
 				if (values.Count == 0 && datetimesDiffTable.Count == 0) {
 					AddUniqueToValues(current);
 					AddUniqueToValues(current.Next);
