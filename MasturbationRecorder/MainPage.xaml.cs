@@ -274,17 +274,24 @@ namespace MasturbationRecorder {
 					}
 				}
 
-				//test
-				var level2 = 0;
-				foreach (var sortListArr in classifiedDateTimes) {
-					Debug.WriteLine($"Level: {++level2}");
-					foreach (var sortList in sortListArr) {
-						foreach (var item in sortList) {
-							Debug.Write($"{item.Key} ");
+				// 除了 Ordinal 为 1 的元组（即第一级第一行），其它元组的 StaticsList 的首元素均要移除
+				for (long level = 0L; level < classifiedDateTimes.LongLength; level++) {
+					if (level == 0L) {
+						for (long incre = 0L; incre < classifiedDateTimes[level].LongLength; incre++) {
+							if (incre > 0L) {
+								classifiedDateTimes[level][incre].RemoveAt(0);
+							}
 						}
 					}
-					Debug.WriteLine("");
+					else {
+						foreach (var sortList in classifiedDateTimes[level]) {
+							sortList.RemoveAt(0);
+						}
+					}
 				}
+
+				//test
+				Test_classifiedDateTimes(classifiedDateTimes);
 
 				var totalOfCurrentDateTime = 0UL;
 				try {
@@ -298,6 +305,19 @@ namespace MasturbationRecorder {
 					Debug.WriteLine(ex.Message);
 				}
 				return classifyLevelColor[totalOfCurrentDateTime];
+			}
+		}
+
+		private static void Test_classifiedDateTimes(SortedList<ulong, StatistTotalByDateTime>[][] classifiedDateTimes) {
+			var level2 = 0;
+			foreach (var sortListArr in classifiedDateTimes) {
+				Debug.WriteLine($"Level: {++level2}");
+				foreach (var sortList in sortListArr) {
+					foreach (var item in sortList) {
+						Debug.Write($"{item.Key} ");
+					}
+				}
+				Debug.WriteLine("");
 			}
 		}
 
