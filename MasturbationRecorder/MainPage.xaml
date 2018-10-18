@@ -13,7 +13,7 @@
             <AppBarButton Icon="OpenFile" Label="Pick record" Click="OpenFileButton_Click"/>
             <AppBarButton Icon="Save" Label="Save"/>
             <CommandBar.Content>
-                <TextBlock Name="StateBar" FontSize="30" FontStretch="SemiCondensed" Margin="100,0,0,0"/>
+                <ProgressRing Name="StateBar" Width="30" Height="30" FontSize="15" Foreground="SkyBlue" FontStretch="SemiCondensed" Margin="100,0,0,0"/>
             </CommandBar.Content>
         </CommandBar>
         <Border BorderBrush="LightGray" BorderThickness="2" HorizontalAlignment="Center" VerticalAlignment="Center">

@@ -27,6 +27,7 @@ namespace MasturbationRecorder {
 			this._window.SizeChanged += Current_SizeChanged;
 			this.InitializeComponent();
 			this.RectanglesLayout();
+			//this.StateBar.Height = this.Menu.ActualHeight;
 		}
 
 		private async void OpenFileButton_Click(object sender, RoutedEventArgs e) {
@@ -38,7 +39,7 @@ namespace MasturbationRecorder {
 			openPicker.FileTypeFilter.Add(".mast");
 
 			StorageFile file = await openPicker.PickSingleFileAsync();
-			StateBar.Text = "Analyzing...";
+			StateBar.IsActive = true;
 			
 			if (file != null) {
 				//Windows.Storage.AccessCache.StorageApplicationPermissions.FutureAccessList.Add(file);
@@ -67,7 +68,7 @@ namespace MasturbationRecorder {
 					);
 				}
 
-				StateBar.Text = string.Empty;
+				StateBar.IsActive = false;
 			}
 			else {
 				DisplayFileOpenFailDialog();
