@@ -30,9 +30,10 @@ namespace MasturbationRecorder {
 		}
 
 		private async void Button_Click(object sender, RoutedEventArgs e) {
-			FileOpenPicker openPicker = new FileOpenPicker();
-			openPicker.ViewMode = PickerViewMode.Thumbnail;
-			openPicker.SuggestedStartLocation = PickerLocationId.ComputerFolder;
+			FileOpenPicker openPicker = new FileOpenPicker {
+				ViewMode = PickerViewMode.Thumbnail,
+				SuggestedStartLocation = PickerLocationId.ComputerFolder
+			};
 			openPicker.FileTypeFilter.Add(".txt");
 			openPicker.FileTypeFilter.Add(".mast");
 
@@ -52,17 +53,19 @@ namespace MasturbationRecorder {
 				}
 
 				var res = this.GroupDateTimesByDiff(dateTimes);
+				var classifyDateTimes = GetClassifyDateTimesTable(res);
 
 				// 遍历所有 Rectangle 根据 _datetimes 进行着色
 				foreach (Rectangle rect in RectanglesCanvas.Children) {
 					Debug.WriteLine(DateTime.Parse(rect.Name));
-					rect.Fill = GetFillOfRectanglesByDifferentOfDateTimesTotal(res, DateTime.Parse(rect.Name));
+					rect.Fill = GetFillOfRectanglesByDifferentOfDateTimesTotal(
+						currentDateTime: DateTime.Parse(rect.Name),
+						classifyLevelColor: ClassifyColorByLevelScore(classifyDateTimes.LongLength),
+						classifiedDateTimes: classifyDateTimes
+					);
 				}
 
-				Debug.WriteLine("Outputing datetime file content:");
-				foreach (var item in dateTimes) {
-					Debug.WriteLine(item.DateTime.ToShortDateString());
-				}
+
 			}
 			else {
 				Debug.WriteLine("Operation cancelled.");
@@ -159,65 +162,40 @@ namespace MasturbationRecorder {
 			Debug.WriteLine($"{this._window.Bounds.Width} , {this._window.Bounds.Height}");
 		}
 
-		/// <summary>
-		/// 根据时间频率对 Rectangle 进行着色
-		/// </summary>
-		/// <param name="dateTimesDiffTable">
-		/// 接收一个元组列表，该列表由方法 GroupDateTimesByDiff 产生，其根据时间链表（LinkeList<StatistTotalByDateTime>）
-		/// 中每个相邻元素之间的 Total 差值进行分组和排序，每个元组之间呈升序排列（由 Ordinal 属性决定），元组之间的 Diff 不一定
-		/// 呈线性增长，其取决于对应的 StaticsList ，可以肯定的是，Ordinal 值越大，其对应的 StaticsList 中的 StatistTotalByDateTime
-		/// 的 Total 属性值也越大
-		/// </param>
-		/// <param name="currentDateTime"></param>
-		/// <returns></returns>
-		private SolidColorBrush GetFillOfRectanglesByDifferentOfDateTimesTotal(
-			List<(ulong Ordinal, long Diff, SortedList<ulong, StatistTotalByDateTime> StaticsList)> dateTimesDiffTable,
-			DateTime currentDateTime) {
-			if (dateTimesDiffTable == null) {
-				throw new ArgumentNullException("DateTimes cannot be empty.");
-			}
-			else if (dateTimesDiffTable.Count == 0) {
-				return new SolidColorBrush(Windows.UI.Colors.LightGray);
-			}
-			else {
-				/// 根据 dateTimesDiffTable 的长度决定到底应该分多少级
-				long GetLevelScore() => dateTimesDiffTable.LongCount() == 0 ? 0 :
-					dateTimesDiffTable.LongCount() >= 4 ? 5 : dateTimesDiffTable.LongCount() + 1;
-
-				IDictionary<long, SolidColorBrush> classifyColorByLevelScore() {
-					switch (GetLevelScore()) {
-						case 0:
-							return new Dictionary<long, SolidColorBrush>() {
+		private static IDictionary<long, SolidColorBrush> ClassifyColorByLevelScore(long level) {
+			switch (level) {
+				case 0:
+					return new Dictionary<long, SolidColorBrush>() {
 								{ 0, new SolidColorBrush(Windows.UI.Colors.LightGray) }
 							};
-						case 1:
-							return new Dictionary<long, SolidColorBrush>() {
+				case 1:
+					return new Dictionary<long, SolidColorBrush>() {
 								{ 0, new SolidColorBrush(Windows.UI.Colors.LightGray) },
 								{ 1, new SolidColorBrush(Windows.UI.Colors.DarkGreen) }
 							};
-						case 2:
-							return new Dictionary<long, SolidColorBrush>() {
+				case 2:
+					return new Dictionary<long, SolidColorBrush>() {
 								{ 0, new SolidColorBrush(Windows.UI.Colors.LightGray) },
 								{ 1, new SolidColorBrush(Windows.UI.Colors.Green) },
 								{ 2, new SolidColorBrush(Windows.UI.Colors.DarkGreen) }
 							};
-						case 3:
-							return new Dictionary<long, SolidColorBrush>() {
+				case 3:
+					return new Dictionary<long, SolidColorBrush>() {
 								{ 0, new SolidColorBrush(Windows.UI.Colors.LightGray) },
 								{ 1, new SolidColorBrush(Windows.UI.Colors.LawnGreen) },
 								{ 2, new SolidColorBrush(Windows.UI.Colors.Green) },
 								{ 3, new SolidColorBrush(Windows.UI.Colors.DarkGreen) }
 							};
-						case 4:
-							return new Dictionary<long, SolidColorBrush>() {
+				case 4:
+					return new Dictionary<long, SolidColorBrush>() {
 								{ 0, new SolidColorBrush(Windows.UI.Colors.LightGray) },
 								{ 1, new SolidColorBrush(Windows.UI.Colors.GreenYellow) },
 								{ 2, new SolidColorBrush(Windows.UI.Colors.LawnGreen) },
 								{ 3, new SolidColorBrush(Windows.UI.Colors.Green) },
 								{ 4, new SolidColorBrush(Windows.UI.Colors.DarkGreen) }
 							};
-						case 5:
-							return new Dictionary<long, SolidColorBrush>() {
+				case 5:
+					return new Dictionary<long, SolidColorBrush>() {
 								{ 0, new SolidColorBrush(Windows.UI.Colors.LightGray) },
 								{ 1, new SolidColorBrush(Windows.UI.Colors.YellowGreen) },
 								{ 2, new SolidColorBrush(Windows.UI.Colors.GreenYellow) },
@@ -225,11 +203,34 @@ namespace MasturbationRecorder {
 								{ 4, new SolidColorBrush(Windows.UI.Colors.Green) },
 								{ 5, new SolidColorBrush(Windows.UI.Colors.DarkGreen) }
 							};
-						default:
-							throw new InvalidDataException($"levelRange out of range: {GetLevelScore()}");
-					}
-				}
-				IDictionary<long, SolidColorBrush> classifyLevelColor = classifyColorByLevelScore();
+				default:
+					throw new InvalidDataException($"levelRange out of range: {level}");
+			}
+		}
+
+		/// <summary>
+		/// 为 dateTimesDiffTable 分级并返回一个交错数组
+		/// </summary>
+		/// <param name="dateTimesDiffTable">
+		/// 接收一个元组列表，该列表由方法 GroupDateTimesByDiff 产生，其根据时间链表（LinkeList<StatistTotalByDateTime>）
+		/// 中每个相邻元素之间的 Total 差值进行分组和排序，每个元组之间呈升序排列（由 Ordinal 属性决定），元组之间的 Diff 不一定
+		/// 呈线性增长，其取决于对应的 StaticsList ，可以肯定的是，Ordinal 值越大，其对应的 StaticsList 中的 StatistTotalByDateTime
+		/// 的 Total 属性值也越大
+		/// </param>
+		/// <returns></returns>
+		private SortedList<ulong, StatistTotalByDateTime>[][] GetClassifyDateTimesTable(List<(ulong Ordinal, long Diff, SortedList<ulong, StatistTotalByDateTime> StaticsList)> dateTimesDiffTable) {
+			if (dateTimesDiffTable == null) {
+				throw new ArgumentNullException("DateTimes cannot be empty.");
+			}
+			else if (dateTimesDiffTable.Count == 0) {
+				throw new ArgumentException("dateTimesDiffTable must have content.");
+			}
+			else {
+				/// 根据 dateTimesDiffTable 的长度决定到底应该分多少级
+				long GetLevelScore() => dateTimesDiffTable.LongCount() == 0 ? 0 :
+					dateTimesDiffTable.LongCount() >= 4 ? 5 : dateTimesDiffTable.LongCount() + 1;
+
+				IDictionary<long, SolidColorBrush> classifyLevelColor = ClassifyColorByLevelScore(GetLevelScore());
 
 				// dateTimesDiffTable 每个级别有 classifyLevelByDiff 个元素((ulong Ordinal, long Diff, SortedList<ulong, StatistTotalByDateTime> StaticsList))，
 				// 如果 diffRemain 大于 0，则最后一个级别有 classifyLevelByDiff + diffRemain 个元素
@@ -294,29 +295,24 @@ namespace MasturbationRecorder {
 				//test
 				Test_classifiedDateTimes(classifiedDateTimes);
 
-				//var totalOfCurrentDateTime = 0UL;
-				//try {
-				//	totalOfCurrentDateTime = (from subarr in classifiedDateTimes
-				//							  from sortlist in subarr
-				//							  from item in sortlist
-				//							  where item.Value.DateTime == currentDateTime
-				//							  select item.Value.Total).First();
-				//}
-				//catch (InvalidOperationException ex) {
-				//	Debug.WriteLine(ex.Message);
-				//}
+				return classifiedDateTimes;
+			}
+		}
 
-				for (var level = 0L; level < classifiedDateTimes.LongLength; level++) {
-					foreach (var sortList in classifiedDateTimes[level]) {
-						foreach (var date in sortList) {
-							if (date.Value.DateTime == currentDateTime) {
-								return classifyLevelColor[level + 1];
-							}
+		private static SolidColorBrush GetFillOfRectanglesByDifferentOfDateTimesTotal(
+			DateTime currentDateTime,
+			IDictionary<long, SolidColorBrush> classifyLevelColor,
+			SortedList<ulong, StatistTotalByDateTime>[][] classifiedDateTimes) {
+			for (var level = 0L; level < classifiedDateTimes.LongLength; level++) {
+				foreach (var sortList in classifiedDateTimes[level]) {
+					foreach (var date in sortList) {
+						if (date.Value.DateTime == currentDateTime) {
+							return classifyLevelColor[level + 1];
 						}
 					}
 				}
-				return classifyLevelColor[0L];
 			}
+			return classifyLevelColor[0L];
 		}
 
 		/// <summary>
