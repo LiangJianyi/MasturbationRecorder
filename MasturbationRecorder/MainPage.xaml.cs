@@ -29,7 +29,7 @@ namespace MasturbationRecorder {
 			this.RectanglesLayout();
 		}
 
-		private async void Button_Click(object sender, RoutedEventArgs e) {
+		private async void OpenFileButton_Click(object sender, RoutedEventArgs e) {
 			FileOpenPicker openPicker = new FileOpenPicker {
 				ViewMode = PickerViewMode.Thumbnail,
 				SuggestedStartLocation = PickerLocationId.ComputerFolder

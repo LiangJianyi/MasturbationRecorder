@@ -9,7 +9,13 @@
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
     <Grid Name="Root">
-        <Button Margin="1200,0,0,700" Width="100" Height="50" Content="Pick record" Click="Button_Click"/>
+        <CommandBar Name="Menu">
+            <AppBarButton Icon="OpenFile" Label="Pick record" Click="OpenFileButton_Click"/>
+            <AppBarButton Icon="Save" Label="Save"/>
+            <CommandBar.Content>
+                <TextBlock Name="StateBar" FontSize="30" FontStretch="SemiCondensed" Margin="100,0,0,0"/>
+            </CommandBar.Content>
+        </CommandBar>
         <Border BorderBrush="LightGray" BorderThickness="2" HorizontalAlignment="Center" VerticalAlignment="Center">
             <Canvas Name="RectanglesCanvas" Width="300" Height="300"></Canvas>
         </Border>
