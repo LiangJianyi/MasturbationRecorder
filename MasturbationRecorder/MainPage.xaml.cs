@@ -38,6 +38,8 @@ namespace MasturbationRecorder {
 			openPicker.FileTypeFilter.Add(".mast");
 
 			StorageFile file = await openPicker.PickSingleFileAsync();
+			StateBar.Text = "Analyzing...";
+			
 			if (file != null) {
 				//Windows.Storage.AccessCache.StorageApplicationPermissions.FutureAccessList.Add(file);
 				string text = await FileIO.ReadTextAsync(file);
@@ -65,11 +67,21 @@ namespace MasturbationRecorder {
 					);
 				}
 
-
+				StateBar.Text = string.Empty;
 			}
 			else {
-				Debug.WriteLine("Operation cancelled.");
+				DisplayFileOpenFailDialog();
 			}
+		}
+
+		private static async void DisplayFileOpenFailDialog() {
+			ContentDialog fileOpenFailDialog = new ContentDialog {
+				Title = "Error",
+				Content = "File open fail!",
+				CloseButtonText = "Ok"
+			};
+
+			ContentDialogResult result = await fileOpenFailDialog.ShowAsync();
 		}
 
 		private void TempTest(LinkedList<StatistTotalByDateTime> dateTimes) {
