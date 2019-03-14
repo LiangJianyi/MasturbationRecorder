@@ -50,7 +50,7 @@ namespace MasturbationRecorder {
 				LinkedList<StatistTotalByDateTime> dateTimes = new LinkedList<StatistTotalByDateTime>();
 				foreach (var line in lines) {
 					if (line != "" && line != "\r") {   // 忽略空行
-						StatistTotalByDateTime statist = DatetimeParser.ParseALine(line);
+						StatistTotalByDateTime statist = DatetimeParser.ParseExpr(line);
 						dateTimes.AddLast(statist);
 					}
 				}

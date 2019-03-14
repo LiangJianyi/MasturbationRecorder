@@ -65,8 +65,13 @@ namespace MasturbationRecorder {
 			}
 		}
 
-		internal static StatistTotalByDateTime ParseALine(string text) {
-			string[] tokens = GetToken(text);
+		/// <summary>
+		/// 把每行表达式转换为 StatistTotalByDateTime
+		/// </summary>
+		/// <param name="expr"></param>
+		/// <returns></returns>
+		internal static StatistTotalByDateTime ParseExpr(string expr) {
+			string[] tokens = GetToken(expr);
 			if (tokens.Length == 3) {
 				ushort monthValue = StringToUInt16(tokens[0]);
 				ushort dayValue = Convert.ToUInt16(tokens[1]);
