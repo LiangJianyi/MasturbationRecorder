@@ -6,6 +6,11 @@ using System.Threading.Tasks;
 
 namespace MasturbationRecorder {
 	static class DatetimeParser {
+		/// <summary>
+		/// 转换月份的简写为对应的整数
+		/// </summary>
+		/// <param name="month">month shorthand</param>
+		/// <returns></returns>
 		private static ushort StringToUInt16(string month) {
 			switch (month.ToLower()) {
 				case "mon":
@@ -37,13 +42,23 @@ namespace MasturbationRecorder {
 			}
 		}
 
+		/// <summary>
+		/// 根据空格切割文本
+		/// </summary>
+		/// <param name="text"></param>
+		/// <returns></returns>
 		private static string[] GetToken(string text) {
 			return text.Split(' ');
 		}
 
-		private static ulong GetRepeatCount(string text) {
-			if (text[0] == 'x' || text[0] == 'X') {
-				return Convert.ToUInt64(text.Substring(1, text.Length - 1));
+		/// <summary>
+		/// 提取频率
+		/// </summary>
+		/// <param name="frequencyPart"></param>
+		/// <returns></returns>
+		private static ulong GetFrequency(string frequencyPart) {
+			if (frequencyPart[0] == 'x' || frequencyPart[0] == 'X') {
+				return Convert.ToUInt64(frequencyPart.Substring(1, frequencyPart.Length - 1));
 			}
 			else {
 				throw new ArgumentException("Repeatable incrementor formal error.");
@@ -62,7 +77,7 @@ namespace MasturbationRecorder {
 				ushort monthValue = StringToUInt16(tokens[0]);
 				ushort dayValue = Convert.ToUInt16(tokens[1]);
 				ushort yearValue = Convert.ToUInt16(tokens[2]);
-				ulong count = GetRepeatCount(tokens[3]);
+				ulong count = GetFrequency(tokens[3]);
 				return new StatistTotalByDateTime() { DateTime = new DateTime(yearValue, monthValue, dayValue), Total = count };
 			}
 			else {
@@ -70,6 +85,11 @@ namespace MasturbationRecorder {
 			}
 		}
 
+		/// <summary>
+		/// 每行表达式单独作为一个集合元素
+		/// </summary>
+		/// <param name="text"></param>
+		/// <returns>返回一个表达式序列</returns>
 		internal static IEnumerable<string> SplitByLine(string text) {
 			return text.Split('\n');
 		}
