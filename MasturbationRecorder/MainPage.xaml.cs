@@ -24,10 +24,15 @@ namespace MasturbationRecorder {
 		private Window _window = Window.Current;
 
 		public MainPage() {
-			this._window.SizeChanged += Current_SizeChanged;
-			this.InitializeComponent();
-			this.RectanglesLayout();
-			//this.StateBar.Height = this.Menu.ActualHeight;
+			try {
+				this._window.SizeChanged += Current_SizeChanged;
+				this.InitializeComponent();
+				this.RectanglesLayout();
+				//this.StateBar.Height = this.Menu.ActualHeight;
+			}
+			catch (Exception) {
+				DisplayUnknownErrorDialog();
+			}
 		}
 
 		private async void OpenFileButton_Click(object sender, RoutedEventArgs e) {
@@ -83,6 +88,14 @@ namespace MasturbationRecorder {
 			};
 
 			ContentDialogResult result = await fileOpenFailDialog.ShowAsync();
+		}
+
+		private static async void DisplayUnknownErrorDialog() {
+			ContentDialogResult result = await new ContentDialog {
+				Title = "Error",
+				Content = "Unknown Error!",
+				CloseButtonText = "Ok"
+			}.ShowAsync();
 		}
 
 		private void TempTest(LinkedList<StatistTotalByDateTime> dateTimes) {
