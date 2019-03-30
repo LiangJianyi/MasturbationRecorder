@@ -44,8 +44,10 @@ namespace MasturbationRecorder {
 			if (file != null) {
 				//Windows.Storage.AccessCache.StorageApplicationPermissions.FutureAccessList.Add(file);
 				string text = await FileIO.ReadTextAsync(file);
+#if DEBUG
 				Debug.WriteLine(text);
-				Debug.WriteLine($"line count:{(from t in text where t == '\n' select t).Count() + 1}");
+				Debug.WriteLine($"line count:{(from t in text where t == '\n' select t).Count() + 1}"); 
+#endif
 				IEnumerable<string> lines = DatetimeParser.SplitByLine(text);
 				LinkedList<StatistTotalByDateTime> dateTimes = new LinkedList<StatistTotalByDateTime>();
 				foreach (var line in lines) {
@@ -60,7 +62,9 @@ namespace MasturbationRecorder {
 
 				// 遍历所有 Rectangle 根据 _datetimes 进行着色
 				foreach (Rectangle rect in RectanglesCanvas.Children) {
-					Debug.WriteLine(DateTime.Parse(rect.Name));
+#if DEBUG
+					Debug.WriteLine(DateTime.Parse(rect.Name)); 
+#endif
 					rect.Fill = GetFillOfRectanglesByDifferentOfDateTimesTotal(
 						currentDateTime: DateTime.Parse(rect.Name),
 						classifyLevelColor: ClassifyColorByLevelScore(classifyDateTimes.LongLength),
