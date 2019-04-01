@@ -95,7 +95,7 @@ namespace UnitTestMasturbationRecorder {
                 "Oct 5 2018";
 
             string[] exceptedLines = new string[] {
-                "May 27 2018\r",
+                "May 27 2018 x20\r",
                 "May 29 2018\r",
                 "May 31 2018\r",
                 "Jun 12 2018\r",
@@ -152,7 +152,16 @@ namespace UnitTestMasturbationRecorder {
                 "Oct 5 2018"
             };
             IEnumerable<string> actualLines = DatetimeParser.SplitByLine(exceptedText);
-            CollectionAssert.AreEquivalent(exceptedLines, actualLines);
+            if (exceptedLines.Count<string>() == actualLines.Count<string>()) {
+                int index = 0;
+                foreach (string actual in actualLines) {
+                    Assert.AreEqual<string>(exceptedLines[index], actual);
+                    index += 1;
+                }
+            }
+            else {
+                Assert.Fail("exceptedLines.Count() not equal to actualLines.Count().");
+            }
         }
 
         // 此函数会让测试工具故障，原因未知。
