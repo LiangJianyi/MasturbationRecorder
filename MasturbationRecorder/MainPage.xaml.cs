@@ -42,44 +42,50 @@ namespace MasturbationRecorder {
 			StateBar.IsActive = true;
 			
 			if (file != null) {
-				//Windows.Storage.AccessCache.StorageApplicationPermissions.FutureAccessList.Add(file);
-				string text = await FileIO.ReadTextAsync(file);
+                //Windows.Storage.AccessCache.StorageApplicationPermissions.FutureAccessList.Add(file);
+                string text = await FileIO.ReadTextAsync(file);
 #if DEBUG
-				Debug.WriteLine(text);
-				Debug.WriteLine($"line count:{(from t in text where t == '\n' select t).Count() + 1}"); 
+                Debug.WriteLine(text);
+                Debug.WriteLine($"line count:{(from t in text where t == '\n' select t).Count() + 1}");
 #endif
-				IEnumerable<string> lines = DatetimeParser.SplitByLine(text);
-				LinkedList<StatistTotalByDateTime> dateTimes = new LinkedList<StatistTotalByDateTime>();
-				foreach (var line in lines) {
-					if (line != "" && line != "\r") {   // 忽略空行
-						StatistTotalByDateTime statist = DatetimeParser.ParseExpr(line);
-						dateTimes.AddLast(statist);
-					}
-				}
+                IEnumerable<string> lines = DatetimeParser.SplitByLine(text);
+                LinkedList<StatistTotalByDateTime> dateTimes = LinesConvertToStatistTotalByDateTimes(lines);
 
-				var res = this.GroupDateTimesByDiff(dateTimes);
-				var classifyDateTimes = GetClassifyDateTimesTable(res);
+                var res = this.GroupDateTimesByDiff(dateTimes);
+                var classifyDateTimes = GetClassifyDateTimesTable(res);
 
-				// 遍历所有 Rectangle 根据 _datetimes 进行着色
-				foreach (Rectangle rect in RectanglesCanvas.Children) {
+                // 遍历所有 Rectangle 根据 _datetimes 进行着色
+                foreach (Rectangle rect in RectanglesCanvas.Children) {
 #if DEBUG
-					Debug.WriteLine(DateTime.Parse(rect.Name)); 
+                    Debug.WriteLine(DateTime.Parse(rect.Name));
 #endif
-					rect.Fill = GetFillOfRectanglesByDifferentOfDateTimesTotal(
-						currentDateTime: DateTime.Parse(rect.Name),
-						classifyLevelColor: ClassifyColorByLevelScore(classifyDateTimes.LongLength),
-						classifiedDateTimes: classifyDateTimes
-					);
-				}
+                    rect.Fill = GetFillOfRectanglesByDifferentOfDateTimesTotal(
+                        currentDateTime: DateTime.Parse(rect.Name),
+                        classifyLevelColor: ClassifyColorByLevelScore(classifyDateTimes.LongLength),
+                        classifiedDateTimes: classifyDateTimes
+                    );
+                }
 
-				StateBar.IsActive = false;
-			}
-			else {
+                StateBar.IsActive = false;
+            }
+            else {
 				DisplayFileOpenFailDialog();
 			}
 		}
 
-		private static async void DisplayFileOpenFailDialog() {
+        private static LinkedList<StatistTotalByDateTime> LinesConvertToStatistTotalByDateTimes(IEnumerable<string> lines) {
+            LinkedList<StatistTotalByDateTime> dateTimes = new LinkedList<StatistTotalByDateTime>();
+            foreach (var line in lines) {
+                if (line != "" && line != "\r") {   // 忽略空行
+                    StatistTotalByDateTime statist = DatetimeParser.ParseExpr(line);
+                    dateTimes.AddLast(statist);
+                }
+            }
+
+            return dateTimes;
+        }
+
+        private static async void DisplayFileOpenFailDialog() {
 			ContentDialog fileOpenFailDialog = new ContentDialog {
 				Title = "Error",
 				Content = "File open fail!",
