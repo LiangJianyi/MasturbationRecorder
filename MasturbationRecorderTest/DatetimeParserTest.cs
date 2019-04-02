@@ -11,7 +11,7 @@ namespace UnitTestMasturbationRecorder {
     [TestClass]
     public class DatetimeParserTest {
         private Type datetimeParser = typeof(DatetimeParser);
-        private string[] exceptedLines = new string[] {
+        private string[] testTextLine = new string[] {
                 "May 27 2018 x20\r",
                 "May 29 2018\r",
                 "May 31 2018\r",
@@ -152,10 +152,10 @@ namespace UnitTestMasturbationRecorder {
                 "Oct 5 2018";
 
             IEnumerable<string> actualLines = DatetimeParser.SplitByLine(exceptedText);
-            if (exceptedLines.Count<string>() == actualLines.Count<string>()) {
+            if (testTextLine.Count<string>() == actualLines.Count<string>()) {
                 int index = 0;
                 foreach (string actual in actualLines) {
-                    Assert.AreEqual<string>(exceptedLines[index], actual);
+                    Assert.AreEqual<string>(testTextLine[index], actual);
                     index += 1;
                 }
             }
@@ -203,43 +203,44 @@ namespace UnitTestMasturbationRecorder {
                 new StatistTotalByDateTime() { DateTime = new DateTime( 2018 , 7 , 29) , Total = 1 },
                 new StatistTotalByDateTime() { DateTime = new DateTime( 2018 , 7 , 31) , Total = 1 },
                 new StatistTotalByDateTime() { DateTime = new DateTime( 2018 , 8 , 2) , Total = 1 },
-                new StatistTotalByDateTime() { DateTime = new DateTime( 2018 , 8 , 27) , Total = 20 },
-                new StatistTotalByDateTime() { DateTime = new DateTime( 2018 , 8 , 27) , Total = 20 },
-                new StatistTotalByDateTime() { DateTime = new DateTime( 2018 , 8 , 27) , Total = 20 },
-                new StatistTotalByDateTime() { DateTime = new DateTime( 2018 , 8 , 27) , Total = 20 },
-                new StatistTotalByDateTime() { DateTime = new DateTime( 2018 , 8 , 27) , Total = 20 },
-                new StatistTotalByDateTime() { DateTime = new DateTime( 2018 , 8 , 27) , Total = 20 },
-                new StatistTotalByDateTime() { DateTime = new DateTime( 2018 , 8 , 27) , Total = 20 },
-                new StatistTotalByDateTime() { DateTime = new DateTime( 2018 , 8 , 27) , Total = 20 },
-                new StatistTotalByDateTime() { DateTime = new DateTime( 2018 , 8 , 27) , Total = 20 },
-                new StatistTotalByDateTime() { DateTime = new DateTime( 2018 , 8 , 27) , Total = 20 },
-                new StatistTotalByDateTime() { DateTime = new DateTime( 2018 , 8 , 27) , Total = 20 },
-                new StatistTotalByDateTime() { DateTime = new DateTime( 2018 , 8 , 27) , Total = 20 },
-                new StatistTotalByDateTime() { DateTime = new DateTime( 2018 , 5 , 27) , Total = 20 },
-                new StatistTotalByDateTime() { DateTime = new DateTime( 2018 , 5 , 27) , Total = 20 },
-                new StatistTotalByDateTime() { DateTime = new DateTime( 2018 , 5 , 27) , Total = 20 },
-                new StatistTotalByDateTime() { DateTime = new DateTime( 2018 , 5 , 27) , Total = 20 },
-                new StatistTotalByDateTime() { DateTime = new DateTime( 2018 , 5 , 27) , Total = 20 },
-                new StatistTotalByDateTime() { DateTime = new DateTime( 2018 , 5 , 27) , Total = 20 },
-                new StatistTotalByDateTime() { DateTime = new DateTime( 2018 , 5 , 27) , Total = 20 },
-                new StatistTotalByDateTime() { DateTime = new DateTime( 2018 , 5 , 27) , Total = 20 },
-                new StatistTotalByDateTime() { DateTime = new DateTime( 2018 , 5 , 27) , Total = 20 },
-                new StatistTotalByDateTime() { DateTime = new DateTime( 2018 , 5 , 27) , Total = 20 },
-                new StatistTotalByDateTime() { DateTime = new DateTime( 2018 , 5 , 27) , Total = 20 },
-                new StatistTotalByDateTime() { DateTime = new DateTime( 2018 , 5 , 27) , Total = 20 },
-                new StatistTotalByDateTime() { DateTime = new DateTime( 2018 , 5 , 27) , Total = 20 },
-                new StatistTotalByDateTime() { DateTime = new DateTime( 2018 , 5 , 27) , Total = 20 },
-                new StatistTotalByDateTime() { DateTime = new DateTime( 2018 , 5 , 27) , Total = 20 },
-                new StatistTotalByDateTime() { DateTime = new DateTime( 2018 , 5 , 27) , Total = 20 },
-                new StatistTotalByDateTime() { DateTime = new DateTime( 2018 , 5 , 27) , Total = 20 },
-                new StatistTotalByDateTime() { DateTime = new DateTime( 2018 , 5 , 27) , Total = 20 },
-                new StatistTotalByDateTime() { DateTime = new DateTime( 2018 , 5 , 27) , Total = 20 },
-                new StatistTotalByDateTime() { DateTime = new DateTime( 2018 , 5 , 27) , Total = 20 }
+                new StatistTotalByDateTime() { DateTime = new DateTime( 2018 , 8 , 6) , Total = 1 },
+                new StatistTotalByDateTime() { DateTime = new DateTime( 2018 , 8 , 8) , Total = 1 },
+                new StatistTotalByDateTime() { DateTime = new DateTime( 2018 , 8 , 9) , Total = 1 },
+                new StatistTotalByDateTime() { DateTime = new DateTime( 2018 , 8 , 11) , Total = 1 },
+                new StatistTotalByDateTime() { DateTime = new DateTime( 2018 , 8 , 12) , Total = 1 },
+                new StatistTotalByDateTime() { DateTime = new DateTime( 2018 , 8 , 15) , Total = 1 },
+                new StatistTotalByDateTime() { DateTime = new DateTime( 2018 , 8 , 16) , Total = 1 },
+                new StatistTotalByDateTime() { DateTime = new DateTime( 2018 , 8 , 21) , Total = 2 },
+                new StatistTotalByDateTime() { DateTime = new DateTime( 2018 , 8 , 22) , Total = 1 },
+                new StatistTotalByDateTime() { DateTime = new DateTime( 2018 , 8 , 24) , Total = 1 },
+                new StatistTotalByDateTime() { DateTime = new DateTime( 2018 , 8 , 25) , Total = 1 },
+                new StatistTotalByDateTime() { DateTime = new DateTime( 2018 , 8 , 29) , Total = 2 },
+                new StatistTotalByDateTime() { DateTime = new DateTime( 2018 , 9 , 1) , Total = 1 },
+                new StatistTotalByDateTime() { DateTime = new DateTime( 2018 , 9 , 3) , Total = 1 },
+                new StatistTotalByDateTime() { DateTime = new DateTime( 2018 , 9 , 6) , Total = 1 },
+                new StatistTotalByDateTime() { DateTime = new DateTime( 2018 , 9 , 7) , Total = 1 },
+                new StatistTotalByDateTime() { DateTime = new DateTime( 2018 , 9 , 9) , Total = 1 },
+                new StatistTotalByDateTime() { DateTime = new DateTime( 2018 , 9 , 11) , Total = 1 },
+                new StatistTotalByDateTime() { DateTime = new DateTime( 2018 , 9 , 12) , Total = 1 },
+                new StatistTotalByDateTime() { DateTime = new DateTime( 2018 , 9 , 14) , Total = 2 },
+                new StatistTotalByDateTime() { DateTime = new DateTime( 2018 , 9 , 15) , Total = 1 },
+                new StatistTotalByDateTime() { DateTime = new DateTime( 2018 , 9 , 16) , Total = 1 },
+                new StatistTotalByDateTime() { DateTime = new DateTime( 2018 , 9 , 19) , Total = 1 },
+                new StatistTotalByDateTime() { DateTime = new DateTime( 2018 , 9 , 20) , Total = 1 },
+                new StatistTotalByDateTime() { DateTime = new DateTime( 2018 , 9 , 22) , Total = 1 },
+                new StatistTotalByDateTime() { DateTime = new DateTime( 2018 , 9 , 25) , Total = 1 },
+                new StatistTotalByDateTime() { DateTime = new DateTime( 2018 , 9 , 26) , Total = 1 },
+                new StatistTotalByDateTime() { DateTime = new DateTime( 2018 , 9 , 27) , Total = 2 },
+                new StatistTotalByDateTime() { DateTime = new DateTime( 2018 , 9 , 30) , Total = 1 },
+                new StatistTotalByDateTime() { DateTime = new DateTime( 2018 , 10 , 1) , Total = 1 },
+                new StatistTotalByDateTime() { DateTime = new DateTime( 2018 , 10 , 4) , Total = 1 },
+                new StatistTotalByDateTime() { DateTime = new DateTime( 2018 , 10 , 5) , Total = 1 }
             };
-            foreach (var line in this.exceptedLines) {
-                StatistTotalByDateTime statist = DatetimeParser.ParseExpr(line);
+            int index = 0;
+            foreach (var item in exceptedStatistTotalByDateTimes) {
+                Assert.IsTrue(item.Equivalent(DatetimeParser.ParseExpr(testTextLine[index])));
+                index += 1;
             }
-
         }
     }
 }
