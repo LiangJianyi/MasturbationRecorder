@@ -95,26 +95,6 @@ namespace MasturbationRecorder {
 			ContentDialogResult result = await fileOpenFailDialog.ShowAsync();
 		}
 
-		private void TempTest(LinkedList<StatistTotalByDateTime> dateTimes) {
-			var res = this.GroupDateTimesByDiff(dateTimes);
-			string PrintStaticsList(SortedList<ulong, StatistTotalByDateTime> list) {
-				string text = null;
-				foreach (var statics in list) {
-					if (text == null) {
-						text = $"[\"{statics}\", ";
-					}
-					else {
-						text += $"\"{statics}\", ";
-					}
-				}
-				text = text.Remove(text.Length - 2, 2);
-				return text;
-			}
-			foreach (var item in res) {
-				Debug.WriteLine($"{item.Ordinal}  {item.Diff}  {PrintStaticsList(item.StaticsList)}");
-			}
-		}
-
 		private void RectanglesLayout() {
 			DateTime today = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day);
 			DateTime todayOfLastyear = new DateTime(today.Year - 1, today.Month, today.Day);
@@ -182,8 +162,10 @@ namespace MasturbationRecorder {
 		}
 
 		private void Current_SizeChanged(object sender, Windows.UI.Core.WindowSizeChangedEventArgs e) {
-			Debug.WriteLine($"{this._window.Bounds.Width} , {this._window.Bounds.Height}");
-		}
+#if DEBUG
+            Debug.WriteLine($"{this._window.Bounds.Width} , {this._window.Bounds.Height}"); 
+#endif
+        }
 
 		private static IDictionary<long, SolidColorBrush> ClassifyColorByLevelScore(long level) {
 			switch (level) {
@@ -373,12 +355,18 @@ namespace MasturbationRecorder {
 			long tempDiff = 0L;
 			ulong ordinal = 0UL;
 			SortedList<ulong, StatistTotalByDateTime> values = new SortedList<ulong, StatistTotalByDateTime>();
+
+            /// <summary>
+            /// 给有序列表 values 添加元素，同时检测节点在 SortedList 的唯一性
+            /// </summary>
 			void AddUniqueToValues(LinkedListNode<StatistTotalByDateTime> node) {
+                // 这个地方可以考虑优化，看看有无替代方法而不用异常检测
 				try {
 					values.Add(node.Value.Total, node.Value);
 				}
 				catch (ArgumentException) { }   // 如果被添加的节点已存在，直接忽略
 			}
+
 			for (var current = dateTimes.First; current.Next != null; current = current.Next) {
 				tempDiff = Convert.ToInt64(current.Next.Value.Total - current.Value.Total);
 				if (values.Count == 0 && datetimesDiffTable.Count == 0) {
