@@ -8,8 +8,8 @@ using System.Collections.Generic;
 /// 进行人工数据比对。
 /// </summary>
 namespace ManualTest {
-	class Program {
-		static void Main(string[] args) {
+    class Program {
+        static void Main(string[] args) {
             const string MasturbationRecorder_exe_path = @"C:\Users\a124p\Documents\GitHub\MasturbationRecorder\MasturbationRecorder\bin\x64\Debug\MasturbationRecorder.exe";
             const string MasturbationRecorder_path = @"C:\Users\a124p\Documents\GitHub\MasturbationRecorder";
 
@@ -20,7 +20,7 @@ namespace ManualTest {
             permission.Demand();
             Assembly assembly = Assembly.LoadFrom(MasturbationRecorder_exe_path);
             MasturbationRecorder_DatetimeParser_StringToUInt16_Test(assembly);
-
+            MasturbationRecorder_MainPageViewModel_GroupDateTimesDiff(assembly);
 
             Console.ReadKey();
         }
@@ -37,10 +37,17 @@ namespace ManualTest {
         private static void MasturbationRecorder_MainPageViewModel_GroupDateTimesDiff(Assembly assembly) {
             var methodInfo = assembly.GetType("MasturbationRecorder.MainPageViewModel").GetMethod("GroupDateTimesDiff", BindingFlags.Public | BindingFlags.Static);
             Type statistTotalByDateTime = assembly.GetType("MasturbationRecorder.StatistTotalByDateTime");
-            /*
-             * 想办法如何用反射实例化泛型类
-             */
-            LinkedList<StatistTotalByDateTime> dateTimes = null;
+            Type[] genericArgs = { statistTotalByDateTime };
+            Type likType = typeof(LinkedList<>);
+            object o = Activator.CreateInstance(likType.MakeGenericType(genericArgs));
+            Console.WriteLine(o.GetType().InvokeMember(
+                name: "First",
+                invokeAttr: BindingFlags.GetProperty | BindingFlags.Public | BindingFlags.Instance,
+                target: o,
+                binder: null,
+                args: null
+            ));
+            //LinkedList<StatistTotalByDateTime> dateTimes = null;
         }
     }
 }
