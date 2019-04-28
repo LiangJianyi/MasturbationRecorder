@@ -48,21 +48,29 @@ namespace ManualTest {
                 culture: null,
                 parameters: new object[] { testTextLine }
             );
+            for (var node = dateTimes.GetType().InvokeMember("First", BindingFlags.Public | BindingFlags.Instance | BindingFlags.GetProperty, null, dateTimes, null);
+                node != null;
+                node = node.GetType().InvokeMember("Next", BindingFlags.Public | BindingFlags.Instance | BindingFlags.GetProperty, null, node, null)) {
+                Console.WriteLine(node.GetType().InvokeMember("Value", BindingFlags.Public | BindingFlags.Instance | BindingFlags.GetProperty, null, node, null));
+            }
+            Console.WriteLine();
+            Console.WriteLine();
+
+            //var res = groupDateTimesByDiffInfo.Invoke(
+            //    obj: null,
+            //    invokeAttr: BindingFlags.Static | BindingFlags.InvokeMethod | BindingFlags.Public,
+            //    binder: null,
+            //    culture: null,
+            //    parameters: new object[] { dateTimes }
+            //);
+            //Console.WriteLine(res);
+        }
+
+        void fuck() {
             //Type statistTotalByDateTime = mastAssembly.GetType("MasturbationRecorder.StatistTotalByDateTime");
             //Type[] genericArgs = { statistTotalByDateTime };
             //Type likType = typeof(LinkedList<>);
             //object o = Activator.CreateInstance(likType.MakeGenericType(genericArgs));
-            var res = groupDateTimesByDiffInfo.Invoke(
-                obj: null,
-                invokeAttr: BindingFlags.Static | BindingFlags.InvokeMethod | BindingFlags.Public,
-                binder: null,
-                culture: null,
-                parameters: new object[] { dateTimes }
-            );
-            Console.WriteLine(res);
-        }
-
-        void fuck() {
             //o = new LinkedList<int>();
             //o.GetType().InvokeMember(
             //    name: "AddLast",
