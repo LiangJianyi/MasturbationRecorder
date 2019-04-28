@@ -57,20 +57,23 @@ namespace ManualTest {
                 Type statistTotalByDateTime = mastAssembly.GetType("MasturbationRecorder.StatistTotalByDateTime");
                 Type[] genericArgs = { statistTotalByDateTime };
                 Type likType = typeof(LinkedList<>);
-                object statistTotalByDateTimeOfLik = Activator.CreateInstance(likType.MakeGenericType(genericArgs));
+                object tempDatetimesLik = Activator.CreateInstance(likType.MakeGenericType(genericArgs));
 
                 Type likNodeType = typeof(LinkedListNode<>);
-                object statistTotalByDateTimeOfLikNode = Activator.CreateInstance(
+                object tempLikNode = Activator.CreateInstance(
                     type: likNodeType.MakeGenericType(genericArgs),
                     args: node.GetType().InvokeMember("Value", BindingFlags.Public | BindingFlags.Instance | BindingFlags.GetProperty, null, node, null)
                 );
 
-                var statistTotalByDateTimeOfLikInfo = statistTotalByDateTimeOfLik.GetType();
-                statistTotalByDateTimeOfLikInfo.InvokeMember("AddLast", BindingFlags.Public | BindingFlags.InvokeMethod | BindingFlags.Instance, null, statistTotalByDateTimeOfLik, new object[] { statistTotalByDateTimeOfLikNode });
-                var statistTotalByDateTimeOfLik_Count = statistTotalByDateTimeOfLikInfo.InvokeMember("Count", BindingFlags.Public | BindingFlags.GetProperty | BindingFlags.Instance, null, statistTotalByDateTimeOfLik, null);
-                var statistTotalByDateTimeOfLik_First = statistTotalByDateTimeOfLikInfo.InvokeMember("First", BindingFlags.Public | BindingFlags.GetProperty | BindingFlags.Instance, null, statistTotalByDateTimeOfLik, null);
-                var statistToTalByDateTimeOfLik_First_Value = statistTotalByDateTimeOfLik_First.GetType().InvokeMember("Value", BindingFlags.Public | BindingFlags.GetProperty | BindingFlags.Instance, null, statistTotalByDateTimeOfLik_First, null);
-                Console.WriteLine($"statistTotalByDateTimeOfLik Length: {statistTotalByDateTimeOfLik_Count}, First: {statistToTalByDateTimeOfLik_First_Value}");
+                Console.WriteLine(tempLikNode.GetType().InvokeMember("Value", BindingFlags.Public | BindingFlags.Instance | BindingFlags.GetProperty, null, tempLikNode, null));
+
+                #region 临时封装一个单元素链表
+                Type statistTotalByDateTimeOfLikInfo = tempDatetimesLik.GetType();
+                statistTotalByDateTimeOfLikInfo.InvokeMember("AddLast", BindingFlags.Public | BindingFlags.InvokeMethod | BindingFlags.Instance, null, tempDatetimesLik, new object[] { tempLikNode });
+                #endregion
+
+                dynamic res = groupDateTimesByDiffInfo.Invoke(null, new object[] { tempDatetimesLik });
+                Console.WriteLine($"Called GroupDateTimesByDiff: {res[0].Ordinal} {res[0].Diff} {res[0].StaticsList}");
             }
             Console.WriteLine();
             Console.WriteLine();
