@@ -50,8 +50,27 @@ namespace ManualTest {
             );
             for (var node = dateTimes.GetType().InvokeMember("First", BindingFlags.Public | BindingFlags.Instance | BindingFlags.GetProperty, null, dateTimes, null);
                 node != null;
-                node = node.GetType().InvokeMember("Next", BindingFlags.Public | BindingFlags.Instance | BindingFlags.GetProperty, null, node, null)) {
+                node = node.GetType().InvokeMember("Next", BindingFlags.Public | BindingFlags.Instance | BindingFlags.GetProperty, null, node, null)
+                ) {
                 Console.WriteLine(node.GetType().InvokeMember("Value", BindingFlags.Public | BindingFlags.Instance | BindingFlags.GetProperty, null, node, null));
+
+                Type statistTotalByDateTime = mastAssembly.GetType("MasturbationRecorder.StatistTotalByDateTime");
+                Type[] genericArgs = { statistTotalByDateTime };
+                Type likType = typeof(LinkedList<>);
+                object statistTotalByDateTimeOfLik = Activator.CreateInstance(likType.MakeGenericType(genericArgs));
+
+                Type likNodeType = typeof(LinkedListNode<>);
+                object statistTotalByDateTimeOfLikNode = Activator.CreateInstance(
+                    type: likNodeType.MakeGenericType(genericArgs),
+                    args: node.GetType().InvokeMember("Value", BindingFlags.Public | BindingFlags.Instance | BindingFlags.GetProperty, null, node, null)
+                );
+
+                var statistTotalByDateTimeOfLikInfo = statistTotalByDateTimeOfLik.GetType();
+                statistTotalByDateTimeOfLikInfo.InvokeMember("AddLast", BindingFlags.Public | BindingFlags.InvokeMethod | BindingFlags.Instance, null, statistTotalByDateTimeOfLik, new object[] { statistTotalByDateTimeOfLikNode });
+                var statistTotalByDateTimeOfLik_Count = statistTotalByDateTimeOfLikInfo.InvokeMember("Count", BindingFlags.Public | BindingFlags.GetProperty | BindingFlags.Instance, null, statistTotalByDateTimeOfLik, null);
+                var statistTotalByDateTimeOfLik_First = statistTotalByDateTimeOfLikInfo.InvokeMember("First", BindingFlags.Public | BindingFlags.GetProperty | BindingFlags.Instance, null, statistTotalByDateTimeOfLik, null);
+                var statistToTalByDateTimeOfLik_First_Value = statistTotalByDateTimeOfLik_First.GetType().InvokeMember("Value", BindingFlags.Public | BindingFlags.GetProperty | BindingFlags.Instance, null, statistTotalByDateTimeOfLik_First, null);
+                Console.WriteLine($"statistTotalByDateTimeOfLik Length: {statistTotalByDateTimeOfLik_Count}, First: {statistToTalByDateTimeOfLik_First_Value}");
             }
             Console.WriteLine();
             Console.WriteLine();
