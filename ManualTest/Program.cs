@@ -30,7 +30,10 @@ namespace ManualTest {
         }
 
         private static void MasturbationRecorder_DatetimeParser_StringToUInt16_Test(Assembly assembly) {
-            var methodInfo = assembly.GetType("MasturbationRecorder.DatetimeParser").GetMethod("StringToUInt16", BindingFlags.NonPublic | BindingFlags.Static);
+            Console.WriteLine("Executing MasturbationRecorder_DatetimeParser_StringToUInt16_Test:");
+
+            var methodInfo = assembly.GetType("MasturbationRecorder.DatetimeParser")
+                                     .GetMethod("StringToUInt16", BindingFlags.NonPublic | BindingFlags.Static);
             Console.WriteLine(methodInfo.Invoke(null, new object[] { "mon" }));
             Console.WriteLine(methodInfo.Invoke(null, new object[] { "feb" }));
             Console.WriteLine(methodInfo.Invoke(null, new object[] { "mar" }));
@@ -42,7 +45,10 @@ namespace ManualTest {
          * 该方法使用的反射技术参见： https://docs.microsoft.com/zh-cn/dotnet/framework/reflection-and-codedom/how-to-examine-and-instantiate-generic-types-with-reflection
          */
         private static void MasturbationRecorder_MainPageViewModel_GroupDateTimesDiff_Test(Assembly mastAssembly, Assembly mastTestAssembly) {
-            var groupDateTimesByDiffInfo = mastAssembly.GetType("MasturbationRecorder.MainPageViewModel").GetMethod("GroupDateTimesByDiff", BindingFlags.Public | BindingFlags.Static);
+            Console.WriteLine("Executing MasturbationRecorder_MainPageViewModel_GroupDateTimesDiff_Test:");
+
+            var groupDateTimesByDiffInfo = mastAssembly.GetType("MasturbationRecorder.MainPageViewModel")
+                                                       .GetMethod("GroupDateTimesByDiff", BindingFlags.Public | BindingFlags.Static);
             object testData_linkedlist_dateTimes = MakeTestDataObject(mastAssembly, mastTestAssembly);
             /*
              * 下面的循环目的是为了遍历所有测试数据 testData_linkedlist_dateTimes，
@@ -50,6 +56,11 @@ namespace ManualTest {
              * 然后再把转换出的结果打印一遍，然后人工校对打印结果，这样做的好处是如果
              * MainPageViewModel.GroupDateTimesByDiff 存在运行时异常，我们可以知道
              * 它对 DateTimes 分组并发生异常之前执行到哪一行数据。
+             * 这里的 for 语句等价于 
+             * for(var node = testData_linkedlist_dateTimes.First; 
+             *     node != null; 
+             *     node = node.Next;) {
+             * }
              */
             for (var node = testData_linkedlist_dateTimes.GetType().InvokeMember(
                                                             name: "First", 
@@ -93,13 +104,13 @@ namespace ManualTest {
                 Console.WriteLine(listOfTuple.GetType().Name);
 
                 // 调用 List.First<(ulong Ordinal, long Diff, SortedList<ulong, StatistTotalByDateTime> StaticsList)>()
-                IEnumerable<MethodInfo> firstInfo = typeof(Enumerable)
-                                        .GetMethods(BindingFlags.Public | BindingFlags.InvokeMethod | BindingFlags.Static)
-                                        .Where(m => m.IsGenericMethod &&
-                                               m.GetParameters().Length == 1 &&
-                                               m.GetParameters()[0].ParameterType.GetGenericTypeDefinition().IsEquivalentTo(typeof(IEnumerable<>)));
-                var listOfInt_First = firstInfo.First().MakeGenericMethod(new Type[] { listOfTuple.GetType().GetGenericArguments().First() });
-                Console.WriteLine($"Called GroupDateTimesByDiff: {listOfInt_First.Invoke(null, new object[] { listOfTuple })}");
+                //IEnumerable<MethodInfo> firstInfo = typeof(Enumerable)
+                //                        .GetMethods(BindingFlags.Public | BindingFlags.InvokeMethod | BindingFlags.Static)
+                //                        .Where(m => m.IsGenericMethod &&
+                //                               m.GetParameters().Length == 1 &&
+                //                               m.GetParameters()[0].ParameterType.GetGenericTypeDefinition().IsEquivalentTo(typeof(IEnumerable<>)));
+                //var listOfInt_First = firstInfo.First().MakeGenericMethod(new Type[] { listOfTuple.GetType().GetGenericArguments().First() });
+                //Console.WriteLine($"Called GroupDateTimesByDiff: {listOfInt_First.Invoke(null, new object[] { listOfTuple })}");
 
             }
             Console.WriteLine();
