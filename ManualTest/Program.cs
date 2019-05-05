@@ -69,18 +69,25 @@ namespace ManualTest {
                 Type likType = typeof(LinkedList<>);
                 object tempLikDateTimes = Activator.CreateInstance(likType.MakeGenericType(genericArgsOfDateTimes));
 
-                // 实例化 LinkedListNode<StatistTotalByDateTime>
+                // 实例化 LinkedListNode<StatistTotalByDateTime> 
+                // 并初始化为当前 node 然后打印
                 Type likNodeType = typeof(LinkedListNode<>);
                 object tempLikNode = Activator.CreateInstance(
                     type: likNodeType.MakeGenericType(genericArgsOfDateTimes),
                     args: node.GetType().InvokeMember("Value", BindingFlags.Public | BindingFlags.Instance | BindingFlags.GetProperty, null, node, null)
                 );
-
                 Console.WriteLine(tempLikNode.GetType().InvokeMember("Value", BindingFlags.Public | BindingFlags.Instance | BindingFlags.GetProperty, null, tempLikNode, null));
 
-                // 临时封装一个单元素链表
-                Type statistTotalByDateTimeOfLikInfo = tempLikDateTimes.GetType();
-                statistTotalByDateTimeOfLikInfo.InvokeMember("AddLast", BindingFlags.Public | BindingFlags.InvokeMethod | BindingFlags.Instance, null, tempLikDateTimes, new object[] { tempLikNode });
+                // 把上面的 tempLikNode 添加进临时封装的单元素链表 tempLikDateTimes，
+                // 然后作为参数传递给 GroupDateTimesByDiff
+                tempLikDateTimes.GetType()
+                                .InvokeMember(
+                                    name: "AddLast", 
+                                    invokeAttr: BindingFlags.Public | BindingFlags.InvokeMethod | BindingFlags.Instance, 
+                                    binder: null, 
+                                    target: tempLikDateTimes, 
+                                    args: new object[] { tempLikNode }
+                                );
 
                 var listOfTuple = groupDateTimesByDiffInfo.Invoke(null, new object[] { tempLikDateTimes });
                 Console.WriteLine(listOfTuple.GetType().Name);
