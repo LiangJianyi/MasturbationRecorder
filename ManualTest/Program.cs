@@ -44,6 +44,13 @@ namespace ManualTest {
         private static void MasturbationRecorder_MainPageViewModel_GroupDateTimesDiff_Test(Assembly mastAssembly, Assembly mastTestAssembly) {
             var groupDateTimesByDiffInfo = mastAssembly.GetType("MasturbationRecorder.MainPageViewModel").GetMethod("GroupDateTimesByDiff", BindingFlags.Public | BindingFlags.Static);
             object testData_linkedlist_dateTimes = MakeTestDataObject(mastAssembly, mastTestAssembly);
+            /*
+             * 下面的循环目的是为了遍历所有测试数据 testData_linkedlist_dateTimes，
+             * 每次遍历都把当前元素临时封装成链表然后传送给 MainPageViewModel.GroupDateTimesByDiff，
+             * 然后再把转换出的结果打印一遍，然后人工校对打印结果，这样做的好处是如果
+             * MainPageViewModel.GroupDateTimesByDiff 存在运行时异常，我们可以知道
+             * 它对 DateTimes 分组并发生异常之前执行到哪一行数据。
+             */
             for (var node = testData_linkedlist_dateTimes.GetType().InvokeMember(
                                                             name: "First", 
                                                             invokeAttr: BindingFlags.Public | BindingFlags.Instance | BindingFlags.GetProperty, 
@@ -77,7 +84,8 @@ namespace ManualTest {
 
                 var listOfTuple = groupDateTimesByDiffInfo.Invoke(null, new object[] { tempLikDateTimes });
                 Console.WriteLine(listOfTuple.GetType().Name);
-                // How called the generic method with List.First<(ulong Ordinal, long Diff, SortedList<ulong, StatistTotalByDateTime> StaticsList)>()
+
+                // 调用 List.First<(ulong Ordinal, long Diff, SortedList<ulong, StatistTotalByDateTime> StaticsList)>()
                 IEnumerable<MethodInfo> firstInfo = typeof(Enumerable)
                                         .GetMethods(BindingFlags.Public | BindingFlags.InvokeMethod | BindingFlags.Static)
                                         .Where(m => m.IsGenericMethod &&
