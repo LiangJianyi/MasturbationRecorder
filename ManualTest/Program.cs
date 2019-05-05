@@ -100,17 +100,17 @@ namespace ManualTest {
                                     args: new object[] { tempLikNode }
                                 );
 
+                // 将 tempLikDateTimes 转换为单元素 List<(ulong Ordinal, long Diff, SortedList<ulong, StatistTotalByDateTime> StaticsList)>
+                // 之后调用 List.First<(ulong Ordinal, long Diff, SortedList<ulong, StatistTotalByDateTime> StaticsList)>() 
+                // 用以提取内部封装的元素（即当前循环的 node 值，类型为元组）
                 var listOfTuple = groupDateTimesByDiffInfo.Invoke(null, new object[] { tempLikDateTimes });
-                Console.WriteLine(listOfTuple.GetType().Name);
-
-                // 调用 List.First<(ulong Ordinal, long Diff, SortedList<ulong, StatistTotalByDateTime> StaticsList)>()
-                //IEnumerable<MethodInfo> firstInfo = typeof(Enumerable)
-                //                        .GetMethods(BindingFlags.Public | BindingFlags.InvokeMethod | BindingFlags.Static)
-                //                        .Where(m => m.IsGenericMethod &&
-                //                               m.GetParameters().Length == 1 &&
-                //                               m.GetParameters()[0].ParameterType.GetGenericTypeDefinition().IsEquivalentTo(typeof(IEnumerable<>)));
-                //var listOfInt_First = firstInfo.First().MakeGenericMethod(new Type[] { listOfTuple.GetType().GetGenericArguments().First() });
-                //Console.WriteLine($"Called GroupDateTimesByDiff: {listOfInt_First.Invoke(null, new object[] { listOfTuple })}");
+                IEnumerable<MethodInfo> firstInfo = typeof(Enumerable)
+                                        .GetMethods(BindingFlags.Public | BindingFlags.InvokeMethod | BindingFlags.Static)
+                                        .Where(m => m.IsGenericMethod &&
+                                               m.GetParameters().Length == 1 &&
+                                               m.GetParameters()[0].ParameterType.GetGenericTypeDefinition().IsEquivalentTo(typeof(IEnumerable<>)));
+                var listOfInt_First = firstInfo.First().MakeGenericMethod(new Type[] { listOfTuple.GetType().GetGenericArguments().First() });
+                Console.WriteLine($"Called List.First(): {listOfInt_First.Invoke(null, new object[] { listOfTuple })}");
 
             }
             Console.WriteLine();
