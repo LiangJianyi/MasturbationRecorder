@@ -107,10 +107,11 @@ namespace ManualTest {
                 IEnumerable<MethodInfo> firstInfo = typeof(Enumerable)
                                         .GetMethods(BindingFlags.Public | BindingFlags.InvokeMethod | BindingFlags.Static)
                                         .Where(m => m.IsGenericMethod &&
+                                               m.Name == "First" &&
                                                m.GetParameters().Length == 1 &&
                                                m.GetParameters()[0].ParameterType.GetGenericTypeDefinition().IsEquivalentTo(typeof(IEnumerable<>)));
-                var listOfInt_First = firstInfo.First().MakeGenericMethod(new Type[] { listOfTuple.GetType().GetGenericArguments().First() });
-                Console.WriteLine($"Called List.First(): {listOfInt_First.Invoke(null, new object[] { listOfTuple })}");
+                var listOfTuple_First = firstInfo.First().MakeGenericMethod(new Type[] { listOfTuple.GetType().GetGenericArguments().First() });
+                Console.WriteLine($"Called List.First(): {listOfTuple_First.Invoke(null, new object[] { listOfTuple })}");
 
             }
             Console.WriteLine();
