@@ -18,7 +18,8 @@ namespace MasturbationRecorder {
         /// 返回一个元组列表，其根据时间链表（LinkeList<StatistTotalByDateTime>）
         /// 中每个相邻元素之间的 Total 差值进行分组和排序，每个元组之间呈升序排列（由 Ordinal 属性决定），元组之间的 Diff 不一定
         /// 呈线性增长，其取决于对应的 StaticsList ，可以肯定的是，Ordinal 值越大，
-        /// 其对应的 StaticsList 中的 StatistTotalByDateTime 的 Total 属性值也越大
+        /// 其对应的 StaticsList 中的 StatistTotalByDateTime 的 Total 属性值也越大，
+        /// 该 Total 属性值用作 StaticsList 的 Key。
         /// </returns>
         public static List<(ulong Ordinal, long Diff, SortedList<ulong, StatistTotalByDateTime> StaticsList)>
             GroupDateTimesByDiff(LinkedList<StatistTotalByDateTime> dateTimes) {
@@ -31,29 +32,42 @@ namespace MasturbationRecorder {
             /// <summary>
             /// 给有序列表 values 添加元素，同时检测节点在 SortedList 的唯一性
             /// </summary>
-			void AddUniqueToValues(LinkedListNode<StatistTotalByDateTime> node) {
+			void AddUniqueToValues(SortedList<ulong, StatistTotalByDateTime> sortList, LinkedListNode<StatistTotalByDateTime> node, bool nullCheck = true) {
                 // 这个地方可以考虑优化，看看有无替代方法而不用异常检测
                 try {
-                    values.Add(node.Value.Total, node.Value);
+                    sortList.Add(node.Value.Total, node.Value);
                 }
                 catch (ArgumentException) { }   // 如果被添加的节点已存在，直接忽略
+                catch (NullReferenceException) {
+                    if (nullCheck) {
+                        throw;
+                    }
+                    else { } // 如果null检测关闭，直接忽略
+                }
             }
 
-            for (var current = dateTimes.First; current.Next != null; current = current.Next) {
-                tempDiff = Convert.ToInt64(current.Next.Value.Total - current.Value.Total);
+            for (var current = dateTimes.First; current != null; current = current.Next) {
+                bool dateTimesCountBiggerThanOne = dateTimes.Count > 1;
+                if (dateTimesCountBiggerThanOne) {
+                    tempDiff = Convert.ToInt64(current.Next.Value.Total - current.Value.Total);
+                }
+                else {
+                    tempDiff = 0L;
+                }
                 if (values.Count == 0 && datetimesDiffTable.Count == 0) {
-                    AddUniqueToValues(current);
-                    AddUniqueToValues(current.Next);
+                    AddUniqueToValues(values, current, dateTimesCountBiggerThanOne);
+                    AddUniqueToValues(values, current.Next, dateTimesCountBiggerThanOne);
                     datetimesDiffTable.Add((Ordinal: ++ordinal, Diff: tempDiff, StaticsList: values));
                 }
                 else if (values.Count > 0) {
-                    if (datetimesDiffTable[Convert.ToInt32(ordinal - 1)].Diff == tempDiff) {
-                        datetimesDiffTable[Convert.ToInt32(ordinal - 1)].StaticsList.Add(current.Next.Value.Total, current.Next.Value);
+                    if (datetimesDiffTable[Convert.ToInt32(ordinal - 1)].Diff == tempDiff && tempDiff > 0L) {
+                        //datetimesDiffTable[Convert.ToInt32(ordinal - 1)].StaticsList.Add(current.Next.Value.Total, current.Next.Value);
+                        AddUniqueToValues(datetimesDiffTable[Convert.ToInt32(ordinal - 1)].StaticsList, current.Next);
                     }
                     else {
                         values = new SortedList<ulong, StatistTotalByDateTime>();
-                        AddUniqueToValues(current);
-                        AddUniqueToValues(current.Next);
+                        AddUniqueToValues(values, current, dateTimesCountBiggerThanOne);
+                        AddUniqueToValues(values, current.Next, dateTimesCountBiggerThanOne);
                         datetimesDiffTable.Add((Ordinal: ++ordinal, Diff: tempDiff, StaticsList: values));
                     }
                 }
