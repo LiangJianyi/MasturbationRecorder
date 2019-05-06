@@ -63,10 +63,10 @@ namespace ManualTest {
              * }
              */
             for (var node = testData_linkedlist_dateTimes.GetType().InvokeMember(
-                                                            name: "First", 
-                                                            invokeAttr: BindingFlags.Public | BindingFlags.Instance | BindingFlags.GetProperty, 
-                                                            binder: null, 
-                                                            target: testData_linkedlist_dateTimes, 
+                                                            name: "First",
+                                                            invokeAttr: BindingFlags.Public | BindingFlags.Instance | BindingFlags.GetProperty,
+                                                            binder: null,
+                                                            target: testData_linkedlist_dateTimes,
                                                             args: null);
                 node != null;
                 node = node.GetType().InvokeMember("Next", BindingFlags.Public | BindingFlags.Instance | BindingFlags.GetProperty, null, node, null)
@@ -93,10 +93,10 @@ namespace ManualTest {
                 // 然后作为参数传递给 GroupDateTimesByDiff
                 tempLikDateTimes.GetType()
                                 .InvokeMember(
-                                    name: "AddLast", 
-                                    invokeAttr: BindingFlags.Public | BindingFlags.InvokeMethod | BindingFlags.Instance, 
-                                    binder: null, 
-                                    target: tempLikDateTimes, 
+                                    name: "AddLast",
+                                    invokeAttr: BindingFlags.Public | BindingFlags.InvokeMethod | BindingFlags.Instance,
+                                    binder: null,
+                                    target: tempLikDateTimes,
                                     args: new object[] { tempLikNode }
                                 );
 
@@ -104,18 +104,23 @@ namespace ManualTest {
                 // 之后调用 List.First<(ulong Ordinal, long Diff, SortedList<ulong, StatistTotalByDateTime> StaticsList)>() 
                 // 用以提取内部封装的元素（即当前循环的 node 值，类型为元组）
                 var listOfTuple = groupDateTimesByDiffInfo.Invoke(null, new object[] { tempLikDateTimes });
-                IEnumerable<MethodInfo> firstInfo = typeof(Enumerable)
-                                        .GetMethods(BindingFlags.Public | BindingFlags.InvokeMethod | BindingFlags.Static)
-                                        .Where(m => m.IsGenericMethod &&
-                                               m.Name == "First" &&
-                                               m.GetParameters().Length == 1 &&
-                                               m.GetParameters()[0].ParameterType.GetGenericTypeDefinition().IsEquivalentTo(typeof(IEnumerable<>)));
-                var listOfTuple_First = firstInfo.First().MakeGenericMethod(new Type[] { listOfTuple.GetType().GetGenericArguments().First() });
-                Console.WriteLine($"Called List.First(): {listOfTuple_First.Invoke(null, new object[] { listOfTuple })}");
-
+                InvokeFirstMethodOfListOfTuple(listOfTuple);
             }
-            Console.WriteLine();
-            Console.WriteLine();
+        }
+
+        /// <summary>
+        /// 调用 List.First<(ulong Ordinal, long Diff, SortedList<ulong, StatistTotalByDateTime> StaticsList)>()
+        /// </summary>
+        /// <param name="listOfTuple"></param>
+        private static void InvokeFirstMethodOfListOfTuple(object listOfTuple) {
+            IEnumerable<MethodInfo> firstInfo = typeof(Enumerable)
+                                                    .GetMethods(BindingFlags.Public | BindingFlags.InvokeMethod | BindingFlags.Static)
+                                                    .Where(m => m.IsGenericMethod &&
+                                                           m.Name == "First" &&
+                                                           m.GetParameters().Length == 1 &&
+                                                           m.GetParameters()[0].ParameterType.GetGenericTypeDefinition().IsEquivalentTo(typeof(IEnumerable<>)));
+            var listOfTuple_First = firstInfo.First().MakeGenericMethod(new Type[] { listOfTuple.GetType().GetGenericArguments().First() });
+            Console.WriteLine($"Current Tuple: {listOfTuple_First.Invoke(null, new object[] { listOfTuple })}");
         }
 
         /// <summary>
@@ -134,35 +139,6 @@ namespace ManualTest {
                 parameters: new object[] { testTextLine }
             );
             return linkedlist_dateTimes;
-        }
-
-        void fuck() {
-            //Type statistTotalByDateTime = mastAssembly.GetType("MasturbationRecorder.StatistTotalByDateTime");
-            //Type[] genericArgs = { statistTotalByDateTime };
-            //Type likType = typeof(LinkedList<>);
-            //object o = Activator.CreateInstance(likType.MakeGenericType(genericArgs));
-            //o = new LinkedList<int>();
-            //o.GetType().InvokeMember(
-            //    name: "AddLast",
-            //    invokeAttr: BindingFlags.InvokeMethod | BindingFlags.Public | BindingFlags.Instance,
-            //    target: o,
-            //    binder: null,
-            //    args: new object[] { 11223344 }
-            //);
-            //o = o.GetType().InvokeMember(
-            //    name: "First",
-            //    invokeAttr: BindingFlags.GetProperty | BindingFlags.Public | BindingFlags.Instance,
-            //    target: o,
-            //    binder: null,
-            //    args: null
-            //);
-            //Console.WriteLine(o.GetType().InvokeMember(
-            //    name: "Value",
-            //    invokeAttr: BindingFlags.GetProperty | BindingFlags.Public | BindingFlags.Instance,
-            //    target: o,
-            //    binder: null,
-            //    args: null
-            //));
         }
     }
 }

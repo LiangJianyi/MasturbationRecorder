@@ -7,71 +7,14 @@ using System.Threading.Tasks;
 using Windows.Storage;
 using MasturbationRecorder;
 
-namespace UnitTestMasturbationRecorder {
+namespace MasturbationRecorderTest {
     [TestClass]
     public class DatetimeParserTest {
-        private Type datetimeParser = typeof(DatetimeParser);
-        private string[] testTextLine = new string[] {
-                "May 27 2018 x20\r",
-                "May 29 2018\r",
-                "May 31 2018\r",
-                "Jun 12 2018\r",
-                "Jun 15 2018\r",
-                "Jun 17 2018\r",
-                "Jun 20 2018\r",
-                "Jun 24 2018\r",
-                "Jun 26 2018\r",
-                "Jul 04 2018\r",
-                "Jul 05 2018\r",
-                "Jul 10 2018 x2\r",
-                "Jul 11 2018\r",
-                "Jul 13 2018\r",
-                "Jul 16 2018\r",
-                "Jul 17 2018\r",
-                "Jul 18 2018\r",
-                "Jul 19 2018\r",
-                "Jul 22 2018 x2\r",
-                "Jul 24 2018\r",
-                "Jul 29 2018\r",
-                "Jul 31 2018\r",
-                "Aug 2 2018\r",
-                "Aug 6 2018\r",
-                "Aug 8 2018\r",
-                "Aug 9 2018\r",
-                "Aug 11 2018\r",
-                "Aug 12 2018\r",
-                "Aug 15 2018\r",
-                "Aug 16 2018\r",
-                "Aug 21 2018 x2\r",
-                "Aug 22 2018\r",
-                "Aug 24 2018\r",
-                "Aug 25 2018\r",
-                "Aug 29 2018 x2\r",
-                "Sep 1 2018\r",
-                "Sep 3 2018\r",
-                "Sep 6 2018\r",
-                "Sep 7 2018\r",
-                "Sep 9 2018\r",
-                "Sep 11 2018\r",
-                "Sep 12 2018\r",
-                "Sep 14 2018 x2\r",
-                "Sep 15 2018\r",
-                "Sep 16 2018\r",
-                "Sep 19 2018\r",
-                "Sep 20 2018\r",
-                "Sep 22 2018\r",
-                "Sep 25 2018\r",
-                "Sep 26 2018\r",
-                "Sep 27 2018 x2\r",
-                "Sep 30 2018\r",
-                "Oct 1 2018\r",
-                "Oct 4 2018\r",
-                "Oct 5 2018"
-            };
+        private Type _datetimeParser = typeof(DatetimeParser);
 
         [TestMethod]
         public void StringToUInt16Test() {
-            MethodInfo stringToUInt16 = datetimeParser.GetMethod("StringToUInt16", BindingFlags.NonPublic | BindingFlags.Static); ;
+            MethodInfo stringToUInt16 = _datetimeParser.GetMethod("StringToUInt16", BindingFlags.NonPublic | BindingFlags.Static); ;
 
             ushort[] expected = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 };
             ushort[] actual = {
@@ -152,10 +95,10 @@ namespace UnitTestMasturbationRecorder {
                 "Oct 5 2018";
 
             IEnumerable<string> actualLines = DatetimeParser.SplitByLine(exceptedText);
-            if (testTextLine.Count<string>() == actualLines.Count<string>()) {
+            if (CommonTestResource.TestTextLine.Count<string>() == actualLines.Count<string>()) {
                 int index = 0;
                 foreach (string actual in actualLines) {
-                    Assert.AreEqual<string>(testTextLine[index], actual);
+                    Assert.AreEqual<string>(CommonTestResource.TestTextLine[index], actual);
                     index += 1;
                 }
             }
@@ -238,7 +181,7 @@ namespace UnitTestMasturbationRecorder {
             };
             int index = 0;
             foreach (var item in exceptedStatistTotalByDateTimes) {
-                Assert.IsTrue(item.Equivalent(DatetimeParser.ParseExpr(testTextLine[index])));
+                Assert.IsTrue(item.Equivalent(DatetimeParser.ParseExpr(CommonTestResource.TestTextLine[index])));
                 index += 1;
             }
         }
