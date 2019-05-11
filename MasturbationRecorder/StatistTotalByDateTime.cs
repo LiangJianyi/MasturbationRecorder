@@ -1,9 +1,10 @@
 ﻿using System;
+using System.Numerics;
 
 namespace MasturbationRecorder {
 	class StatistTotalByDateTime : IComparable<StatistTotalByDateTime> {
 		public DateTime DateTime;
-		public ulong Total;
+		public BigInteger Total;
 		public int CompareTo(StatistTotalByDateTime other) {
 			if (this.Total < other.Total) {
 				return -1;

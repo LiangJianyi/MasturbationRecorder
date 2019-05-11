@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Numerics;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 
@@ -55,7 +56,7 @@ namespace MasturbationRecorder {
 		/// </summary>
 		/// <param name="frequencyPart"></param>
 		/// <returns></returns>
-		private static ulong GetFrequency(string frequencyPart) {
+		private static BigInteger GetFrequency(string frequencyPart) {
 			if (frequencyPart[0] == 'x' || frequencyPart[0] == 'X') {
 				return Convert.ToUInt64(frequencyPart.Substring(1, frequencyPart.Length - 1));
 			}
@@ -81,7 +82,7 @@ namespace MasturbationRecorder {
 				ushort monthValue = StringToUInt16(tokens[0]);
 				ushort dayValue = Convert.ToUInt16(tokens[1]);
 				ushort yearValue = Convert.ToUInt16(tokens[2]);
-				ulong count = GetFrequency(tokens[3]);
+				BigInteger count = GetFrequency(tokens[3]);
 				return new StatistTotalByDateTime() { DateTime = new DateTime(yearValue, monthValue, dayValue), Total = count };
 			}
 			else {

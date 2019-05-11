@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using Windows.UI.Xaml.Media;
+using System.Numerics;
 
 namespace MasturbationRecorder {
     /// <summary>
@@ -21,18 +22,18 @@ namespace MasturbationRecorder {
         /// 其对应的 StaticsList 中的 StatistTotalByDateTime 的 Total 属性值也越大，
         /// 该 Total 属性值用作 StaticsList 的 Key。
         /// </returns>
-        public static List<(ulong Ordinal, long Diff, SortedList<ulong, StatistTotalByDateTime> StaticsList)>
+        public static List<(BigInteger Ordinal, BigInteger Diff, SortedList<BigInteger, StatistTotalByDateTime> StaticsList)>
             GroupDateTimesByDiff(LinkedList<StatistTotalByDateTime> dateTimes) {
-            List<(ulong Ordinal, long Diff, SortedList<ulong, StatistTotalByDateTime> StaticsList)> datetimesDiffTable =
-                new List<(ulong Ordinal, long Diff, SortedList<ulong, StatistTotalByDateTime> StaticsList)>();
-            long tempDiff = 0L;
-            ulong ordinal = 0UL;
-            SortedList<ulong, StatistTotalByDateTime> values = new SortedList<ulong, StatistTotalByDateTime>();
+            List<(BigInteger Ordinal, BigInteger Diff, SortedList<BigInteger, StatistTotalByDateTime> StaticsList)> datetimesDiffTable =
+                new List<(BigInteger Ordinal, BigInteger Diff, SortedList<BigInteger, StatistTotalByDateTime> StaticsList)>();
+            BigInteger tempDiff = 0L;
+            BigInteger ordinal = 0UL;
+            SortedList<BigInteger, StatistTotalByDateTime> values = new SortedList<BigInteger, StatistTotalByDateTime>();
 
             /// <summary>
             /// 给有序列表 values 添加元素，同时检测节点在 SortedList 的唯一性
             /// </summary>
-			void AddUniqueToValues(SortedList<ulong, StatistTotalByDateTime> sortList, LinkedListNode<StatistTotalByDateTime> node, bool nullCheck = true) {
+			void AddUniqueToValues(SortedList<BigInteger, StatistTotalByDateTime> sortList, LinkedListNode<StatistTotalByDateTime> node, bool nullCheck = true) {
                 // 这个地方可以考虑优化，看看有无替代方法而不用异常检测
                 try {
                     sortList.Add(node.Value.Total, node.Value);
@@ -47,9 +48,11 @@ namespace MasturbationRecorder {
             }
 
             for (var current = dateTimes.First; current != null; current = current.Next) {
+                Debug.WriteLine($"Current node: {current.Value} in GroupDateTimesByDiff.");
+
                 bool dateTimesCountBiggerThanOne = dateTimes.Count > 1;
                 if (dateTimesCountBiggerThanOne) {
-                    tempDiff = Convert.ToInt64(current.Next.Value.Total - current.Value.Total);
+                    tempDiff = current.Next.Value.Total - current.Value.Total;
                 }
                 else {
                     tempDiff = 0L;
@@ -65,7 +68,7 @@ namespace MasturbationRecorder {
                         AddUniqueToValues(datetimesDiffTable[Convert.ToInt32(ordinal - 1)].StaticsList, current.Next);
                     }
                     else {
-                        values = new SortedList<ulong, StatistTotalByDateTime>();
+                        values = new SortedList<BigInteger, StatistTotalByDateTime>();
                         AddUniqueToValues(values, current, dateTimesCountBiggerThanOne);
                         AddUniqueToValues(values, current.Next, dateTimesCountBiggerThanOne);
                         datetimesDiffTable.Add((Ordinal: ++ordinal, Diff: tempDiff, StaticsList: values));
@@ -88,7 +91,7 @@ namespace MasturbationRecorder {
         /// 的 Total 属性值也越大
         /// </param>
         /// <returns></returns>
-        public static SortedList<ulong, StatistTotalByDateTime>[][] GetClassifyDateTimesTable(List<(ulong Ordinal, long Diff, SortedList<ulong, StatistTotalByDateTime> StaticsList)> dateTimesDiffTable) {
+        public static SortedList<BigInteger, StatistTotalByDateTime>[][] GetClassifyDateTimesTable(List<(BigInteger Ordinal, BigInteger Diff, SortedList<BigInteger, StatistTotalByDateTime> StaticsList)> dateTimesDiffTable) {
             if (dateTimesDiffTable == null) {
                 throw new ArgumentNullException("DateTimes cannot be empty.");
             }
@@ -97,24 +100,24 @@ namespace MasturbationRecorder {
             }
             else {
                 /// 根据 dateTimesDiffTable 的长度决定到底应该分多少级
-                long GetLevelScore() => dateTimesDiffTable.LongCount() == 0 ? 0 :
+                BigInteger GetLevelScore() => dateTimesDiffTable.LongCount() == 0 ? 0 :
                     dateTimesDiffTable.LongCount() >= 4 ? 5 : dateTimesDiffTable.LongCount() + 1;
 
-                IDictionary<long, SolidColorBrush> classifyLevelColor = ClassifyColorByLevelScore(GetLevelScore());
+                IDictionary<BigInteger, SolidColorBrush> classifyLevelColor = ClassifyColorByLevelScore(GetLevelScore());
 
-                // dateTimesDiffTable 每个级别有 classifyLevelByDiff 个元素((ulong Ordinal, long Diff, SortedList<ulong, StatistTotalByDateTime> StaticsList))，
+                // dateTimesDiffTable 每个级别有 classifyLevelByDiff 个元素((BigInteger Ordinal, BigInteger Diff, SortedList<BigInteger, StatistTotalByDateTime> StaticsList))，
                 // 如果 diffRemain 大于 0，则最后一个级别有 classifyLevelByDiff + diffRemain 个元素
                 var classifyLevelByDiff = dateTimesDiffTable.LongCount() / GetLevelScore();
                 var diffRemain = dateTimesDiffTable.LongCount() % GetLevelScore();
 
-                // 存放已经分级的 (ulong Ordinal, long Diff, SortedList<ulong, StatistTotalByDateTime> StaticsList) 对象，
+                // 存放已经分级的 (BigInteger Ordinal, BigInteger Diff, SortedList<BigInteger, StatistTotalByDateTime> StaticsList) 对象，
                 // 长度由 GetLevelScore 决定，每个元素是另一个数组，长度由每一级元组对象的总和决定，即 classifyLevelByDiff，
                 // 如果 diffRemain > 0，那么最后一个元素包含的数组有 classifyLevelByDiff + diffRemain
-                SortedList<ulong, StatistTotalByDateTime>[][] classifiedDateTimes =
-                    new SortedList<ulong, StatistTotalByDateTime>[GetLevelScore()][];
+                SortedList<BigInteger, StatistTotalByDateTime>[][] classifiedDateTimes =
+                    new SortedList<BigInteger, StatistTotalByDateTime>[(int)GetLevelScore()][];
 
                 /*
-				 *	无法更改List <T>索引参数的类型，它必须是int。 将来可以考虑创建一个需要 ulong 索引的自定义类型。
+				 *	无法更改List <T>索引参数的类型，它必须是int。 将来可以考虑创建一个需要 BigInteger 索引的自定义类型。
 				 *	你不能创建一个足够大的数组来要求64位索引。如果要创建可以存储这么多内容的列表，则必须使用某种树结构或交错数组。 
 				 *	这需要大量的内存！
 				 */
@@ -122,20 +125,20 @@ namespace MasturbationRecorder {
 
                 for (var level = 0L; level < classifiedDateTimes.LongLength; level++) {
                     if (diffRemain == 0) {
-                        classifiedDateTimes[level] = new SortedList<ulong, StatistTotalByDateTime>[classifyLevelByDiff];
+                        classifiedDateTimes[level] = new SortedList<BigInteger, StatistTotalByDateTime>[(int)classifyLevelByDiff];
                         for (var incre = 0L; incre < classifyLevelByDiff; incre++) {
                             classifiedDateTimes[level][incre] = dateTimesDiffTable[++dateTimesDiffTableIndex].StaticsList;
                         }
                     }
                     else {
                         if (level != classifiedDateTimes.LongLength - 1) {
-                            classifiedDateTimes[level] = new SortedList<ulong, StatistTotalByDateTime>[classifyLevelByDiff];
+                            classifiedDateTimes[level] = new SortedList<BigInteger, StatistTotalByDateTime>[(int)classifyLevelByDiff];
                             for (var incre = 0L; incre < classifyLevelByDiff; incre++) {
                                 classifiedDateTimes[level][incre] = dateTimesDiffTable[++dateTimesDiffTableIndex].StaticsList;
                             }
                         }
                         else {  // 遍历到最后一个级别，classifiedDateTimes 最后一个元素会长一些
-                            classifiedDateTimes[level] = new SortedList<ulong, StatistTotalByDateTime>[classifyLevelByDiff + diffRemain];
+                            classifiedDateTimes[level] = new SortedList<BigInteger, StatistTotalByDateTime>[(int)(classifyLevelByDiff + diffRemain)];
                             for (var incre = 0L; incre < classifyLevelByDiff + diffRemain; incre++) {
                                 classifiedDateTimes[level][incre] = dateTimesDiffTable[++dateTimesDiffTableIndex].StaticsList;
                             }
@@ -169,46 +172,46 @@ namespace MasturbationRecorder {
             }
         }
 
-        public static IDictionary<long, SolidColorBrush> ClassifyColorByLevelScore(long level) {
-            switch (level) {
-                case 0:
-                    return new Dictionary<long, SolidColorBrush>() {
-                                { 0, new SolidColorBrush(Windows.UI.Colors.LightGray) }
+        public static IDictionary<BigInteger, SolidColorBrush> ClassifyColorByLevelScore(BigInteger level) {
+            switch (level.ToString()) {
+                case "0":
+                    return new Dictionary<BigInteger, SolidColorBrush>() {
+                                { new BigInteger(0), new SolidColorBrush(Windows.UI.Colors.LightGray) }
                             };
-                case 1:
-                    return new Dictionary<long, SolidColorBrush>() {
-                                { 0, new SolidColorBrush(Windows.UI.Colors.LightGray) },
-                                { 1, new SolidColorBrush(Windows.UI.Colors.DarkGreen) }
+                case "1":
+                    return new Dictionary<BigInteger, SolidColorBrush>() {
+                                { new BigInteger(0), new SolidColorBrush(Windows.UI.Colors.LightGray) },
+                                { new BigInteger(1), new SolidColorBrush(Windows.UI.Colors.DarkGreen) }
                             };
-                case 2:
-                    return new Dictionary<long, SolidColorBrush>() {
-                                { 0, new SolidColorBrush(Windows.UI.Colors.LightGray) },
-                                { 1, new SolidColorBrush(Windows.UI.Colors.Green) },
-                                { 2, new SolidColorBrush(Windows.UI.Colors.DarkGreen) }
+                case "2":
+                    return new Dictionary<BigInteger, SolidColorBrush>() {
+                                { new BigInteger(0), new SolidColorBrush(Windows.UI.Colors.LightGray) },
+                                { new BigInteger(1), new SolidColorBrush(Windows.UI.Colors.Green) },
+                                { new BigInteger(2), new SolidColorBrush(Windows.UI.Colors.DarkGreen) }
                             };
-                case 3:
-                    return new Dictionary<long, SolidColorBrush>() {
-                                { 0, new SolidColorBrush(Windows.UI.Colors.LightGray) },
-                                { 1, new SolidColorBrush(Windows.UI.Colors.LawnGreen) },
-                                { 2, new SolidColorBrush(Windows.UI.Colors.Green) },
-                                { 3, new SolidColorBrush(Windows.UI.Colors.DarkGreen) }
+                case "3":
+                    return new Dictionary<BigInteger, SolidColorBrush>() {
+                                { new BigInteger(0), new SolidColorBrush(Windows.UI.Colors.LightGray) },
+                                { new BigInteger(1), new SolidColorBrush(Windows.UI.Colors.LawnGreen) },
+                                { new BigInteger(2), new SolidColorBrush(Windows.UI.Colors.Green) },
+                                { new BigInteger(3), new SolidColorBrush(Windows.UI.Colors.DarkGreen) }
                             };
-                case 4:
-                    return new Dictionary<long, SolidColorBrush>() {
-                                { 0, new SolidColorBrush(Windows.UI.Colors.LightGray) },
-                                { 1, new SolidColorBrush(Windows.UI.Colors.GreenYellow) },
-                                { 2, new SolidColorBrush(Windows.UI.Colors.LawnGreen) },
-                                { 3, new SolidColorBrush(Windows.UI.Colors.Green) },
-                                { 4, new SolidColorBrush(Windows.UI.Colors.DarkGreen) }
+                case "4":
+                    return new Dictionary<BigInteger, SolidColorBrush>() {
+                                { new BigInteger(0), new SolidColorBrush(Windows.UI.Colors.LightGray) },
+                                { new BigInteger(1), new SolidColorBrush(Windows.UI.Colors.GreenYellow) },
+                                { new BigInteger(2), new SolidColorBrush(Windows.UI.Colors.LawnGreen) },
+                                { new BigInteger(3), new SolidColorBrush(Windows.UI.Colors.Green) },
+                                { new BigInteger(4), new SolidColorBrush(Windows.UI.Colors.DarkGreen) }
                             };
-                case 5:
-                    return new Dictionary<long, SolidColorBrush>() {
-                                { 0, new SolidColorBrush(Windows.UI.Colors.LightGray) },
-                                { 1, new SolidColorBrush(Windows.UI.Colors.YellowGreen) },
-                                { 2, new SolidColorBrush(Windows.UI.Colors.GreenYellow) },
-                                { 3, new SolidColorBrush(Windows.UI.Colors.LawnGreen) },
-                                { 4, new SolidColorBrush(Windows.UI.Colors.Green) },
-                                { 5, new SolidColorBrush(Windows.UI.Colors.DarkGreen) }
+                case "5":
+                    return new Dictionary<BigInteger, SolidColorBrush>() {
+                                { new BigInteger(0), new SolidColorBrush(Windows.UI.Colors.LightGray) },
+                                { new BigInteger(1), new SolidColorBrush(Windows.UI.Colors.YellowGreen) },
+                                { new BigInteger(2), new SolidColorBrush(Windows.UI.Colors.GreenYellow) },
+                                { new BigInteger(3), new SolidColorBrush(Windows.UI.Colors.LawnGreen) },
+                                { new BigInteger(4), new SolidColorBrush(Windows.UI.Colors.Green) },
+                                { new BigInteger(5), new SolidColorBrush(Windows.UI.Colors.DarkGreen) }
                             };
                 default:
                     throw new System.IO.InvalidDataException($"levelRange out of range: {level}");
@@ -237,7 +240,7 @@ namespace MasturbationRecorder {
         /// classifiedDateTimes 的测试用例，不要删除
         /// </summary>
         /// <param name="classifiedDateTimes"></param>
-        private static void Test_classifiedDateTimes(SortedList<ulong, StatistTotalByDateTime>[][] classifiedDateTimes) {
+        private static void Test_classifiedDateTimes(SortedList<BigInteger, StatistTotalByDateTime>[][] classifiedDateTimes) {
             var level2 = 0;
             foreach (var sortListArr in classifiedDateTimes) {
                 Debug.WriteLine($"Level: {++level2}");

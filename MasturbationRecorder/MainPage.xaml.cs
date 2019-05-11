@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Numerics;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -157,8 +158,8 @@ namespace MasturbationRecorder {
 
 		private static SolidColorBrush GetFillOfRectanglesByDifferentOfDateTimesTotal(
 			DateTime currentDateTime,
-			IDictionary<long, SolidColorBrush> classifyLevelColor,
-			SortedList<ulong, StatistTotalByDateTime>[][] classifiedDateTimes) {
+			IDictionary<BigInteger, SolidColorBrush> classifyLevelColor,
+			SortedList<BigInteger, StatistTotalByDateTime>[][] classifiedDateTimes) {
 			for (var level = 0L; level < classifiedDateTimes.LongLength; level++) {
 				foreach (var sortList in classifiedDateTimes[level]) {
 					foreach (var date in sortList) {

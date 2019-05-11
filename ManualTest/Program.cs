@@ -100,8 +100,8 @@ namespace ManualTest {
                                     args: new object[] { tempLikNode }
                                 );
 
-                // 将 tempLikDateTimes 转换为单元素 List<(ulong Ordinal, long Diff, SortedList<ulong, StatistTotalByDateTime> StaticsList)>
-                // 之后调用 List.First<(ulong Ordinal, long Diff, SortedList<ulong, StatistTotalByDateTime> StaticsList)>() 
+                // 将 tempLikDateTimes 转换为单元素 List<(BigInteger Ordinal, BigInteger Diff, SortedList<BigInteger, StatistTotalByDateTime> StaticsList)>
+                // 之后调用 List.First<(BigInteger Ordinal, BigInteger Diff, SortedList<BigInteger, StatistTotalByDateTime> StaticsList)>() 
                 // 用以提取内部封装的元素（即当前循环的 node 值，类型为元组）
                 var listOfTuple = groupDateTimesByDiffInfo.Invoke(null, new object[] { tempLikDateTimes });
                 InvokeFirstMethodOfListOfTuple(listOfTuple);
@@ -109,7 +109,7 @@ namespace ManualTest {
         }
 
         /// <summary>
-        /// 调用 List.First<(ulong Ordinal, long Diff, SortedList<ulong, StatistTotalByDateTime> StaticsList)>()
+        /// 调用 List.First<(BigInteger Ordinal, BigInteger Diff, SortedList<BigInteger, StatistTotalByDateTime> StaticsList)>()
         /// </summary>
         /// <param name="listOfTuple"></param>
         private static void InvokeFirstMethodOfListOfTuple(object listOfTuple) {
