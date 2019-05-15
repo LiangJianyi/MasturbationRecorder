@@ -66,7 +66,7 @@ namespace MasturbationRecorder {
                 else if (values.Count > 0) {
                     if (datetimesDiffTable[ordinal.BigIntegerToInt32() - 1].Diff == tempDiff && tempDiff > 0L) {
                         //datetimesDiffTable[Convert.ToInt32(ordinal - 1)].StaticsList.Add(current.Next.Value.Total, current.Next.Value);
-                        AddUniqueToValues(datetimesDiffTable[Convert.ToInt32(ordinal - 1)].StaticsList, current.Next);
+                        AddUniqueToValues(datetimesDiffTable[ordinal.BigIntegerToInt32() - 1].StaticsList, current.Next);
                     }
                     else {
                         values = new SortedList<BigInteger, StatistTotalByDateTime>();
