@@ -24,6 +24,7 @@ namespace ManualTest {
             Assembly MasturbationRecorderAssembly = Assembly.LoadFrom(MasturbationRecorder_exe_path);
             Assembly MasturbationRecorderTestAssembly = Assembly.LoadFrom(MasturbationRecorderTest_path);
             MasturbationRecorder_DatetimeParser_StringToUInt16_Test(MasturbationRecorderAssembly);
+            MasturbationRecorder_MainPageViewModel_GroupDateTimesDiff_SingleNodeTest(MasturbationRecorderAssembly, MasturbationRecorderTestAssembly);
             MasturbationRecorder_MainPageViewModel_GroupDateTimesDiff_Test(MasturbationRecorderAssembly, MasturbationRecorderTestAssembly);
 
             Console.ReadKey();
@@ -44,8 +45,8 @@ namespace ManualTest {
         /*
          * 该方法使用的反射技术参见： https://docs.microsoft.com/zh-cn/dotnet/framework/reflection-and-codedom/how-to-examine-and-instantiate-generic-types-with-reflection
          */
-        private static void MasturbationRecorder_MainPageViewModel_GroupDateTimesDiff_Test(Assembly mastAssembly, Assembly mastTestAssembly) {
-            Console.WriteLine("Executing MasturbationRecorder_MainPageViewModel_GroupDateTimesDiff_Test:");
+        private static void MasturbationRecorder_MainPageViewModel_GroupDateTimesDiff_SingleNodeTest(Assembly mastAssembly, Assembly mastTestAssembly) {
+            Console.WriteLine("Executing MasturbationRecorder_MainPageViewModel_GroupDateTimesDiff_SingleNodeTest:");
 
             var groupDateTimesByDiffInfo = mastAssembly.GetType("MasturbationRecorder.MainPageViewModel")
                                                        .GetMethod("GroupDateTimesByDiff", BindingFlags.Public | BindingFlags.Static);
@@ -139,6 +140,19 @@ namespace ManualTest {
                 parameters: new object[] { testTextLine }
             );
             return linkedlist_dateTimes;
+        }
+
+        private static void MasturbationRecorder_MainPageViewModel_GroupDateTimesDiff_Test(Assembly mastAssembly, Assembly mastTestAssembly) {
+            Console.WriteLine("Executing MasturbationRecorder_MainPageViewModel_GroupDateTimesDiff_Test:");
+
+            var groupDateTimesByDiffInfo = mastAssembly.GetType("MasturbationRecorder.MainPageViewModel")
+                                                       .GetMethod("GroupDateTimesByDiff", BindingFlags.Public | BindingFlags.Static);
+            object testData_linkedlist_dateTimes = MakeTestDataObject(mastAssembly, mastTestAssembly);
+
+            var listOfTuple = groupDateTimesByDiffInfo.Invoke(null, new object[] { testData_linkedlist_dateTimes });
+            //foreach (var item in listOfTuple) {
+            //    Console.WriteLine(item);
+            //}
         }
     }
 }
