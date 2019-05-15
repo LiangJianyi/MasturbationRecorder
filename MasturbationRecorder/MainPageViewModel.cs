@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Linq;
 using Windows.UI.Xaml.Media;
 using System.Numerics;
+using Janyee.Utilty;
 
 namespace MasturbationRecorder {
     /// <summary>
@@ -52,7 +53,7 @@ namespace MasturbationRecorder {
 
                 bool dateTimesCountBiggerThanOne = dateTimes.Count > 1;
                 if (dateTimesCountBiggerThanOne) {
-                    tempDiff = current.Next.Value.Total - current.Value.Total;
+                    tempDiff = BigInteger.Abs(current.Next.Value.Total - current.Value.Total);
                 }
                 else {
                     tempDiff = 0L;
@@ -63,7 +64,7 @@ namespace MasturbationRecorder {
                     datetimesDiffTable.Add((Ordinal: ++ordinal, Diff: tempDiff, StaticsList: values));
                 }
                 else if (values.Count > 0) {
-                    if (datetimesDiffTable[Convert.ToInt32(ordinal - 1)].Diff == tempDiff && tempDiff > 0L) {
+                    if (datetimesDiffTable[ordinal.BigIntegerToInt32() - 1].Diff == tempDiff && tempDiff > 0L) {
                         //datetimesDiffTable[Convert.ToInt32(ordinal - 1)].StaticsList.Add(current.Next.Value.Total, current.Next.Value);
                         AddUniqueToValues(datetimesDiffTable[Convert.ToInt32(ordinal - 1)].StaticsList, current.Next);
                     }
