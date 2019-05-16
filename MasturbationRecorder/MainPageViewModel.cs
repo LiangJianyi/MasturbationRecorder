@@ -49,8 +49,10 @@ namespace MasturbationRecorder {
             }
 
             for (var current = dateTimes.First; current != null; current = current.Next) {
+#if DEBUG
                 Debug.WriteLine($"Current node: {current.Value} in GroupDateTimesByDiff.");
 
+#endif
                 bool dateTimesCountBiggerThanOne = dateTimes.Count > 1;
                 if (dateTimesCountBiggerThanOne) {
                     if (current.Next != null) {
@@ -235,8 +237,17 @@ namespace MasturbationRecorder {
         /// <param name="lines"></param>
         /// <returns></returns>
         public static LinkedList<StatistTotalByDateTime> LinesConvertToStatistTotalByDateTimes(IEnumerable<string> lines) {
+#if DEBUG
+            Debug.WriteLine("Invoking LinesConvertToStatistTotalByDateTimes.");
+#endif
             LinkedList<StatistTotalByDateTime> dateTimes = new LinkedList<StatistTotalByDateTime>();
             foreach (var line in lines) {
+#if DEBUG
+                Debug.WriteLine($"Current line: {line}");
+                if (line[0] == 'M' && line[1] == 'a' && line[2] == 'r' && line[3] == ' ' && line[4] == '2' && line[5] == '8') {
+                    ;
+                }
+#endif
                 if (line != "" && line != "\r") {   // 忽略空行
                     StatistTotalByDateTime statist = DatetimeParser.ParseExpr(line);
                     dateTimes.AddLast(statist);
@@ -250,6 +261,7 @@ namespace MasturbationRecorder {
         /// </summary>
         /// <param name="classifiedDateTimes"></param>
         private static void Test_classifiedDateTimes(SortedList<BigInteger, StatistTotalByDateTime>[][] classifiedDateTimes) {
+#if DEBUG
             var level2 = 0;
             foreach (var sortListArr in classifiedDateTimes) {
                 Debug.WriteLine($"Level: {++level2}");
@@ -260,6 +272,7 @@ namespace MasturbationRecorder {
                 }
                 Debug.WriteLine("");
             }
+#endif
         }
     }
 }
