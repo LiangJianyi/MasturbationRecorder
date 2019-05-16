@@ -53,25 +53,33 @@ namespace MasturbationRecorder {
 
                 bool dateTimesCountBiggerThanOne = dateTimes.Count > 1;
                 if (dateTimesCountBiggerThanOne) {
-                    tempDiff = BigInteger.Abs(current.Next.Value.Total - current.Value.Total);
+                    if (current.Next != null) {
+                        tempDiff = BigInteger.Abs(current.Next.Value.Total - current.Value.Total);
+                    }
+                    else {
+                        tempDiff = current.Value.Total;
+                    }
                 }
                 else {
                     tempDiff = 0L;
                 }
                 if (values.Count == 0 && datetimesDiffTable.Count == 0) {
                     AddUniqueToValues(values, current, dateTimesCountBiggerThanOne);
-                    AddUniqueToValues(values, current.Next, dateTimesCountBiggerThanOne);
+                    if (current.Next != null) {
+                        AddUniqueToValues(values, current.Next, dateTimesCountBiggerThanOne);
+                    }
                     datetimesDiffTable.Add((Ordinal: ++ordinal, Diff: tempDiff, StaticsList: values));
                 }
                 else if (values.Count > 0) {
                     if (datetimesDiffTable[ordinal.BigIntegerToInt32() - 1].Diff == tempDiff && tempDiff > 0L) {
-                        //datetimesDiffTable[Convert.ToInt32(ordinal - 1)].StaticsList.Add(current.Next.Value.Total, current.Next.Value);
                         AddUniqueToValues(datetimesDiffTable[ordinal.BigIntegerToInt32() - 1].StaticsList, current.Next);
                     }
                     else {
                         values = new SortedList<BigInteger, StatistTotalByDateTime>();
                         AddUniqueToValues(values, current, dateTimesCountBiggerThanOne);
-                        AddUniqueToValues(values, current.Next, dateTimesCountBiggerThanOne);
+                        if (current.Next != null) {
+                            AddUniqueToValues(values, current.Next, dateTimesCountBiggerThanOne);
+                        }
                         datetimesDiffTable.Add((Ordinal: ++ordinal, Diff: tempDiff, StaticsList: values));
                     }
                 }
