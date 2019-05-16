@@ -13,7 +13,7 @@ namespace MasturbationRecorder {
 		/// <returns></returns>
 		private static ushort StringToUInt16(string month) {
 			switch (month.ToLower()) {
-				case "mon":
+				case "jan":
 					return 1;
 				case "feb":
 					return 2;

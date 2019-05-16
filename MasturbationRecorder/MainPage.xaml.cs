@@ -69,8 +69,8 @@ namespace MasturbationRecorder {
 
                     StateBar.IsActive = false;
                 }
-                catch (ArgumentException e) {
-                    DisplayErrorDialog(e.Message);
+                catch (ArgumentException err) {
+                    DisplayErrorDialog(err.Message);
                 }
             }
             else {
