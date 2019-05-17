@@ -5,11 +5,11 @@
   xmlns:uap="http://schemas.microsoft.com/appx/manifest/uap/windows10"
   IgnorableNamespaces="uap mp">
 
-  <Identity Name="d48c7bd5-52c6-4cfb-bf4c-00e0bd0b5080"
+  <Identity Name="c5dc802d-891e-449c-be59-19440acfc984"
             Publisher="CN=a124p"
             Version="1.0.0.0" />
 
-  <mp:PhoneIdentity PhoneProductId="d48c7bd5-52c6-4cfb-bf4c-00e0bd0b5080" PhonePublisherId="00000000-0000-0000-0000-000000000000"/>
+  <mp:PhoneIdentity PhoneProductId="c5dc802d-891e-449c-be59-19440acfc984" PhonePublisherId="00000000-0000-0000-0000-000000000000"/>
 
   <Properties>
     <DisplayName>MasturbationRecorderTest</DisplayName>

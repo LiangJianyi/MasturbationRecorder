@@ -37,7 +37,7 @@ namespace MasturbationRecorderTest {
         }
 
         [TestMethod]
-        public async Task SplitByLineTest() {
+        public void SplitByLineTest() {
             const string exceptedText =
                 "May 27 2018 x20\r\n" +
                 "May 29 2018\r\n" +

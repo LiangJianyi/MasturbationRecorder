@@ -35,7 +35,7 @@ namespace ManualTest {
 
             var methodInfo = assembly.GetType("MasturbationRecorder.DatetimeParser")
                                      .GetMethod("StringToUInt16", BindingFlags.NonPublic | BindingFlags.Static);
-            Console.WriteLine(methodInfo.Invoke(null, new object[] { "mon" }));
+            Console.WriteLine(methodInfo.Invoke(null, new object[] { "jan" }));
             Console.WriteLine(methodInfo.Invoke(null, new object[] { "feb" }));
             Console.WriteLine(methodInfo.Invoke(null, new object[] { "mar" }));
             Console.WriteLine(methodInfo.Invoke(null, new object[] { "apr" }));
@@ -149,10 +149,23 @@ namespace ManualTest {
                                                        .GetMethod("GroupDateTimesByDiff", BindingFlags.Public | BindingFlags.Static);
             object testData_linkedlist_dateTimes = MakeTestDataObject(mastAssembly, mastTestAssembly);
 
-            var listOfTuple = groupDateTimesByDiffInfo.Invoke(null, new object[] { testData_linkedlist_dateTimes });
-            //foreach (var item in listOfTuple) {
-            //    Console.WriteLine(item);
-            //}
+            var listOfTuple = (System.Collections.IEnumerable)groupDateTimesByDiffInfo.Invoke(null, new object[] { testData_linkedlist_dateTimes });
+            Console.WriteLine(listOfTuple);
+            foreach (var item in listOfTuple) {
+                Console.WriteLine(item);
+            }
+
+            GetTextFile(@"C:\Users\a124p\Documents\Test Data\masturbation test3.txt");
+        }
+
+        private static void GetTextFile(string path) {
+            Console.WriteLine("Executing GetTextFile:");
+
+            using (System.IO.StreamReader reader = System.IO.File.OpenText(path)) {
+                for (string s = reader.ReadLine(); s != null; s = reader.ReadLine()) {
+                    Console.WriteLine(s);
+                }
+            }
         }
     }
 }
