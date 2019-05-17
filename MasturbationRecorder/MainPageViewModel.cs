@@ -114,9 +114,10 @@ namespace MasturbationRecorder {
                 BigInteger GetLevelScore() => dateTimesDiffTable.LongCount() == 0 ? 0 :
                     dateTimesDiffTable.LongCount() >= 4 ? 5 : dateTimesDiffTable.LongCount() + 1;
 
-                IDictionary<BigInteger, SolidColorBrush> classifyLevelColor = ClassifyColorByLevelScore(GetLevelScore());
+                IDictionary<BigInteger, SolidColorBrush> levelToColorDic = ClassifyColorByLevelScore(GetLevelScore());
 
-                // dateTimesDiffTable 每个级别有 classifyLevelByDiff 个元素((BigInteger Ordinal, BigInteger Diff, SortedList<BigInteger, StatistTotalByDateTime> StaticsList))，
+                // dateTimesDiffTable 每个级别有 classifyLevelByDiff 个元素，
+                // 元素类型为 (BigInteger Ordinal, BigInteger Diff, SortedList<BigInteger, StatistTotalByDateTime> StaticsList)
                 // 如果 diffRemain 大于 0，则最后一个级别有 classifyLevelByDiff + diffRemain 个元素
                 var classifyLevelByDiff = dateTimesDiffTable.LongCount() / GetLevelScore();
                 var diffRemain = dateTimesDiffTable.LongCount() % GetLevelScore();
