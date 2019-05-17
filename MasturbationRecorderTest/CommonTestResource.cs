@@ -1,5 +1,15 @@
 ﻿namespace MasturbationRecorderTest {
     static class CommonTestResource {
+        private static string[] GetTextFile(string path) {
+            System.Collections.Generic.List<string> textList = new System.Collections.Generic.List<string>();
+            using (System.IO.StreamReader reader = System.IO.File.OpenText(path)) {
+                for (string s = reader.ReadLine(); s != null; s = reader.ReadLine()) {
+                    textList.Add(s);
+                }
+            }
+            return textList.ToArray();
+        }
+
         public static string[] TestTextLine => new string[] {
                 "May 27 2018 x20\r",
                 "May 29 2018\r",
