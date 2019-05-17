@@ -245,6 +245,9 @@ namespace MasturbationRecorder {
             foreach (var line in lines) {
 #if DEBUG
                 Debug.WriteLine($"Current line: {line}");
+                if (line[0] == 'M' && line[1] == 'a' && line[2] == 'r' && line[3] == ' ' && line[4] == '2' && line[5] == '8') {
+                    ;
+                }
 #endif
                 if (line != "" && line != "\r") {   // 忽略空行
                     StatistTotalByDateTime statist = DatetimeParser.ParseExpr(line);
