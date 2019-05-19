@@ -52,6 +52,7 @@ namespace MasturbationRecorder {
                 IEnumerable<string> lines = DatetimeParser.SplitByLine(text);
                 try {
                     LinkedList<StatistTotalByDateTime> dateTimes = MainPageViewModel.LinesConvertToStatistTotalByDateTimes(lines);
+                    MainPageViewModel.GroupDateTimesByDiff2(dateTimes);
                     var res = MainPageViewModel.GroupDateTimesByDiff(dateTimes);
                     var classifyDateTimes = MainPageViewModel.GetClassifyDateTimesTable(res);
 

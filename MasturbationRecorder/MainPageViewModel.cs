@@ -92,6 +92,62 @@ namespace MasturbationRecorder {
             return datetimesDiffTable;
         }
 
+
+        public static List<(BigInteger Ordinal, BigInteger Diff, SortedList<BigInteger, StatistTotalByDateTime> StaticsList)>
+            GroupDateTimesByDiff2(LinkedList<StatistTotalByDateTime> dateTimes) {
+            Debug.WriteLine("Executing GroupDateTimesByDiff2...");
+            List<(BigInteger Ordinal, BigInteger Diff, SortedList<BigInteger, StatistTotalByDateTime> StaticsList)> datetimesDiffTable =
+                new List<(BigInteger Ordinal, BigInteger Diff, SortedList<BigInteger, StatistTotalByDateTime> StaticsList)>();
+            BigInteger tempDiff = 0L;
+            BigInteger ordinal = 0UL;
+
+            var groupingForTotal = from e in dateTimes
+                                   group e by e.Total;
+
+#if DEBUG
+            foreach (var item in groupingForTotal) {
+                Debug.WriteLine(item.Key);
+                foreach (var subitem in item) {
+                    Debug.WriteLine($"  {subitem}");
+                }
+            }
+#endif
+            IDictionary<BigInteger, SolidColorBrush> levelColorDic = null;
+            // 一个级别有若干个Key；一个Key有若干条记录
+            // levelByTotal 指示每个级别有多少个 Key（groupingForTotal根据Total分组出来的Key）
+            List<IGrouping<BigInteger, StatistTotalByDateTime>> levels = null;
+            List<List<IGrouping<BigInteger, StatistTotalByDateTime>>> entries = new List<List<IGrouping<BigInteger, StatistTotalByDateTime>>>();
+            // keysForEachLevel 表示每个级别应包含多少个 item.Key
+            BigInteger keysForEachLevel = groupingForTotal.LongCount() / 5;
+            if (groupingForTotal.LongCount() > 5) {
+                BigInteger keyIncre = 0;
+                BigInteger classifedDateTimesIncre = 0;
+                foreach (var item in groupingForTotal) {
+                    keyIncre += 1;
+                    if (keyIncre == keysForEachLevel) {
+                        keyIncre = 1;
+                        levels.Add(item);
+                        entries.Add(levels);
+                        levels = null;
+                    }
+                    else if (levels == null) {
+                        levels = new List<IGrouping<BigInteger, StatistTotalByDateTime>>();
+                    }
+                    else {
+                        levels.Add(item);
+                    }
+                }
+            }
+            else if (groupingForTotal.LongCount() <= 5 && groupingForTotal.LongCount() > 0) {
+                levelColorDic = ClassifyColorByLevelScore(keysForEachLevel);
+            }
+            else {
+                throw new Exception();
+            }
+
+            return datetimesDiffTable;
+        }
+
         /// <summary>
         /// 为 dateTimesDiffTable 分级并返回一个交错数组
         /// </summary>
@@ -126,7 +182,7 @@ namespace MasturbationRecorder {
                 // 长度由 GetLevelScore 决定，每个元素是另一个数组，长度由每一级元组对象的总和决定，即 classifyLevelByDiff，
                 // 如果 diffRemain > 0，那么最后一个元素包含的数组有 classifyLevelByDiff + diffRemain
                 SortedList<BigInteger, StatistTotalByDateTime>[][] classifiedDateTimes =
-                    new SortedList<BigInteger, StatistTotalByDateTime>[(int)GetLevelScore()][];
+                    new SortedList<BigInteger, StatistTotalByDateTime>[GetLevelScore().BigIntegerToInt32()][];
 
                 /*
 				 *	无法更改List <T>索引参数的类型，它必须是int。 将来可以考虑创建一个需要 BigInteger 索引的自定义类型。
@@ -162,17 +218,19 @@ namespace MasturbationRecorder {
                 Test_classifiedDateTimes(classifiedDateTimes);
 
                 // 除了 Ordinal 为 1 的元组（即第一级第一行），其它元组的 StaticsList 的首元素均要移除
-                for (var level = 0L; level < classifiedDateTimes.LongLength; level++) {
-                    if (level == 0L) {
-                        for (var incre = 0L; incre < classifiedDateTimes[level].LongLength; incre++) {
-                            if (incre > 0L) {
-                                classifiedDateTimes[level][incre].RemoveAt(0);
+                if (classifiedDateTimes.LongLength > 2) {
+                    for (var level = 0L; level < classifiedDateTimes.LongLength; level++) {
+                        if (level == 0L) {
+                            for (var incre = 0L; incre < classifiedDateTimes[level].LongLength; incre++) {
+                                if (incre > 0L) {
+                                    classifiedDateTimes[level][incre].RemoveAt(0);
+                                }
                             }
                         }
-                    }
-                    else {
-                        foreach (var sortList in classifiedDateTimes[level]) {
-                            sortList.RemoveAt(0);
+                        else {
+                            foreach (var sortList in classifiedDateTimes[level]) {
+                                sortList.RemoveAt(0);
+                            }
                         }
                     }
                 }
