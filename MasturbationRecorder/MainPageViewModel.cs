@@ -125,17 +125,21 @@ namespace MasturbationRecorder {
                 foreach (var item in groupingForTotal) {
                     keyIncre += 1;
                     if (keyIncre == keysForEachLevel) {
-                        keyIncre = 1;
+                        keyIncre = 0;
                         levels.Add(item);
                         entries.Add(levels);
                         levels = null;
                     }
                     else if (levels == null) {
                         levels = new List<IGrouping<BigInteger, StatistTotalByDateTime>>();
+                        levels.Add(item);
                     }
                     else {
                         levels.Add(item);
                     }
+                }
+                if (levels != null && levels.LongCount() > 1) {
+                    entries.Add(levels);
                 }
             }
             else if (groupingForTotal.LongCount() <= 5 && groupingForTotal.LongCount() > 0) {
