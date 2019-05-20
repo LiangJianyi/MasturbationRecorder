@@ -113,10 +113,11 @@ namespace MasturbationRecorder {
             List<IGrouping<BigInteger, StatistTotalByDateTime>> levels = null;
 
             // groups 代表 dateTimes 根据每个元素的 Total 分组之后 groups（item.Key） 的总数
-            int groups = groupingForTotal.Count();
+            BigInteger groups = groupingForTotal.LongCount();
 
             // keysForEachLevel 表示每个级别应包含多少个 item.Key
-            BigInteger keysForEachLevel = groupingForTotal.LongCount() / 5;
+            BigInteger keysForEachLevel = groups / 5;
+            BigInteger remain = groups % 5;
 
             if (groups > 5) {
                 List<IGrouping<BigInteger, StatistTotalByDateTime>>[] entries = new List<IGrouping<BigInteger, StatistTotalByDateTime>>[5];
@@ -149,7 +150,7 @@ namespace MasturbationRecorder {
                 return entries;
             }
             else if (groups <= 5 && groups > 0) {
-                List<IGrouping<BigInteger, StatistTotalByDateTime>>[] entries = new List<IGrouping<BigInteger, StatistTotalByDateTime>>[groups];
+                List<IGrouping<BigInteger, StatistTotalByDateTime>>[] entries = new List<IGrouping<BigInteger, StatistTotalByDateTime>>[groups.BigIntegerToInt32()];
                 List<IGrouping<BigInteger, StatistTotalByDateTime>> temp = groupingForTotal.ToList();
                 for (int i = 0; i < entries.Length; i++) {
                     entries[i] = new List<IGrouping<BigInteger, StatistTotalByDateTime>>(1) {
