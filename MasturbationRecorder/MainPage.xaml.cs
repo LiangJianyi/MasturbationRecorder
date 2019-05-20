@@ -194,6 +194,13 @@ namespace MasturbationRecorder {
 #endif
                             if (rect.Name == item.DateTime.ToShortDateString()) {
                                 rect.Fill = colorDic[level + 1];
+#if DEBUG
+                                string newToolTip = rect.Name + $"  Level:{level + 1}  Total:{item.Total}  Color:{rect.Fill.ToString()}"; 
+                                ToolTip toolTip = new ToolTip {
+                                    Content = newToolTip
+                                };
+                                ToolTipService.SetToolTip(rect, toolTip);
+#endif
                                 break;
                             }
                         }
