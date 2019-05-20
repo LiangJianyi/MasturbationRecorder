@@ -93,16 +93,12 @@ namespace MasturbationRecorder {
         }
 
 
-        public static List<(BigInteger Ordinal, BigInteger Diff, SortedList<BigInteger, StatistTotalByDateTime> StaticsList)>
-            GroupDateTimesByDiff2(LinkedList<StatistTotalByDateTime> dateTimes) {
+        public static List<IGrouping<BigInteger, StatistTotalByDateTime>>[] GroupDateTimesByDiff2(LinkedList<StatistTotalByDateTime> dateTimes) {
             Debug.WriteLine("Executing GroupDateTimesByDiff2...");
-            List<(BigInteger Ordinal, BigInteger Diff, SortedList<BigInteger, StatistTotalByDateTime> StaticsList)> datetimesDiffTable =
-                new List<(BigInteger Ordinal, BigInteger Diff, SortedList<BigInteger, StatistTotalByDateTime> StaticsList)>();
-            BigInteger tempDiff = 0L;
-            BigInteger ordinal = 0UL;
-
             var groupingForTotal = from e in dateTimes
-                                   group e by e.Total;
+                                   group e by e.Total into newgroup
+                                   orderby newgroup.Key
+                                   select newgroup;
 
 #if DEBUG
             foreach (var item in groupingForTotal) {
@@ -112,46 +108,62 @@ namespace MasturbationRecorder {
                 }
             }
 #endif
-            IDictionary<BigInteger, SolidColorBrush> levelColorDic = null;
             // 一个级别有若干个Key；一个Key有若干条记录
             // levelByTotal 指示每个级别有多少个 Key（groupingForTotal根据Total分组出来的Key）
             List<IGrouping<BigInteger, StatistTotalByDateTime>> levels = null;
-            List<List<IGrouping<BigInteger, StatistTotalByDateTime>>> entries = new List<List<IGrouping<BigInteger, StatistTotalByDateTime>>>();
+
+            // groups 代表 dateTimes 根据每个元素的 Total 分组之后 groups（item.Key） 的总数
+            int groups = groupingForTotal.Count();
+
             // keysForEachLevel 表示每个级别应包含多少个 item.Key
             BigInteger keysForEachLevel = groupingForTotal.LongCount() / 5;
-            if (groupingForTotal.LongCount() > 5) {
+
+            if (groups > 5) {
+                List<IGrouping<BigInteger, StatistTotalByDateTime>>[] entries = new List<IGrouping<BigInteger, StatistTotalByDateTime>>[5];
                 BigInteger keyIncre = 0;
-                BigInteger classifedDateTimesIncre = 0;
+                // entriesIncre 没有必要使用 BigInteger，因为不管有多少个 Key，分成多少个 group，
+                // entries 的长度永远为 5，因为纪录器最多只能分五级
+                int entriesIncre = 0;
                 foreach (var item in groupingForTotal) {
                     keyIncre += 1;
                     if (keyIncre == keysForEachLevel) {
                         keyIncre = 0;
                         levels.Add(item);
-                        entries.Add(levels);
+                        entries[entriesIncre] = levels;
+                        entriesIncre += 1;
                         levels = null;
                     }
                     else if (levels == null) {
-                        levels = new List<IGrouping<BigInteger, StatistTotalByDateTime>>();
-                        levels.Add(item);
+                        levels = new List<IGrouping<BigInteger, StatistTotalByDateTime>> {
+                            item
+                        };
                     }
                     else {
                         levels.Add(item);
                     }
                 }
                 if (levels != null && levels.LongCount() > 1) {
-                    entries.Add(levels);
+                    entries[entriesIncre] = levels;
+                    entriesIncre += 1;
                 }
+                return entries;
             }
-            else if (groupingForTotal.LongCount() <= 5 && groupingForTotal.LongCount() > 0) {
-                levelColorDic = ClassifyColorByLevelScore(keysForEachLevel);
+            else if (groups <= 5 && groups > 0) {
+                List<IGrouping<BigInteger, StatistTotalByDateTime>>[] entries = new List<IGrouping<BigInteger, StatistTotalByDateTime>>[groups];
+                List<IGrouping<BigInteger, StatistTotalByDateTime>> temp = groupingForTotal.ToList();
+                for (int i = 0; i < entries.Length; i++) {
+                    entries[i] = new List<IGrouping<BigInteger, StatistTotalByDateTime>>(1) {
+                        temp[i]
+                    };
+                }
+                return entries;
             }
             else {
-                throw new Exception();
+                throw new Exception($"Unkown error. Groups is {groups}");
             }
-
-            return datetimesDiffTable;
         }
 
+#if false
         /// <summary>
         /// 为 dateTimesDiffTable 分级并返回一个交错数组
         /// </summary>
@@ -245,50 +257,51 @@ namespace MasturbationRecorder {
                 return classifiedDateTimes;
             }
         }
+#endif
 
-        public static IDictionary<BigInteger, SolidColorBrush> ClassifyColorByLevelScore(BigInteger level) {
-            switch (level.ToString()) {
-                case "0":
-                    return new Dictionary<BigInteger, SolidColorBrush>() {
-                                { new BigInteger(0), new SolidColorBrush(Windows.UI.Colors.LightGray) }
+        public static IDictionary<int, SolidColorBrush> ClassifyColorByLevelScore(int groups) {
+            switch (groups) {
+                case 0:
+                    return new Dictionary<int, SolidColorBrush>() {
+                                { 0, new SolidColorBrush(Windows.UI.Colors.LightGray) }
                             };
-                case "1":
-                    return new Dictionary<BigInteger, SolidColorBrush>() {
-                                { new BigInteger(0), new SolidColorBrush(Windows.UI.Colors.LightGray) },
-                                { new BigInteger(1), new SolidColorBrush(Windows.UI.Colors.DarkGreen) }
+                case 1:
+                    return new Dictionary<int, SolidColorBrush>() {
+                                { 0, new SolidColorBrush(Windows.UI.Colors.LightGray) },
+                                { 1, new SolidColorBrush(Windows.UI.Colors.DarkGreen) }
                             };
-                case "2":
-                    return new Dictionary<BigInteger, SolidColorBrush>() {
-                                { new BigInteger(0), new SolidColorBrush(Windows.UI.Colors.LightGray) },
-                                { new BigInteger(1), new SolidColorBrush(Windows.UI.Colors.Green) },
-                                { new BigInteger(2), new SolidColorBrush(Windows.UI.Colors.DarkGreen) }
+                case 2:
+                    return new Dictionary<int, SolidColorBrush>() {
+                                { 0, new SolidColorBrush(Windows.UI.Colors.LightGray) },
+                                { 1, new SolidColorBrush(Windows.UI.Colors.Green) },
+                                { 2, new SolidColorBrush(Windows.UI.Colors.DarkGreen) }
                             };
-                case "3":
-                    return new Dictionary<BigInteger, SolidColorBrush>() {
-                                { new BigInteger(0), new SolidColorBrush(Windows.UI.Colors.LightGray) },
-                                { new BigInteger(1), new SolidColorBrush(Windows.UI.Colors.LawnGreen) },
-                                { new BigInteger(2), new SolidColorBrush(Windows.UI.Colors.Green) },
-                                { new BigInteger(3), new SolidColorBrush(Windows.UI.Colors.DarkGreen) }
+                case 3:
+                    return new Dictionary<int, SolidColorBrush>() {
+                                { 0, new SolidColorBrush(Windows.UI.Colors.LightGray) },
+                                { 1, new SolidColorBrush(Windows.UI.Colors.LawnGreen) },
+                                { 2, new SolidColorBrush(Windows.UI.Colors.Green) },
+                                { 3, new SolidColorBrush(Windows.UI.Colors.DarkGreen) }
                             };
-                case "4":
-                    return new Dictionary<BigInteger, SolidColorBrush>() {
-                                { new BigInteger(0), new SolidColorBrush(Windows.UI.Colors.LightGray) },
-                                { new BigInteger(1), new SolidColorBrush(Windows.UI.Colors.GreenYellow) },
-                                { new BigInteger(2), new SolidColorBrush(Windows.UI.Colors.LawnGreen) },
-                                { new BigInteger(3), new SolidColorBrush(Windows.UI.Colors.Green) },
-                                { new BigInteger(4), new SolidColorBrush(Windows.UI.Colors.DarkGreen) }
+                case 4:
+                    return new Dictionary<int, SolidColorBrush>() {
+                                { 0, new SolidColorBrush(Windows.UI.Colors.LightGray) },
+                                { 1, new SolidColorBrush(Windows.UI.Colors.GreenYellow) },
+                                { 2, new SolidColorBrush(Windows.UI.Colors.LawnGreen) },
+                                { 3, new SolidColorBrush(Windows.UI.Colors.Green) },
+                                { 4, new SolidColorBrush(Windows.UI.Colors.DarkGreen) }
                             };
-                case "5":
-                    return new Dictionary<BigInteger, SolidColorBrush>() {
-                                { new BigInteger(0), new SolidColorBrush(Windows.UI.Colors.LightGray) },
-                                { new BigInteger(1), new SolidColorBrush(Windows.UI.Colors.YellowGreen) },
-                                { new BigInteger(2), new SolidColorBrush(Windows.UI.Colors.GreenYellow) },
-                                { new BigInteger(3), new SolidColorBrush(Windows.UI.Colors.LawnGreen) },
-                                { new BigInteger(4), new SolidColorBrush(Windows.UI.Colors.Green) },
-                                { new BigInteger(5), new SolidColorBrush(Windows.UI.Colors.DarkGreen) }
+                case 5:
+                    return new Dictionary<int, SolidColorBrush>() {
+                                { 0, new SolidColorBrush(Windows.UI.Colors.LightGray) },
+                                { 1, new SolidColorBrush(Windows.UI.Colors.YellowGreen) },
+                                { 2, new SolidColorBrush(Windows.UI.Colors.GreenYellow) },
+                                { 3, new SolidColorBrush(Windows.UI.Colors.LawnGreen) },
+                                { 4, new SolidColorBrush(Windows.UI.Colors.Green) },
+                                { 5, new SolidColorBrush(Windows.UI.Colors.DarkGreen) }
                             };
                 default:
-                    throw new System.IO.InvalidDataException($"levelRange out of range: {level}");
+                    throw new System.IO.InvalidDataException($"levelRange out of range: {groups}");
             }
         }
 

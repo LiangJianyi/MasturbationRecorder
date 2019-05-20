@@ -40,10 +40,10 @@ namespace MasturbationRecorder {
             openPicker.FileTypeFilter.Add(".mast");
 
             StorageFile file = await openPicker.PickSingleFileAsync();
-            StateBar.IsActive = true;
 
             if (file != null) {
-                //Windows.Storage.AccessCache.StorageApplicationPermissions.FutureAccessList.Add(file);
+                StateBar.IsActive = true;
+                Windows.Storage.AccessCache.StorageApplicationPermissions.FutureAccessList.Add(file);
                 string text = await FileIO.ReadTextAsync(file);
 #if DEBUG
                 Debug.WriteLine(text);
@@ -52,26 +52,25 @@ namespace MasturbationRecorder {
                 IEnumerable<string> lines = DatetimeParser.SplitByLine(text);
                 try {
                     LinkedList<StatistTotalByDateTime> dateTimes = MainPageViewModel.LinesConvertToStatistTotalByDateTimes(lines);
-                    MainPageViewModel.GroupDateTimesByDiff2(dateTimes);
-                    var res = MainPageViewModel.GroupDateTimesByDiff(dateTimes);
-                    var classifyDateTimes = MainPageViewModel.GetClassifyDateTimesTable(res);
+                    List<IGrouping<BigInteger, StatistTotalByDateTime>>[] res = MainPageViewModel.GroupDateTimesByDiff2(dateTimes);
 
                     // 遍历所有 Rectangle 根据 _datetimes 进行着色
-                    foreach (Rectangle rect in RectanglesCanvas.Children) {
-#if DEBUG
-                        Debug.WriteLine(DateTime.Parse(rect.Name));
-#endif
-                        rect.Fill = GetFillOfRectanglesByDifferentOfDateTimesTotal(
-                            currentDateTime: DateTime.Parse(rect.Name),
-                            classifyLevelColor: MainPageViewModel.ClassifyColorByLevelScore(classifyDateTimes.LongLength),
-                            classifiedDateTimes: classifyDateTimes
-                        );
-                    }
-
-                    StateBar.IsActive = false;
+                    //                    foreach (Rectangle rect in RectanglesCanvas.Children) {
+                    //#if DEBUG
+                    //                        Debug.WriteLine(DateTime.Parse(rect.Name));
+                    //#endif
+                    //                        rect.Fill = GetFillOfRectanglesByDifferentOfDateTimesTotal(
+                    //                            currentDateTime: DateTime.Parse(rect.Name),
+                    //                            classifyLevelColor: MainPageViewModel.ClassifyColorByLevelScore(classifyDateTimes.LongLength),
+                    //                            classifiedDateTimes: classifyDateTimes
+                    //                        );
+                    //                    }
                 }
                 catch (ArgumentException err) {
                     DisplayErrorDialog(err.Message);
+                }
+                finally {
+                    StateBar.IsActive = false;
                 }
             }
             else {
@@ -178,5 +177,21 @@ namespace MasturbationRecorder {
             return classifyLevelColor[0L];
         }
 
+        private void DrawRectangleColor(List<IGrouping<BigInteger, StatistTotalByDateTime>>[] entries) {
+            var colorDic = MainPageViewModel.ClassifyColorByLevelScore(entries.Length);
+            foreach (Rectangle rect in RectanglesCanvas.Children) {
+#if DEBUG
+                Debug.WriteLine(DateTime.Parse(rect.Name));
+#endif
+                rect.Fill = GetFillOfRectanglesByDifferentOfDateTimesTotal(
+                    currentDateTime: DateTime.Parse(rect.Name),
+                    classifyLevelColor: MainPageViewModel.ClassifyColorByLevelScore(classifyDateTimes.LongLength),
+                    classifiedDateTimes: classifyDateTimes
+                );
+
+                for (int level = 0; level < entries.Length; level++) {
+                }
+            }
+        }
     }
 }
