@@ -115,11 +115,17 @@ namespace MasturbationRecorder {
             // groups 代表 dateTimes 根据每个元素的 Total 分组之后 groups（item.Key） 的总数
             BigInteger groups = groupingForTotal.LongCount();
 
-            // keysForEachLevel 表示每个级别应包含多少个 item.Key
-            BigInteger keysForEachLevel = groups / 5;
-            BigInteger remain = groups % 5;
-
             if (groups > 5) {
+                // keysForEachLevel 表示每个级别应包含多少个 item.Key
+                BigInteger keysForEachLevel = groups > 5 ? groups / 5 : 1;
+                BigInteger remain = groups % 5;
+
+#if DEBUG
+                Debug.WriteLine($"groups: {groups}");
+                Debug.WriteLine($"keysForEachLevel: {keysForEachLevel}");
+                Debug.WriteLine($"remain: {remain}");
+#endif
+
                 List<IGrouping<BigInteger, StatistTotalByDateTime>>[] entries = new List<IGrouping<BigInteger, StatistTotalByDateTime>>[5];
                 BigInteger keyIncre = 0;
                 // entriesIncre 没有必要使用 BigInteger，因为不管有多少个 Key，分成多少个 group，
@@ -163,102 +169,6 @@ namespace MasturbationRecorder {
                 throw new Exception($"Unkown error. Groups is {groups}");
             }
         }
-
-#if false
-        /// <summary>
-        /// 为 dateTimesDiffTable 分级并返回一个交错数组
-        /// </summary>
-        /// <param name="dateTimesDiffTable">
-        /// 接收一个元组列表，该列表由方法 MainPageViewModel.GroupDateTimesByDiff 产生，其根据时间链表（LinkeList<StatistTotalByDateTime>）
-        /// 中每个相邻元素之间的 Total 差值进行分组和排序，每个元组之间呈升序排列（由 Ordinal 属性决定），元组之间的 Diff 不一定
-        /// 呈线性增长，其取决于对应的 StaticsList ，可以肯定的是，Ordinal 值越大，其对应的 StaticsList 中的 StatistTotalByDateTime
-        /// 的 Total 属性值也越大
-        /// </param>
-        /// <returns></returns>
-        public static SortedList<BigInteger, StatistTotalByDateTime>[][] GetClassifyDateTimesTable(List<(BigInteger Ordinal, BigInteger Diff, SortedList<BigInteger, StatistTotalByDateTime> StaticsList)> dateTimesDiffTable) {
-            if (dateTimesDiffTable == null) {
-                throw new ArgumentNullException("DateTimes cannot be empty.");
-            }
-            else if (dateTimesDiffTable.Count == 0) {
-                throw new ArgumentException("dateTimesDiffTable must have content.");
-            }
-            else {
-                /// 根据 dateTimesDiffTable 的长度决定到底应该分多少级
-                BigInteger GetLevelScore() => dateTimesDiffTable.LongCount() == 0 ? 0 :
-                    dateTimesDiffTable.LongCount() >= 4 ? 5 : dateTimesDiffTable.LongCount() + 1;
-
-                IDictionary<BigInteger, SolidColorBrush> levelToColorDic = ClassifyColorByLevelScore(GetLevelScore());
-
-                // dateTimesDiffTable 每个级别有 classifyLevelByDiff 个元素，
-                // 元素类型为 (BigInteger Ordinal, BigInteger Diff, SortedList<BigInteger, StatistTotalByDateTime> StaticsList)
-                // 如果 diffRemain 大于 0，则最后一个级别有 classifyLevelByDiff + diffRemain 个元素
-                var classifyLevelByDiff = dateTimesDiffTable.LongCount() / GetLevelScore();
-                var diffRemain = dateTimesDiffTable.LongCount() % GetLevelScore();
-
-                // 存放已经分级的 (BigInteger Ordinal, BigInteger Diff, SortedList<BigInteger, StatistTotalByDateTime> StaticsList) 对象，
-                // 长度由 GetLevelScore 决定，每个元素是另一个数组，长度由每一级元组对象的总和决定，即 classifyLevelByDiff，
-                // 如果 diffRemain > 0，那么最后一个元素包含的数组有 classifyLevelByDiff + diffRemain
-                SortedList<BigInteger, StatistTotalByDateTime>[][] classifiedDateTimes =
-                    new SortedList<BigInteger, StatistTotalByDateTime>[GetLevelScore().BigIntegerToInt32()][];
-
-                /*
-				 *	无法更改List <T>索引参数的类型，它必须是int。 将来可以考虑创建一个需要 BigInteger 索引的自定义类型。
-				 *	你不能创建一个足够大的数组来要求64位索引。如果要创建可以存储这么多内容的列表，则必须使用某种树结构或交错数组。 
-				 *	这需要大量的内存！
-				 */
-                int dateTimesDiffTableIndex = -1;
-
-                for (var level = 0L; level < classifiedDateTimes.LongLength; level++) {
-                    if (diffRemain == 0) {
-                        classifiedDateTimes[level] = new SortedList<BigInteger, StatistTotalByDateTime>[(int)classifyLevelByDiff];
-                        for (var incre = 0L; incre < classifyLevelByDiff; incre++) {
-                            classifiedDateTimes[level][incre] = dateTimesDiffTable[++dateTimesDiffTableIndex].StaticsList;
-                        }
-                    }
-                    else {
-                        if (level != classifiedDateTimes.LongLength - 1) {
-                            classifiedDateTimes[level] = new SortedList<BigInteger, StatistTotalByDateTime>[(int)classifyLevelByDiff];
-                            for (var incre = 0L; incre < classifyLevelByDiff; incre++) {
-                                classifiedDateTimes[level][incre] = dateTimesDiffTable[++dateTimesDiffTableIndex].StaticsList;
-                            }
-                        }
-                        else {  // 遍历到最后一个级别，classifiedDateTimes 最后一个元素会长一些
-                            classifiedDateTimes[level] = new SortedList<BigInteger, StatistTotalByDateTime>[(int)(classifyLevelByDiff + diffRemain)];
-                            for (var incre = 0L; incre < classifyLevelByDiff + diffRemain; incre++) {
-                                classifiedDateTimes[level][incre] = dateTimesDiffTable[++dateTimesDiffTableIndex].StaticsList;
-                            }
-                        }
-                    }
-                }
-
-                //test
-                Test_classifiedDateTimes(classifiedDateTimes);
-
-                // 除了 Ordinal 为 1 的元组（即第一级第一行），其它元组的 StaticsList 的首元素均要移除
-                if (classifiedDateTimes.LongLength > 2) {
-                    for (var level = 0L; level < classifiedDateTimes.LongLength; level++) {
-                        if (level == 0L) {
-                            for (var incre = 0L; incre < classifiedDateTimes[level].LongLength; incre++) {
-                                if (incre > 0L) {
-                                    classifiedDateTimes[level][incre].RemoveAt(0);
-                                }
-                            }
-                        }
-                        else {
-                            foreach (var sortList in classifiedDateTimes[level]) {
-                                sortList.RemoveAt(0);
-                            }
-                        }
-                    }
-                }
-
-                //test
-                Test_classifiedDateTimes(classifiedDateTimes);
-
-                return classifiedDateTimes;
-            }
-        }
-#endif
 
         public static IDictionary<int, SolidColorBrush> ClassifyColorByLevelScore(int groups) {
             switch (groups) {

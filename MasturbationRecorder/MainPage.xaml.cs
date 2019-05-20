@@ -45,17 +45,6 @@ namespace MasturbationRecorder {
                     LinkedList<StatistTotalByDateTime> dateTimes = MainPageViewModel.LinesConvertToStatistTotalByDateTimes(lines);
                     List<IGrouping<BigInteger, StatistTotalByDateTime>>[] res = MainPageViewModel.GroupDateTimesByDiff2(dateTimes);
                     DrawRectangleColor(res);
-                    // 遍历所有 Rectangle 根据 _datetimes 进行着色
-                    //                    foreach (Rectangle rect in RectanglesCanvas.Children) {
-                    //#if DEBUG
-                    //                        Debug.WriteLine(DateTime.Parse(rect.Name));
-                    //#endif
-                    //                        rect.Fill = GetFillOfRectanglesByDifferentOfDateTimesTotal(
-                    //                            currentDateTime: DateTime.Parse(rect.Name),
-                    //                            classifyLevelColor: MainPageViewModel.ClassifyColorByLevelScore(classifyDateTimes.LongLength),
-                    //                            classifiedDateTimes: classifyDateTimes
-                    //                        );
-                    //                    }
                 }
                 catch (ArgumentException err) {
                     DisplayErrorDialog(err.Message);
@@ -169,20 +158,32 @@ namespace MasturbationRecorder {
         }
 
         private void DrawRectangleColor(List<IGrouping<BigInteger, StatistTotalByDateTime>>[] entries) {
+#if DEBUG
+            Debug.WriteLine($"Executing DrawRectangleColor:");
+#endif
             IDictionary<int, SolidColorBrush> colorDic = MainPageViewModel.ClassifyColorByLevelScore(entries.Length);
             // level 作为 entries 的索引值，值越小对应的 Total 越小
-            int groupsIncre = 0;
             for (int level = 0; level < entries.Length; level++) {
-                foreach (Rectangle rect in RectanglesCanvas.Children) {
-                    List<IGrouping<BigInteger, StatistTotalByDateTime>> groups = entries[level];
-                    var group = groups[groupsIncre];
-                    foreach (var item in group) {
+                int groupsIncre = 0;
+                List<IGrouping<BigInteger, StatistTotalByDateTime>> groups = entries[level];
+                IGrouping<BigInteger, StatistTotalByDateTime> group = null;
+                if (groupsIncre < groups.LongCount()) {
+                    group = groups[groupsIncre];
+                    groupsIncre += 1;
+                }
+                else {
+                    continue;
+                }
+                foreach (var item in group) {
+                    foreach (Rectangle rect in RectanglesCanvas.Children) {
+#if DEBUG
+                        Debug.WriteLine($"rect: {rect.Name}");
+#endif
                         if (rect.Name == item.DateTime.ToShortDateString()) {
-                            rect.Fill = colorDic[level];
+                            rect.Fill = colorDic[level + 1];
                         }
                     }
-                    groupsIncre += 1;
-                } 
+                }
             }
         }
     }
