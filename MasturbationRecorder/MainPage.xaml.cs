@@ -43,7 +43,7 @@ namespace MasturbationRecorder {
                 IEnumerable<string> lines = DatetimeParser.SplitByLine(text);
                 try {
                     LinkedList<StatistTotalByDateTime> dateTimes = MainPageViewModel.LinesConvertToStatistTotalByDateTimes(lines);
-                    List<IGrouping<BigInteger, StatistTotalByDateTime>>[] res = MainPageViewModel.GroupDateTimesByDiff2(dateTimes);
+                    List<IGrouping<BigInteger, StatistTotalByDateTime>>[] res = MainPageViewModel.GroupDateTimesByDiff(dateTimes);
                     DrawRectangleColor(res);
                 }
                 catch (ArgumentException err) {
