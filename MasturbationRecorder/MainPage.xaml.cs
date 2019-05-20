@@ -44,6 +44,18 @@ namespace MasturbationRecorder {
                 try {
                     LinkedList<StatistTotalByDateTime> dateTimes = MainPageViewModel.LinesConvertToStatistTotalByDateTimes(lines);
                     List<IGrouping<BigInteger, StatistTotalByDateTime>>[] res = MainPageViewModel.GroupDateTimesByDiff(dateTimes);
+#if DEBUG
+                    for (int level = 0; level < res.Length; level++) {
+                        Debug.WriteLine($"level: {level + 1}");
+                        Debug.WriteLine($"  List res[{level}]:");
+                        foreach (var group in res[level]) {
+                            Debug.WriteLine($"    Total: {group.Key}");
+                            foreach (var item in group) {
+                                Debug.WriteLine($"      {item}");
+                            }
+                        }
+                    } 
+#endif
                     DrawRectangleColor(res);
                 }
                 catch (ArgumentException err) {
@@ -164,25 +176,28 @@ namespace MasturbationRecorder {
             IDictionary<int, SolidColorBrush> colorDic = MainPageViewModel.ClassifyColorByLevelScore(entries.Length);
             // level 作为 entries 的索引值，值越小对应的 Total 越小
             for (int level = 0; level < entries.Length; level++) {
-                int groupsIncre = 0;
                 List<IGrouping<BigInteger, StatistTotalByDateTime>> groups = entries[level];
                 IGrouping<BigInteger, StatistTotalByDateTime> group = null;
-                if (groupsIncre < groups.LongCount()) {
+                //if (groupsIncre < groups.LongCount()) {
+                //    group = groups[groupsIncre];
+                //    groupsIncre += 1;
+                //}
+                //else {
+                //    continue;
+                //}
+                for (int groupsIncre = 0; groupsIncre < groups.LongCount(); groupsIncre++) {
                     group = groups[groupsIncre];
-                    groupsIncre += 1;
-                }
-                else {
-                    continue;
-                }
-                foreach (var item in group) {
-                    foreach (Rectangle rect in RectanglesCanvas.Children) {
+                    foreach (var item in group) {
+                        foreach (Rectangle rect in RectanglesCanvas.Children) {
 #if DEBUG
-                        Debug.WriteLine($"rect: {rect.Name}");
+                            Debug.WriteLine($"rect: {rect.Name}");
 #endif
-                        if (rect.Name == item.DateTime.ToShortDateString()) {
-                            rect.Fill = colorDic[level + 1];
+                            if (rect.Name == item.DateTime.ToShortDateString()) {
+                                rect.Fill = colorDic[level + 1];
+                                break;
+                            }
                         }
-                    }
+                    } 
                 }
             }
         }
