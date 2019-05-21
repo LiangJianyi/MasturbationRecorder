@@ -8,6 +8,7 @@ using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Shapes;
+using System.Drawing;
 
 namespace MasturbationRecorder {
     using Debug = System.Diagnostics.Debug;
@@ -132,7 +133,7 @@ namespace MasturbationRecorder {
         }
 
         private void CreateRectangle(int rectWidth, int rectHeight, int canvasLeft, int canvasTop, DateTime dateTime) {
-            Rectangle rect = new Rectangle {
+            Windows.UI.Xaml.Shapes.Rectangle rect = new Windows.UI.Xaml.Shapes.Rectangle {
                 Name = dateTime.ToShortDateString(),
                 Width = rectWidth,
                 Height = rectHeight,
@@ -188,7 +189,7 @@ namespace MasturbationRecorder {
                 for (int groupsIncre = 0; groupsIncre < groups.LongCount(); groupsIncre++) {
                     group = groups[groupsIncre];
                     foreach (var item in group) {
-                        foreach (Rectangle rect in RectanglesCanvas.Children) {
+                        foreach (Windows.UI.Xaml.Shapes.Rectangle rect in RectanglesCanvas.Children) {
 #if DEBUG
                             Debug.WriteLine($"rect: {rect.Name}");
 #endif

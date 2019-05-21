@@ -96,45 +96,51 @@ namespace MasturbationRecorder {
         }
 
         public static IDictionary<int, SolidColorBrush> ClassifyColorByLevelScore(int groups) {
+            Windows.UI.Color lightGray = new Windows.UI.Color() { A = 255, R = 199, G = 203, B = 200 };
+            Windows.UI.Color oneLevelColor = new Windows.UI.Color() { A = 255, R = 203, G = 229, B = 146 };
+            Windows.UI.Color twoLevelColor = new Windows.UI.Color() { A = 255, R = 142, G = 201, B = 117 };
+            Windows.UI.Color threeLevelColor = new Windows.UI.Color() { A = 255, R = 78, G = 154, B = 67 };
+            Windows.UI.Color fourLevelColor = new Windows.UI.Color() { A = 255, R = 51, G = 98, B = 46 };
+            Windows.UI.Color fiveLevelColor = new Windows.UI.Color() { A = 255, R = 0, G = 78, B = 26 };
             switch (groups) {
                 case 0:
                     return new Dictionary<int, SolidColorBrush>() {
-                                { 0, new SolidColorBrush(Windows.UI.Colors.LightGray) }
+                                { 0, new SolidColorBrush(lightGray) }
                             };
                 case 1:
                     return new Dictionary<int, SolidColorBrush>() {
-                                { 0, new SolidColorBrush(Windows.UI.Colors.LightGray) },
-                                { 1, new SolidColorBrush(Windows.UI.Colors.DarkGreen) }
+                                { 0, new SolidColorBrush(lightGray) },
+                                { 1, new SolidColorBrush(fiveLevelColor) }
                             };
                 case 2:
                     return new Dictionary<int, SolidColorBrush>() {
-                                { 0, new SolidColorBrush(Windows.UI.Colors.LightGray) },
-                                { 1, new SolidColorBrush(Windows.UI.Colors.Green) },
-                                { 2, new SolidColorBrush(Windows.UI.Colors.DarkGreen) }
+                                { 0, new SolidColorBrush(lightGray) },
+                                { 1, new SolidColorBrush(fourLevelColor) },
+                                { 2, new SolidColorBrush(fiveLevelColor) }
                             };
                 case 3:
                     return new Dictionary<int, SolidColorBrush>() {
-                                { 0, new SolidColorBrush(Windows.UI.Colors.LightGray) },
-                                { 1, new SolidColorBrush(Windows.UI.Colors.LawnGreen) },
-                                { 2, new SolidColorBrush(Windows.UI.Colors.Green) },
-                                { 3, new SolidColorBrush(Windows.UI.Colors.DarkGreen) }
+                                { 0, new SolidColorBrush(lightGray) },
+                                { 1, new SolidColorBrush(threeLevelColor) },
+                                { 2, new SolidColorBrush(fourLevelColor) },
+                                { 3, new SolidColorBrush(fiveLevelColor) }
                             };
                 case 4:
                     return new Dictionary<int, SolidColorBrush>() {
-                                { 0, new SolidColorBrush(Windows.UI.Colors.LightGray) },
-                                { 1, new SolidColorBrush(Windows.UI.Colors.GreenYellow) },
-                                { 2, new SolidColorBrush(Windows.UI.Colors.LawnGreen) },
-                                { 3, new SolidColorBrush(Windows.UI.Colors.Green) },
-                                { 4, new SolidColorBrush(Windows.UI.Colors.DarkGreen) }
+                                { 0, new SolidColorBrush(lightGray) },
+                                { 1, new SolidColorBrush(twoLevelColor) },
+                                { 2, new SolidColorBrush(threeLevelColor) },
+                                { 3, new SolidColorBrush(fourLevelColor) },
+                                { 4, new SolidColorBrush(fiveLevelColor) }
                             };
                 case 5:
                     return new Dictionary<int, SolidColorBrush>() {
-                                { 0, new SolidColorBrush(Windows.UI.Colors.LightGray) },
-                                { 1, new SolidColorBrush(Windows.UI.Colors.YellowGreen) },
-                                { 2, new SolidColorBrush(Windows.UI.Colors.GreenYellow) },
-                                { 3, new SolidColorBrush(Windows.UI.Colors.LawnGreen) },
-                                { 4, new SolidColorBrush(Windows.UI.Colors.Green) },
-                                { 5, new SolidColorBrush(Windows.UI.Colors.DarkGreen) }
+                                { 0, new SolidColorBrush(lightGray) },
+                                { 1, new SolidColorBrush(oneLevelColor) },
+                                { 2, new SolidColorBrush(twoLevelColor) },
+                                { 3, new SolidColorBrush(threeLevelColor) },
+                                { 4, new SolidColorBrush(fourLevelColor) },
+                                { 5, new SolidColorBrush(fiveLevelColor) }
                             };
                 default:
                     throw new System.IO.InvalidDataException($"levelRange out of range: {groups}");
