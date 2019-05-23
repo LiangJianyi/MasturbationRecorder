@@ -17,7 +17,7 @@ namespace MasturbationRecorder {
         /// <summary>
         /// 对已经填充颜色的 Rectangle 进行登记
         /// </summary>
-        private static HashSet<Rectangle> _rectangleRegisteTable = new HashSet<Rectangle>();
+        private static HashSet<Rectangle> _rectangleRegisteTable = null;
 
         public MainPage() {
             this._window.SizeChanged += Current_SizeChanged;
@@ -37,6 +37,8 @@ namespace MasturbationRecorder {
             StorageFile file = await openPicker.PickSingleFileAsync();
 
             if (file != null) {
+                ResetRectangleColor();  // 每次选择文件之后都要重置方块颜色
+
                 StateBar.IsActive = true;
                 Windows.Storage.AccessCache.StorageApplicationPermissions.FutureAccessList.Add(file);
                 string text = await FileIO.ReadTextAsync(file);
@@ -68,9 +70,6 @@ namespace MasturbationRecorder {
                 finally {
                     StateBar.IsActive = false;
                 }
-            }
-            else {
-                DisplayErrorDialog("File open fail!");
             }
         }
 
@@ -222,6 +221,25 @@ namespace MasturbationRecorder {
                     }
                 }
             }
+        }
+
+        /// <summary>
+        /// 重置方块的颜色
+        /// </summary>
+        private void ResetRectangleColor() {
+            // 程序首次执行时 -rectangleRegisteTable 为 null
+            if (_rectangleRegisteTable != null) {
+                foreach (Rectangle rect in this.RectanglesCanvas.Children) {
+                    if (_rectangleRegisteTable.Contains(rect)) {
+                        rect.Fill = new SolidColorBrush(MainPageViewModel.LightGray);
+#if DEBUG
+                        (ToolTipService.GetToolTip(rect) as ToolTip).Content = rect.Name;
+#endif
+                    }
+                }
+            }
+            // 充值方块颜色之后要紧接着重新初始化该表
+            _rectangleRegisteTable = new HashSet<Rectangle>();
         }
     }
 }

@@ -15,7 +15,7 @@ namespace MasturbationRecorder {
         internal static Windows.UI.Color OneLevelColor => new Windows.UI.Color() { A = 255, R = 203, G = 229, B = 146 };
         internal static Windows.UI.Color TwoLevelColor => new Windows.UI.Color() { A = 255, R = 142, G = 201, B = 117 };
         internal static Windows.UI.Color ThreeLevelColor => new Windows.UI.Color() { A = 255, R = 78, G = 154, B = 67 };
-        internal static Windows.UI.Color FourLevelColor => new Windows.UI.Color() { A = 255, R = 51, G = 98, B = 46 };
+        internal static Windows.UI.Color FourLevelColor => new Windows.UI.Color() { A = 255, R = 11, G = 110, B = 0 };
         internal static Windows.UI.Color FiveLevelColor => new Windows.UI.Color() { A = 255, R = 0, G = 58, B = 6 };
 
         public static List<IGrouping<BigInteger, StatistTotalByDateTime>>[] GroupDateTimesByDiff(LinkedList<StatistTotalByDateTime> dateTimes) {
