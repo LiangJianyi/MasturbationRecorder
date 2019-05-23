@@ -11,6 +11,13 @@ namespace MasturbationRecorder {
     /// 控制 MainPage.xaml 的视图逻辑
     /// </summary>
     static class MainPageViewModel {
+        internal static Windows.UI.Color LightGray => new Windows.UI.Color() { A = 255, R = 199, G = 203, B = 200 };
+        internal static Windows.UI.Color OneLevelColor => new Windows.UI.Color() { A = 255, R = 203, G = 229, B = 146 };
+        internal static Windows.UI.Color TwoLevelColor => new Windows.UI.Color() { A = 255, R = 142, G = 201, B = 117 };
+        internal static Windows.UI.Color ThreeLevelColor => new Windows.UI.Color() { A = 255, R = 78, G = 154, B = 67 };
+        internal static Windows.UI.Color FourLevelColor => new Windows.UI.Color() { A = 255, R = 51, G = 98, B = 46 };
+        internal static Windows.UI.Color FiveLevelColor => new Windows.UI.Color() { A = 255, R = 0, G = 58, B = 6 };
+
         public static List<IGrouping<BigInteger, StatistTotalByDateTime>>[] GroupDateTimesByDiff(LinkedList<StatistTotalByDateTime> dateTimes) {
             Debug.WriteLine("Executing GroupDateTimesByDiff...");
             var groupingForTotal = from e in dateTimes
@@ -96,51 +103,45 @@ namespace MasturbationRecorder {
         }
 
         public static IDictionary<int, SolidColorBrush> ClassifyColorByLevelScore(int groups) {
-            Windows.UI.Color lightGray = new Windows.UI.Color() { A = 255, R = 199, G = 203, B = 200 };
-            Windows.UI.Color oneLevelColor = new Windows.UI.Color() { A = 255, R = 203, G = 229, B = 146 };
-            Windows.UI.Color twoLevelColor = new Windows.UI.Color() { A = 255, R = 142, G = 201, B = 117 };
-            Windows.UI.Color threeLevelColor = new Windows.UI.Color() { A = 255, R = 78, G = 154, B = 67 };
-            Windows.UI.Color fourLevelColor = new Windows.UI.Color() { A = 255, R = 51, G = 98, B = 46 };
-            Windows.UI.Color fiveLevelColor = new Windows.UI.Color() { A = 255, R = 0, G = 78, B = 26 };
             switch (groups) {
                 case 0:
                     return new Dictionary<int, SolidColorBrush>() {
-                                { 0, new SolidColorBrush(lightGray) }
+                                { 0, new SolidColorBrush(LightGray) }
                             };
                 case 1:
                     return new Dictionary<int, SolidColorBrush>() {
-                                { 0, new SolidColorBrush(lightGray) },
-                                { 1, new SolidColorBrush(fiveLevelColor) }
+                                { 0, new SolidColorBrush(LightGray) },
+                                { 1, new SolidColorBrush(FiveLevelColor) }
                             };
                 case 2:
                     return new Dictionary<int, SolidColorBrush>() {
-                                { 0, new SolidColorBrush(lightGray) },
-                                { 1, new SolidColorBrush(fourLevelColor) },
-                                { 2, new SolidColorBrush(fiveLevelColor) }
+                                { 0, new SolidColorBrush(LightGray) },
+                                { 1, new SolidColorBrush(FourLevelColor) },
+                                { 2, new SolidColorBrush(FiveLevelColor) }
                             };
                 case 3:
                     return new Dictionary<int, SolidColorBrush>() {
-                                { 0, new SolidColorBrush(lightGray) },
-                                { 1, new SolidColorBrush(threeLevelColor) },
-                                { 2, new SolidColorBrush(fourLevelColor) },
-                                { 3, new SolidColorBrush(fiveLevelColor) }
+                                { 0, new SolidColorBrush(LightGray) },
+                                { 1, new SolidColorBrush(ThreeLevelColor) },
+                                { 2, new SolidColorBrush(FourLevelColor) },
+                                { 3, new SolidColorBrush(FiveLevelColor) }
                             };
                 case 4:
                     return new Dictionary<int, SolidColorBrush>() {
-                                { 0, new SolidColorBrush(lightGray) },
-                                { 1, new SolidColorBrush(twoLevelColor) },
-                                { 2, new SolidColorBrush(threeLevelColor) },
-                                { 3, new SolidColorBrush(fourLevelColor) },
-                                { 4, new SolidColorBrush(fiveLevelColor) }
+                                { 0, new SolidColorBrush(LightGray) },
+                                { 1, new SolidColorBrush(TwoLevelColor) },
+                                { 2, new SolidColorBrush(ThreeLevelColor) },
+                                { 3, new SolidColorBrush(FourLevelColor) },
+                                { 4, new SolidColorBrush(FiveLevelColor) }
                             };
                 case 5:
                     return new Dictionary<int, SolidColorBrush>() {
-                                { 0, new SolidColorBrush(lightGray) },
-                                { 1, new SolidColorBrush(oneLevelColor) },
-                                { 2, new SolidColorBrush(twoLevelColor) },
-                                { 3, new SolidColorBrush(threeLevelColor) },
-                                { 4, new SolidColorBrush(fourLevelColor) },
-                                { 5, new SolidColorBrush(fiveLevelColor) }
+                                { 0, new SolidColorBrush(LightGray) },
+                                { 1, new SolidColorBrush(OneLevelColor) },
+                                { 2, new SolidColorBrush(TwoLevelColor) },
+                                { 3, new SolidColorBrush(ThreeLevelColor) },
+                                { 4, new SolidColorBrush(FourLevelColor) },
+                                { 5, new SolidColorBrush(FiveLevelColor) }
                             };
                 default:
                     throw new System.IO.InvalidDataException($"levelRange out of range: {groups}");
@@ -160,37 +161,12 @@ namespace MasturbationRecorder {
 #endif
             LinkedList<StatistTotalByDateTime> dateTimes = new LinkedList<StatistTotalByDateTime>();
             foreach (var line in lines) {
-#if DEBUG
-                Debug.WriteLine($"Current line: {line}");
-                if (line[0] == 'M' && line[1] == 'a' && line[2] == 'r' && line[3] == ' ' && line[4] == '2' && line[5] == '8') {
-                    ;
-                }
-#endif
                 if (line != "" && line != "\r") {   // 忽略空行
                     StatistTotalByDateTime statist = DatetimeParser.ParseExpr(line);
                     dateTimes.AddLast(statist);
                 }
             }
             return dateTimes;
-        }
-
-        /// <summary>
-        /// classifiedDateTimes 的测试用例，不要删除
-        /// </summary>
-        /// <param name="classifiedDateTimes"></param>
-        private static void Test_classifiedDateTimes(SortedList<BigInteger, StatistTotalByDateTime>[][] classifiedDateTimes) {
-#if DEBUG
-            var level2 = 0;
-            foreach (var sortListArr in classifiedDateTimes) {
-                Debug.WriteLine($"Level: {++level2}");
-                foreach (var sortList in sortListArr) {
-                    foreach (var item in sortList) {
-                        Debug.Write($"{item.Key} ");
-                    }
-                }
-                Debug.WriteLine("");
-            }
-#endif
         }
     }
 }

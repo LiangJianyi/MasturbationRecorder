@@ -8,13 +8,16 @@ using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Shapes;
-using System.Drawing;
 
 namespace MasturbationRecorder {
     using Debug = System.Diagnostics.Debug;
 
     public sealed partial class MainPage : Page {
         private Window _window = Window.Current;
+        /// <summary>
+        /// 对已经填充颜色的 Rectangle 进行登记
+        /// </summary>
+        private static HashSet<Rectangle> _rectangleRegisteTable = new HashSet<Rectangle>();
 
         public MainPage() {
             this._window.SizeChanged += Current_SizeChanged;
@@ -55,7 +58,7 @@ namespace MasturbationRecorder {
                                 Debug.WriteLine($"      {item}");
                             }
                         }
-                    } 
+                    }
 #endif
                     DrawRectangleColor(res);
                 }
@@ -133,15 +136,22 @@ namespace MasturbationRecorder {
         }
 
         private void CreateRectangle(int rectWidth, int rectHeight, int canvasLeft, int canvasTop, DateTime dateTime) {
-            Windows.UI.Xaml.Shapes.Rectangle rect = new Windows.UI.Xaml.Shapes.Rectangle {
+            Rectangle rect = new Rectangle {
                 Name = dateTime.ToShortDateString(),
                 Width = rectWidth,
                 Height = rectHeight,
-                Fill = new SolidColorBrush(Windows.UI.Colors.LightGray),
+                Fill = new SolidColorBrush(MainPageViewModel.LightGray),
             };
+#if DEBUG
+            ToolTip toolTip = new ToolTip {
+                Content = rect.Name + $"  Level:0  Total:0  Color:{(rect.Fill as SolidColorBrush).Color}"
+            };
+#endif
+#if RELEASE
             ToolTip toolTip = new ToolTip {
                 Content = dateTime.ToShortDateString()
-            };
+            }; 
+#endif
             ToolTipService.SetToolTip(rect, toolTip);
             RectanglesCanvas.Children.Add(rect);
             Canvas.SetLeft(rect, canvasLeft);
@@ -179,33 +189,37 @@ namespace MasturbationRecorder {
             for (int level = 0; level < entries.Length; level++) {
                 List<IGrouping<BigInteger, StatistTotalByDateTime>> groups = entries[level];
                 IGrouping<BigInteger, StatistTotalByDateTime> group = null;
-                //if (groupsIncre < groups.LongCount()) {
-                //    group = groups[groupsIncre];
-                //    groupsIncre += 1;
-                //}
-                //else {
-                //    continue;
-                //}
                 for (int groupsIncre = 0; groupsIncre < groups.LongCount(); groupsIncre++) {
                     group = groups[groupsIncre];
                     foreach (var item in group) {
-                        foreach (Windows.UI.Xaml.Shapes.Rectangle rect in RectanglesCanvas.Children) {
+                        foreach (Rectangle rect in RectanglesCanvas.Children) {
 #if DEBUG
                             Debug.WriteLine($"rect: {rect.Name}");
 #endif
                             if (rect.Name == item.DateTime.ToShortDateString()) {
                                 rect.Fill = colorDic[level + 1];
 #if DEBUG
-                                string newToolTip = rect.Name + $"  Level:{level + 1}  Total:{item.Total}  Color:{rect.Fill.ToString()}"; 
                                 ToolTip toolTip = new ToolTip {
-                                    Content = newToolTip
+                                    Content = rect.Name + $"  Level:{level + 1}  Total:{item.Total}  Color:{(rect.Fill as SolidColorBrush).Color}"
                                 };
                                 ToolTipService.SetToolTip(rect, toolTip);
 #endif
+                                _rectangleRegisteTable.Add(rect);
                                 break;
                             }
+                            else {
+                                if (!_rectangleRegisteTable.Contains(rect)) {
+                                    rect.Fill = colorDic[0];
+#if DEBUG
+                                    ToolTip toolTip = new ToolTip {
+                                        Content = rect.Name + $"  Level:0  Total:0  Color:{(rect.Fill as SolidColorBrush).Color}"
+                                    };
+                                    ToolTipService.SetToolTip(rect, toolTip);
+#endif 
+                                }
+                            }
                         }
-                    } 
+                    }
                 }
             }
         }
