@@ -73,6 +73,21 @@ namespace MasturbationRecorder {
             }
         }
 
+        private void Rect_PointerReleased(object sender, Windows.UI.Xaml.Input.PointerRoutedEventArgs e) {
+            Rectangle rectangle = sender as Rectangle;
+            Bubble.CreateBubbleRectangle(
+                canvas: RectanglesCanvas,
+                hostRect: sender as Rectangle,
+                bubbleName: RectanglesCanvas.Resources["OhhohoRect"] as string,
+                zoom: (minWidth: (double)RectanglesCanvas.Resources["MinWidth"],
+                       minHeight: (double)RectanglesCanvas.Resources["MinHeight"],
+                       maxWidth: (double)RectanglesCanvas.Resources["MaxWidth"],
+                       maxHeight: (double)RectanglesCanvas.Resources["MaxHeight"])
+            );
+            Bubble.CreateBubbleStoryboard(
+                hostPosition: (left: Canvas.GetLeft(rectangle), top: Canvas.GetTop(rectangle)),
+                storyboard_Completed: RectangleBubbleAnimation_Completed);
+        }
 
         private static async void DisplayErrorDialog(string content) {
             ContentDialog fileOpenFailDialog = new ContentDialog {
@@ -141,12 +156,12 @@ namespace MasturbationRecorder {
                 Height = rectHeight,
                 Fill = new SolidColorBrush(MainPageViewModel.LightGray),
             };
+            rect.PointerReleased += Rect_PointerReleased;
 #if DEBUG
             ToolTip toolTip = new ToolTip {
                 Content = rect.Name + $"  Level:0  Total:0  Color:{(rect.Fill as SolidColorBrush).Color}"
             };
-#endif
-#if RELEASE
+#else
             ToolTip toolTip = new ToolTip {
                 Content = dateTime.ToShortDateString()
             }; 
@@ -161,6 +176,13 @@ namespace MasturbationRecorder {
 #if DEBUG
             Debug.WriteLine($"{this._window.Bounds.Width} , {this._window.Bounds.Height}");
 #endif
+        }
+
+        private void RectangleBubbleAnimation_Completed(object sender, object e) {
+#if DEBUG
+            System.Diagnostics.Debug.WriteLine($"RectangleBubbleAnimation_Completed sender:{sender}, e:{e ?? "null"}");
+#endif
+            RectanglesCanvas.Children.Remove(Bubble._bubble);
         }
 
         private static SolidColorBrush GetFillOfRectanglesByDifferentOfDateTimesTotal(
