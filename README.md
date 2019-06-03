@@ -11,5 +11,5 @@
   [1]: https://docs.microsoft.com/en-us/dotnet/api/system.numerics?view=netframework-4.8
   [2]: https://github.com/LiangJianyi/SundryUtilty/tree/master/.NET%20Standard/BigIntegerExtension
 
-# 开源协议
+# 开源协议  ![GitHub](https://img.shields.io/github/license/Liangjianyi/MasturbationRecorder.svg?style=popout)
 MasturbationRecorder 使用 MIT 协议。本项目的代码可由任何个人和组织随意使用。
