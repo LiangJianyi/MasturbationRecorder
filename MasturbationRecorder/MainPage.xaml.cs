@@ -20,10 +20,11 @@ namespace MasturbationRecorder {
         private static HashSet<Rectangle> _rectangleRegisteTable = null;
 
         public MainPage() {
+#if DEBUG
             this._window.SizeChanged += Current_SizeChanged;
+#endif
             this.InitializeComponent();
             this.RectanglesLayout();
-            //this.StateBar.Height = this.Menu.ActualHeight;
         }
 
         private async void OpenFileButton_Click(object sender, RoutedEventArgs e) {
@@ -172,33 +173,16 @@ namespace MasturbationRecorder {
             Canvas.SetTop(rect, canvasTop);
         }
 
+#if DEBUG
         private void Current_SizeChanged(object sender, Windows.UI.Core.WindowSizeChangedEventArgs e) {
-#if DEBUG
             Debug.WriteLine($"{this._window.Bounds.Width} , {this._window.Bounds.Height}");
-#endif
         }
-
+#endif
+        /*
+         * 气泡动画结束后从 Canvas 移除气泡方块
+         */
         private void RectangleBubbleAnimation_Completed(object sender, object e) {
-#if DEBUG
-            System.Diagnostics.Debug.WriteLine($"RectangleBubbleAnimation_Completed sender:{sender}, e:{e ?? "null"}");
-#endif
             RectanglesCanvas.Children.Remove(Bubble._bubble);
-        }
-
-        private static SolidColorBrush GetFillOfRectanglesByDifferentOfDateTimesTotal(
-            DateTime currentDateTime,
-            IDictionary<BigInteger, SolidColorBrush> classifyLevelColor,
-            SortedList<BigInteger, StatistTotalByDateTime>[][] classifiedDateTimes) {
-            for (var level = 0L; level < classifiedDateTimes.LongLength; level++) {
-                foreach (var sortList in classifiedDateTimes[level]) {
-                    foreach (var date in sortList) {
-                        if (date.Value.DateTime == currentDateTime) {
-                            return classifyLevelColor[level + 1];
-                        }
-                    }
-                }
-            }
-            return classifyLevelColor[0L];
         }
 
         private void DrawRectangleColor(List<IGrouping<BigInteger, StatistTotalByDateTime>>[] entries) {
@@ -236,7 +220,7 @@ namespace MasturbationRecorder {
                                         Content = rect.Name + $"  Level:0  Total:0  Color:{(rect.Fill as SolidColorBrush).Color}"
                                     };
                                     ToolTipService.SetToolTip(rect, toolTip);
-#endif 
+#endif
                                 }
                             }
                         }
