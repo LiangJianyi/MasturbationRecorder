@@ -18,14 +18,14 @@ namespace MasturbationRecorder {
         internal static Windows.UI.Color FourLevelColor => new Windows.UI.Color() { A = 255, R = 11, G = 110, B = 0 };
         internal static Windows.UI.Color FiveLevelColor => new Windows.UI.Color() { A = 255, R = 0, G = 58, B = 6 };
 
-        public static List<IGrouping<BigInteger, StatistTotalByDateTime>>[] GroupDateTimesByDiff(LinkedList<StatistTotalByDateTime> dateTimes) {
-            Debug.WriteLine("Executing GroupDateTimesByDiff...");
+        public static List<IGrouping<BigInteger, StatistTotalByDateTime>>[] GroupDateTimesByTotal(LinkedList<StatistTotalByDateTime> dateTimes) {
             var groupingForTotal = from e in dateTimes
                                    group e by e.Total into newgroup
                                    orderby newgroup.Key
                                    select newgroup;
 
 #if DEBUG
+            Debug.WriteLine("Executing GroupDateTimesByDiff...");
             foreach (var item in groupingForTotal) {
                 Debug.WriteLine(item.Key);
                 foreach (var subitem in item) {
@@ -42,7 +42,7 @@ namespace MasturbationRecorder {
 
             if (groups > 5) {
                 // keysForEachLevel 表示每个级别应包含多少个 item.Key
-                BigInteger keysForEachLevel = groups > 5 ? groups / 5 : 1;
+                BigInteger keysForEachLevel = groups / 5;
                 BigInteger remain = groups % 5;
 
 #if DEBUG
@@ -76,9 +76,7 @@ namespace MasturbationRecorder {
                         }
                     }
                     else if (levels == null) {
-                        levels = new List<IGrouping<BigInteger, StatistTotalByDateTime>> {
-                            item
-                        };
+                        levels = new List<IGrouping<BigInteger, StatistTotalByDateTime>> { item };
                     }
                     else {
                         levels.Add(item);

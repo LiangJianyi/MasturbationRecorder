@@ -10,7 +10,7 @@ namespace MasturbationRecorderTest {
         [TestMethod]
         public void GroupDateTimesByDiffTest() {
             LinkedList<StatistTotalByDateTime> dateTimes = MainPageViewModel.LinesConvertToStatistTotalByDateTimes(CommonTestResource.TestTextLine);
-            var res = MainPageViewModel.GroupDateTimesByDiff(dateTimes);
+            var res = MainPageViewModel.GroupDateTimesByTotal(dateTimes);
         }
     }
 }
