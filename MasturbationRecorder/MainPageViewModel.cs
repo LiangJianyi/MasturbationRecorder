@@ -19,10 +19,10 @@ namespace MasturbationRecorder {
         internal static Windows.UI.Color FiveLevelColor => new Windows.UI.Color() { A = 255, R = 0, G = 58, B = 6 };
 
         public static List<IGrouping<BigInteger, StatistTotalByDateTime>>[] GroupDateTimesByTotal(LinkedList<StatistTotalByDateTime> dateTimes) {
-            var groupingForTotal = from e in dateTimes
-                                   group e by e.Total into newgroup
-                                   orderby newgroup.Key
-                                   select newgroup;
+            IOrderedEnumerable<IGrouping<BigInteger, StatistTotalByDateTime>> groupingForTotal = from e in dateTimes
+                                                                                                 group e by e.Total into newgroup
+                                                                                                 orderby newgroup.Key
+                                                                                                 select newgroup;
 
 #if DEBUG
             Debug.WriteLine("Executing GroupDateTimesByDiff...");
