@@ -10,6 +10,15 @@
   
   [1]: https://docs.microsoft.com/en-us/dotnet/api/system.numerics?view=netframework-4.8
   [2]: https://github.com/LiangJianyi/SundryUtilty/tree/master/.NET%20Standard/BigIntegerExtension
+  
+# 项目结构
+项目的解决方案文件名称为 MasturbationRecorder.sln，该解决方案下包含四个项目：
++ BigIntegerExtension
++ ManualTest
++ MasturbationRecorder(Universal Windows)
++ MasturbationRecorderTest(Universal Windows)
+
+MasturbationRecorder(Universal Windows)是主体项目。BigIntegerExtension 来自 Janyee.Utilty，需要手动添加该项目到解决方案下，ManualTest 和 MasturbationRecorderTest(Universal Windows) 是主体项目的测试项目，前者利用控制台输出调试信息用于观测数据的准确性，后者是主体项目的单元测试。
 
 # 开源协议  ![GitHub](https://img.shields.io/github/license/Liangjianyi/MasturbationRecorder.svg?style=popout)
 MasturbationRecorder 使用 MIT 协议。本项目的代码可由任何个人和组织随意使用。
