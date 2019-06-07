@@ -24,7 +24,48 @@ MasturbationRecorder的大致运行流程如下：
 
 当用户点击文件选择器并选择指定的文本文件后（只能打开 .txt .mast 后缀的文件），提取文本内容，将文本的每一行切割成 string 对象装载为一个 IEnumerable<string>，然后将该文本序列传递给 MainPageViewModel.LinesConvertToStatistTotalByDateTimes 方法，MainPageViewModel.LinesConvertToStatistTotalByDateTimes 方法把每行 string 转换为一个 StatistTotalByDateTime 对象，最后装载成 LinkedList<StatistTotalByDateTime> 传递给 MainPageViewModel.GroupDateTimesByTotal 方法。MainPageViewModel.GroupDateTimesByTotal 方法对链表按 StatistTotalByDateTime.Total 分组，最后对分组结果进行分级，传递给 DrawRectangleColor 方法根据每个日期所在分组的级别对每个方块进行着色。
   
-分组结果的结构如下：
+## 分级示例一：
+
+```
+May 27 2019 x16
+May 27 2019
+Apr 28 2019 x2610
+May 29 2019 x1000
+May 29 2019 x2
+May 31 2019 x5
+Jun 12 2019 x5
+Jun 15 2019 x7000
+Jun 17 2019 x8
+Jun 20 2018 x9
+Jun 24 2018 x15
+Jun 26 2018 x20
+Jul 04 2018 x25
+Jul 05 2018 x30
+Jul 10 2018 x30
+Jul 11 2018 x30
+Jul 13 2018 x30
+Jul 16 2018 x1000
+Jul 17 2018 x1001
+Jul 18 2018 x1002
+Jul 19 2018 x2000
+Jul 22 2018 x2002
+Jul 24 2018 x2010
+Jul 29 2018 x2017
+Jul 31 2018 x2517
+Aug 21 2018 x2618
+Aug 29 2018 x2719
+Sep 14 2018 x2741
+Sep 27 2018 x2517
+Sep 30 2018 x2805
+Oct 15 2018 x2719
+Jan 01 2019
+Jan 02 2019
+Feb 02 2019
+Mar 02 2019
+Apr 02 2019 x16
+```
+
+上面的文本将转换为如下结构的分组表：
 
 ![List<IGrouping<BigInteger, StatistTotalByDateTime>>[]](https://github.com/LiangJianyi/liangjianyi.github.io/raw/master/image/%E5%88%86%E7%BA%A7%E8%A1%A8%E7%BB%93%E6%9E%84.bmp)
 
