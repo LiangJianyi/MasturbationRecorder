@@ -22,7 +22,9 @@ MasturbationRecorder(Universal Windows)是主体项目。BigIntegerExtension 来
 
 MasturbationRecorder的大致运行流程如下：
 
-当用户点击文件选择器并选择指定的文本文件后（只能打开 .txt .mast 后缀的文件），提取文本内容，将文本的每一行切割成 string 对象装载为一个 IEnumerable<string>，然后将该文本序列传递给 MainPageViewModel.LinesConvertToStatistTotalByDateTimes 方法，MainPageViewModel.LinesConvertToStatistTotalByDateTimes 方法把每行 string 转换为一个 StatistTotalByDateTime 对象，最后装载成 LinkedList<StatistTotalByDateTime> 传递给 MainPageViewModel.GroupDateTimesByTotal 方法。MainPageViewModel.GroupDateTimesByTotal 方法对链表按 StatistTotalByDateTime.Total 分组，最后对分组结果进行分级，传递给 DrawRectangleColor 方法根据每个日期所在分组的级别对每个方块进行着色。
+当用户点击文件选择器并选择指定的文本文件后（只能打开 .txt .mast 后缀的文件），提取文本内容，将文本的每一行切割成 string 对象装载为一个 IEnumerable<string>，然后将该文本序列传递给 MainPageViewModel.LinesConvertToStatistTotalByDateTimes 方法，MainPageViewModel.LinesConvertToStatistTotalByDateTimes 方法把每行 string 转换为一个 StatistTotalByDateTime 对象，最后装载成 LinkedList<StatistTotalByDateTime> 传递给 MainPageViewModel.GroupDateTimesByTotal 方法。MainPageViewModel.GroupDateTimesByTotal 方法对链表按 StatistTotalByDateTime.Total 分组，产生一个IGrouping序列，存放在局部变量groupingForTotal中，最后对分组结果进行分级，传递给 DrawRectangleColor 方法根据每个日期所在分组的级别对每个方块进行着色。
+  
+这个IGrouping序列的长度决定了接下来的分级行为，如果总数大于5，那么数组entries的长度总是5，因为纪录器最多只能分5级，颜色字典也只能产生6个色阶，五种绿色加一种灰色，下面的***分级示例一***描述了 groups>5 时分级表的结构，***分级示例二***描述了 groups<=5 时分级表的结构。
   
 ## 分级示例一：
 
@@ -67,9 +69,38 @@ Apr 02 2019 x16
 
 上面的文本将转换为如下结构的分组表：
 
-![List<IGrouping<BigInteger, StatistTotalByDateTime>>[]](https://github.com/LiangJianyi/liangjianyi.github.io/raw/master/image/%E5%88%86%E7%BA%A7%E8%A1%A8%E7%BB%93%E6%9E%84.bmp)
+![List<IGrouping<BigInteger, StatistTotalByDateTime>>[]](https://github.com/LiangJianyi/liangjianyi.github.io/raw/master/image/%E5%88%86%E7%BA%A7%E8%A1%A8%E7%BB%93%E6%9E%84.jpg)
+
+
+## 分级示例二：
+
+```
+May 27 2018 x20
+May 29 2018
+May 31 2018
+Jul 05 2018
+Jul 10 2018 x2
+Jul 19 2018
+Jul 22 2018 x2
+Jul 24 2018
+Aug 16 2018
+Aug 21 2018 x2
+Aug 22 2018
+Aug 25 2018
+Aug 29 2018 x2
+Sep 14 2018 x2
+Sep 27 2018 x2
+Oct 5 2018
+```
+
+上面的文本将转换为如下结构的分组表：
+
+![List<IGrouping<BigInteger, StatistTotalByDateTime>>[]](https://github.com/LiangJianyi/liangjianyi.github.io/raw/master/image/%E5%88%86%E7%BA%A7%E8%A1%A8%E7%BB%93%E6%9E%842.jpg)
+
 
 最外层的灰色边框代表一个数组，类型为List<IGrouping<BigInteger, StatistTotalByDateTime>>[]，其第一列的数组是每个元素的索引，索引越大，记录级别越大，第二列为每个元素对应的List<IGrouping<BigInteger, StatistTotalByDateTime>>，用红框表示List的范围，索引越大的元素，其保存在List中的每个group的Key也越大。Key代表当前分组的事件频率，每个列表的元素按Key值升序排列。每个Key对应一张由StatistTotalByDateTime组成的表，同一个Key中，每个元素的StatistTotalByDateTime.Total相同。
+
+![指示元素](https://github.com/LiangJianyi/liangjianyi.github.io/raw/master/image/%E6%8C%87%E7%A4%BA%E5%85%83%E7%B4%A0.jpg)
 
 DrawRectangleColor 方法的着色原理很简单，传递List<IGrouping<BigInteger, StatistTotalByDateTime>>[]的长度给ClassifyColorByLevelScore方法获得色阶字典，类型为IDictionary<int, SolidColorBrush>，然后根据每个条目所在的索引分配指定颜色。
 
