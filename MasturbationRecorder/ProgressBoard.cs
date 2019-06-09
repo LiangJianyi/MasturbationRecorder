@@ -14,16 +14,21 @@ namespace MasturbationRecorder {
             Margin = new Windows.UI.Xaml.Thickness(100, 100, 100, 100)
         };
         private static readonly Canvas _processingCanvas = new Canvas();
-        
-        public static Canvas CreateProgessBoard(EventHandler<object> storyboard_Completed) {
+
+        public static void CreateProgessBoard(Panel parent, EventHandler<object> storyboard_Completed) {
             _processingCanvas.Children.Add(_processingRing);
+            parent.Children.Add(_processingCanvas);
+            Canvas.SetLeft(_processingCanvas, (parent.ActualWidth - _processingCanvas.ActualWidth) / 2);
+            Canvas.SetTop(_processingCanvas, -1);
+            Canvas.SetZIndex(_processingCanvas, 2);
             Storyboard storyboard = new Storyboard();
             if (storyboard_Completed != null) {
                 storyboard.Completed += storyboard_Completed;
             }
+
             KeyTime startTime = KeyTime.FromTimeSpan(new TimeSpan(0, 0, 0, 0, 0));
             KeyTime endTime = KeyTime.FromTimeSpan(new TimeSpan(0, 0, 0, 0, 300));
-            return _processingCanvas;
+
         }
     }
 }
