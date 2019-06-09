@@ -17,7 +17,7 @@
             </CommandBar.Content>
         </CommandBar>
         <TextBlock x:Name="TitleTextBlock" Text="今天你打飞机了吗？" FontSize="75" HorizontalAlignment="Center" Margin="0,100,0,0"/>
-        <Border BorderBrush="LightGray" BorderThickness="2" HorizontalAlignment="Center" VerticalAlignment="Center">
+        <Border x:Name="BorderOfCanvas" BorderBrush="LightGray" BorderThickness="2" HorizontalAlignment="Center" VerticalAlignment="Center">
             <Canvas Name="RectanglesCanvas" Width="300" Height="300">
                 <Canvas.Resources>
                     <x:String x:Key="OhhohoRect">OhhohoRect</x:String>
