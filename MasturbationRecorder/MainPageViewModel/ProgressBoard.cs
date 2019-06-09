@@ -29,19 +29,20 @@ namespace MasturbationRecorder {
             if (storyboard_Completed != null) {
                 storyboard.Completed += storyboard_Completed;
             }
-            DoubleAnimationUsingKeyFrames width_DoubleAnimationUsingKeyFrames = new DoubleAnimationUsingKeyFrames() { EnableDependentAnimation = true };
-            width_DoubleAnimationUsingKeyFrames.KeyFrames.Add(new LinearDoubleKeyFrame() {
+            DoubleAnimationUsingKeyFrames canvasTop_DoubleAnimationUsingKeyFrames = new DoubleAnimationUsingKeyFrames() { EnableDependentAnimation = true };
+            canvasTop_DoubleAnimationUsingKeyFrames.KeyFrames.Add(new LinearDoubleKeyFrame() {
                 Value = Canvas.GetTop(_processingCanvas),
                 KeyTime = startTime
             });
-            width_DoubleAnimationUsingKeyFrames.KeyFrames.Add(new LinearDoubleKeyFrame() {
+            canvasTop_DoubleAnimationUsingKeyFrames.KeyFrames.Add(new LinearDoubleKeyFrame() {
                 Value = Canvas.GetTop(_processingCanvas) + _processingCanvas.ActualHeight,
                 KeyTime = endTime
             });
-            storyboard.Children.Add(width_DoubleAnimationUsingKeyFrames);
-            Storyboard.SetTarget(width_DoubleAnimationUsingKeyFrames, _processingCanvas);
-            Storyboard.SetTargetName(width_DoubleAnimationUsingKeyFrames, _processingCanvas.Name);
-            Storyboard.SetTargetProperty(width_DoubleAnimationUsingKeyFrames, "(Canvas.Top)");
+            storyboard.Children.Add(canvasTop_DoubleAnimationUsingKeyFrames);
+            Storyboard.SetTarget(canvasTop_DoubleAnimationUsingKeyFrames, _processingCanvas);
+            Storyboard.SetTargetName(canvasTop_DoubleAnimationUsingKeyFrames, _processingCanvas.Name);
+            Storyboard.SetTargetProperty(canvasTop_DoubleAnimationUsingKeyFrames, "(Canvas.Top)");
+            storyboard.Begin();
         }
     }
 }
