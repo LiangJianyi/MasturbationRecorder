@@ -4,19 +4,22 @@ using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Media.Animation;
 
 namespace MasturbationRecorder {
-    class ProgressBoard {
+    static class ProgressBoard {
+        static ProgressBoard() {
+            _processingCanvas.Children.Add(_processingRing);
+        }
+
         private static readonly ProgressRing _processingRing = new ProgressRing() {
             Width = 30,
             Height = 30,
             FontSize = 15,
             Foreground = new SolidColorBrush(Windows.UI.Colors.Blue),
-            //FontStretch=new Windows.UI.Text.FontStretch.
+            FontStretch = Windows.UI.Text.FontStretch.SemiCondensed,
             Margin = new Windows.UI.Xaml.Thickness(100, 100, 100, 100)
         };
         private static readonly Canvas _processingCanvas = new Canvas() { Name = "ProcessingCanvas" };
 
-        public static void CreateProgessBoard(Panel parent, EventHandler<object> storyboard_Completed) {
-            _processingCanvas.Children.Add(_processingRing);
+        public static void OpenProgessBoard(Panel parent, EventHandler<object> storyboard_Completed) {
             parent.Children.Add(_processingCanvas);
             Canvas.SetLeft(_processingCanvas, (parent.ActualWidth - _processingCanvas.ActualWidth) / 2);
             Canvas.SetTop(_processingCanvas, -1);
@@ -42,7 +45,13 @@ namespace MasturbationRecorder {
             Storyboard.SetTarget(canvasTop_DoubleAnimationUsingKeyFrames, _processingCanvas);
             Storyboard.SetTargetName(canvasTop_DoubleAnimationUsingKeyFrames, _processingCanvas.Name);
             Storyboard.SetTargetProperty(canvasTop_DoubleAnimationUsingKeyFrames, "(Canvas.Top)");
+            _processingRing.IsActive = true;
             storyboard.Begin();
+        }
+
+        public static void CloseProgessBoard(Panel parent) {
+            _processingRing.IsActive = false;
+            parent.Children.Remove(_processingCanvas);
         }
     }
 }
