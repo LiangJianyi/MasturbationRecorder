@@ -1,57 +1,104 @@
 ﻿using System;
 using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Media.Animation;
+using System.Diagnostics;
 
 namespace MasturbationRecorder {
     static class ProgressBoard {
-        static ProgressBoard() {
-            _processingCanvas.Children.Add(_processingRing);
+        private static Canvas _progressBoard;
+
+        private static Canvas CreateProgressBoard(string name) {
+            Canvas canvas = new Canvas() {
+                Name = name,
+                Width = 200,
+                Height = 200,
+                Background = new Windows.UI.Xaml.Media.SolidColorBrush(Windows.UI.Colors.LightGray),
+                Opacity = 0.7
+            };
+            Canvas.SetZIndex(canvas, 2);
+            ProgressRing processingRing = new ProgressRing() {
+                Width = 80,
+                Height = 80,
+                Foreground = new Windows.UI.Xaml.Media.SolidColorBrush(Windows.UI.Colors.Black),
+                IsActive = true
+            };
+            canvas.Children.Add(processingRing);
+            HorizontalCenterOnCanvas(processingRing, canvas);
+            VerticalCenterOnCanvas(processingRing, canvas);
+            return canvas;
         }
 
-        private static readonly ProgressRing _processingRing = new ProgressRing() {
-            Width = 30,
-            Height = 30,
-            FontSize = 15,
-            Foreground = new SolidColorBrush(Windows.UI.Colors.Blue),
-            FontStretch = Windows.UI.Text.FontStretch.SemiCondensed,
-            Margin = new Windows.UI.Xaml.Thickness(100, 100, 100, 100)
-        };
-        private static readonly Canvas _processingCanvas = new Canvas() { Name = "ProcessingCanvas" };
+        private static void HorizontalCenterOnCanvas(Canvas subCanvas, Canvas parentCanvas) {
+            Debug.WriteLine($"Canvas.SetLeft(subCanvas, ({parentCanvas.Width} - {subCanvas.Width}) / 2)");
+            Canvas.SetLeft(subCanvas, (parentCanvas.Width - subCanvas.Width) / 2);
+        }
 
-        public static void OpenProgessBoard(Panel parent, EventHandler<object> storyboard_Completed) {
-            parent.Children.Add(_processingCanvas);
-            Canvas.SetLeft(_processingCanvas, (parent.ActualWidth - _processingCanvas.ActualWidth) / 2);
-            Canvas.SetTop(_processingCanvas, -1);
-            Canvas.SetZIndex(_processingCanvas, 2);
+        private static void HorizontalCenterOnCanvas(Control control, Canvas panel) {
+            Canvas.SetLeft(control, (panel.ActualWidth - control.Width) / 2);
+        }
 
+        private static void VerticalCenterOnCanvas(Canvas subCanvas, Canvas parentCanvas) {
+            Canvas.SetTop(subCanvas, -subCanvas.Height);
+        }
+
+        private static void VerticalCenterOnCanvas(Control control, Canvas panel) {
+            Canvas.SetTop(control, (panel.ActualHeight - control.Width) / 2);
+        }
+
+        /// <summary>
+        /// 播放进度条模块动画
+        /// </summary>
+        /// <param name="parentCanvas">承载进度条模块的容器</param>
+        /// <param name="isActive">true 为进度条模块下降，false 为进度条模块上升</param>
+        public static void Slide(Canvas parentCanvas, bool isActive) {
+            if (ProgressBoard._progressBoard == null) {
+                ProgressBoard._progressBoard = ProgressBoard.CreateProgressBoard("ProgressBoard");
+            }
+            if (parentCanvas.Children.Contains(ProgressBoard._progressBoard) == false) {
+                parentCanvas.Children.Add(ProgressBoard._progressBoard);
+            }
+            ProgressBoard.HorizontalCenterOnCanvas(ProgressBoard._progressBoard, parentCanvas);
+            ProgressBoard.VerticalCenterOnCanvas(ProgressBoard._progressBoard, parentCanvas);
+
+            Storyboard startStoryboard = new Storyboard();
             KeyTime startTime = KeyTime.FromTimeSpan(new TimeSpan(0, 0, 0, 0, 0));
             KeyTime endTime = KeyTime.FromTimeSpan(new TimeSpan(0, 0, 0, 0, 300));
+            DoubleAnimationUsingKeyFrames top_DoubleAnimationUsingKeyFrames = new DoubleAnimationUsingKeyFrames();
 
-            Storyboard storyboard = new Storyboard();
-            if (storyboard_Completed != null) {
-                storyboard.Completed += storyboard_Completed;
+            if (isActive) {
+                top_DoubleAnimationUsingKeyFrames.KeyFrames.Add(new LinearDoubleKeyFrame() {
+                    Value = -200,
+                    KeyTime = startTime
+                });
+                top_DoubleAnimationUsingKeyFrames.KeyFrames.Add(new LinearDoubleKeyFrame() {
+                    Value = 100,
+                    KeyTime = endTime
+                });
             }
-            DoubleAnimationUsingKeyFrames canvasTop_DoubleAnimationUsingKeyFrames = new DoubleAnimationUsingKeyFrames() { EnableDependentAnimation = true };
-            canvasTop_DoubleAnimationUsingKeyFrames.KeyFrames.Add(new LinearDoubleKeyFrame() {
-                Value = Canvas.GetTop(_processingCanvas),
-                KeyTime = startTime
-            });
-            canvasTop_DoubleAnimationUsingKeyFrames.KeyFrames.Add(new LinearDoubleKeyFrame() {
-                Value = Canvas.GetTop(_processingCanvas) + _processingCanvas.ActualHeight,
-                KeyTime = endTime
-            });
-            storyboard.Children.Add(canvasTop_DoubleAnimationUsingKeyFrames);
-            Storyboard.SetTarget(canvasTop_DoubleAnimationUsingKeyFrames, _processingCanvas);
-            Storyboard.SetTargetName(canvasTop_DoubleAnimationUsingKeyFrames, _processingCanvas.Name);
-            Storyboard.SetTargetProperty(canvasTop_DoubleAnimationUsingKeyFrames, "(Canvas.Top)");
-            _processingRing.IsActive = true;
-            storyboard.Begin();
+            else {
+                top_DoubleAnimationUsingKeyFrames.KeyFrames.Add(new LinearDoubleKeyFrame() {
+                    Value = 100,
+                    KeyTime = startTime
+                });
+                top_DoubleAnimationUsingKeyFrames.KeyFrames.Add(new LinearDoubleKeyFrame() {
+                    Value = -200,
+                    KeyTime = endTime
+                });
+                /*
+                 * 把 startStoryboard.Completed 事件的 Handler 作为局部函数能让它的作用域捕获 ProgressBoard._progressBoard,
+                 * 从而使得 Completed 事件能够在动画播放结束时为 parentCanvas 移除  ProgressBoard._progressBoard
+                 */
+                void StartStoryboard_Completed(object sender, object e) {
+                    parentCanvas.Children.Remove(ProgressBoard._progressBoard);
+                }
+                startStoryboard.Completed += StartStoryboard_Completed;
+            }
+            startStoryboard.Children.Add(top_DoubleAnimationUsingKeyFrames);
+            Storyboard.SetTarget(top_DoubleAnimationUsingKeyFrames, ProgressBoard._progressBoard);
+            Storyboard.SetTargetName(top_DoubleAnimationUsingKeyFrames, ProgressBoard._progressBoard.Name);
+            Storyboard.SetTargetProperty(top_DoubleAnimationUsingKeyFrames, "(Canvas.Top)");
+            startStoryboard.Begin();
         }
 
-        public static void CloseProgessBoard(Panel parent) {
-            _processingRing.IsActive = false;
-            parent.Children.Remove(_processingCanvas);
-        }
     }
 }

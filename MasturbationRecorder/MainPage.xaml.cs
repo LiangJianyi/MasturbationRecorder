@@ -41,7 +41,7 @@ namespace MasturbationRecorder {
                 ResetRectangleColor();  // 每次选择文件之后都要重置方块颜色
 
                 StateBar.IsActive = true;
-                ProgressBoard.OpenProgessBoard(StackCanvas, null);
+                ProgressBoard.Slide(RectanglesCanvas, true);
                 Windows.Storage.AccessCache.StorageApplicationPermissions.FutureAccessList.Add(file);
                 string text = await FileIO.ReadTextAsync(file);
 #if DEBUG
@@ -71,7 +71,7 @@ namespace MasturbationRecorder {
                 }
                 finally {
                     StateBar.IsActive = false;
-                    ProgressBoard.CloseProgessBoard(StackCanvas);
+                    ProgressBoard.Slide(RectanglesCanvas, false);
                 }
             }
         }
@@ -199,7 +199,11 @@ namespace MasturbationRecorder {
                 for (int groupsIncre = 0; groupsIncre < groups.LongCount(); groupsIncre++) {
                     group = groups[groupsIncre];
                     foreach (var item in group) {
-                        foreach (Rectangle rect in RectanglesCanvas.Children) {
+                        // 过滤掉非 Rectangle 的元素（比如 ProgressBoard）
+                        var rectangles = from rect in RectanglesCanvas.Children 
+                                         where rect is Rectangle 
+                                         select rect;
+                        foreach (Rectangle rect in rectangles) {
 #if DEBUG
                             Debug.WriteLine($"rect: {rect.Name}");
 #endif
