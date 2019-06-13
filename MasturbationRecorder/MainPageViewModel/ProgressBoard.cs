@@ -10,8 +10,8 @@ namespace MasturbationRecorder {
         private static Canvas CreateProgressBoard(string name) {
             Canvas canvas = new Canvas() {
                 Name = name,
-                Width = 200,
-                Height = 200,
+                Width = 100,
+                Height = 100,
                 Background = new Windows.UI.Xaml.Media.SolidColorBrush(Windows.UI.Colors.LightGray),
                 Opacity = 0.7
             };
@@ -29,7 +29,6 @@ namespace MasturbationRecorder {
         }
 
         private static void HorizontalCenterOnCanvas(Canvas subCanvas, Canvas parentCanvas) {
-            Debug.WriteLine($"Canvas.SetLeft(subCanvas, ({parentCanvas.Width} - {subCanvas.Width}) / 2)");
             Canvas.SetLeft(subCanvas, (parentCanvas.Width - subCanvas.Width) / 2);
         }
 
