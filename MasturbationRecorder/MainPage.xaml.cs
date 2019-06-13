@@ -40,7 +40,6 @@ namespace MasturbationRecorder {
             if (file != null) {
                 ResetRectangleColor();  // 每次选择文件之后都要重置方块颜色
 
-                StateBar.IsActive = true;
                 ProgressBoard.Slide(RectanglesCanvas, true);
                 Windows.Storage.AccessCache.StorageApplicationPermissions.FutureAccessList.Add(file);
                 string text = await FileIO.ReadTextAsync(file);
@@ -70,7 +69,6 @@ namespace MasturbationRecorder {
                     DisplayErrorDialog(err.Message);
                 }
                 finally {
-                    StateBar.IsActive = false;
                     ProgressBoard.Slide(RectanglesCanvas, false);
                 }
             }

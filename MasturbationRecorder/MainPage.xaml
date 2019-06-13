@@ -12,9 +12,6 @@
         <CommandBar Name="Menu">
             <AppBarButton Icon="OpenFile" Label="Pick record" Click="OpenFileButton_Click"/>
             <AppBarButton Icon="Save" Label="Save"/>
-            <CommandBar.Content>
-                <ProgressRing Name="StateBar" Width="30" Height="30" FontSize="15" Foreground="SkyBlue" FontStretch="SemiCondensed" Margin="100,0,0,0"/>
-            </CommandBar.Content>
         </CommandBar>
         <TextBlock x:Name="TitleTextBlock" Text="今天你打飞机了吗？" FontSize="55" HorizontalAlignment="Center" Margin="0,100,0,0"/>
         <Border x:Name="OutermostBorder" BorderBrush="LightGray" BorderThickness="2" HorizontalAlignment="Center" VerticalAlignment="Center">

@@ -57,7 +57,6 @@ namespace MasturbationRecorder {
                 parentCanvas.Children.Add(ProgressBoard._progressBoard);
             }
             ProgressBoard.HorizontalCenterOnCanvas(ProgressBoard._progressBoard, parentCanvas);
-            ProgressBoard.VerticalCenterOnCanvas(ProgressBoard._progressBoard, parentCanvas);
 
             Storyboard startStoryboard = new Storyboard();
             KeyTime startTime = KeyTime.FromTimeSpan(new TimeSpan(0, 0, 0, 0, 0));
@@ -66,21 +65,21 @@ namespace MasturbationRecorder {
 
             if (isActive) {
                 top_DoubleAnimationUsingKeyFrames.KeyFrames.Add(new LinearDoubleKeyFrame() {
-                    Value = -200,
+                    Value = Canvas.GetTop(ProgressBoard._progressBoard),
                     KeyTime = startTime
                 });
                 top_DoubleAnimationUsingKeyFrames.KeyFrames.Add(new LinearDoubleKeyFrame() {
-                    Value = 100,
+                    Value = (parentCanvas.ActualHeight - ProgressBoard._progressBoard.Height) / 2,
                     KeyTime = endTime
                 });
             }
             else {
                 top_DoubleAnimationUsingKeyFrames.KeyFrames.Add(new LinearDoubleKeyFrame() {
-                    Value = 100,
+                    Value = Canvas.GetTop(ProgressBoard._progressBoard),
                     KeyTime = startTime
                 });
                 top_DoubleAnimationUsingKeyFrames.KeyFrames.Add(new LinearDoubleKeyFrame() {
-                    Value = -200,
+                    Value = -100,
                     KeyTime = endTime
                 });
                 /*
