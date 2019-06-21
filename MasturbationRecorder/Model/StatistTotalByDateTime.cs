@@ -22,8 +22,8 @@ namespace MasturbationRecorder {
         }
         public override string ToString() => $"DateTime: {DateTime}, Total: {Total}";
         public bool Equivalent(StatistTotalByDateTime other) => this.DateTime.Equals(other.DateTime) && this.Total.Equals(other.Total);
-        // public bool EarlierThan(StatistTotalByDateTime other);
-        // public bool LaterThan(StatistTotalByDateTime other);
+        public bool EarlierThan(StatistTotalByDateTime other) => this.DateTime < other.DateTime;
+        public bool LaterThan(StatistTotalByDateTime other) => this.DateTime > other.DateTime;
         public static bool operator >(StatistTotalByDateTime left, StatistTotalByDateTime right) => left.CompareTo(right) == 1;
         public static bool operator <(StatistTotalByDateTime left, StatistTotalByDateTime right) => left.CompareTo(right) == -1;
         public static bool operator >=(StatistTotalByDateTime left, StatistTotalByDateTime right) => left.CompareTo(right) >= 0;
@@ -33,6 +33,10 @@ namespace MasturbationRecorder {
     class StatistTotalByDateTimeModel {
         private LinkedList<StatistTotalByDateTime> _entries;
         public LinkedList<StatistTotalByDateTime> Entries => _entries;
+        /// <summary>
+        /// 该构造器接收一个字符串序列，把它转换成StatistTotalByDateTime链表
+        /// </summary>
+        /// <param name="lines"></param>
         public StatistTotalByDateTimeModel(IEnumerable<string> lines) {
             LinkedList<StatistTotalByDateTime> dateTimes = new LinkedList<StatistTotalByDateTime>();
             foreach (var line in lines) {
@@ -123,6 +127,9 @@ namespace MasturbationRecorder {
             else {
                 throw new Exception($"Unkown error. Groups is {groups}");
             }
+        }
+        public void AddEntry(string rectName) {
+
         }
         public void AddEntry(StatistTotalByDateTime statistTotalByDateTime) {
 
