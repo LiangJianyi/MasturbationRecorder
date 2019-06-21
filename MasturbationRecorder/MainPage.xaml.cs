@@ -18,6 +18,7 @@ namespace MasturbationRecorder {
         /// 对已经填充颜色的 Rectangle 进行登记
         /// </summary>
         private static HashSet<Rectangle> _rectangleRegisteTable = null;
+        private static StatistTotalByDateTimeModel _model = null;
 
         public MainPage() {
 #if DEBUG
@@ -50,8 +51,8 @@ namespace MasturbationRecorder {
 #endif
                 IEnumerable<string> lines = DatetimeParser.SplitByLine(text);
                 try {
-                    StatistTotalByDateTimeModel model = new StatistTotalByDateTimeModel(lines);
-                    List<IGrouping<BigInteger, StatistTotalByDateTime>>[] res = model.GroupDateTimesByTotal();
+                    _model = new StatistTotalByDateTimeModel(lines);
+                    List<IGrouping<BigInteger, StatistTotalByDateTime>>[] res = _model.GroupDateTimesByTotal();
 #if DEBUG
                     for (int level = 0; level < res.Length; level++) {
                         Debug.WriteLine($"level: {level + 1}");
@@ -79,7 +80,7 @@ namespace MasturbationRecorder {
             Rectangle rectangle = sender as Rectangle;
             Bubble.CreateBubbleRectangle(
                 canvas: RectanglesCanvas,
-                hostRect: sender as Rectangle,
+                hostRect: rectangle,
                 bubbleName: RectanglesCanvas.Resources["OhhohoRect"] as string,
                 zoom: (minWidth: (double)RectanglesCanvas.Resources["MinWidth"],
                        minHeight: (double)RectanglesCanvas.Resources["MinHeight"],
@@ -90,7 +91,26 @@ namespace MasturbationRecorder {
                 hostPosition: (left: Canvas.GetLeft(rectangle), top: Canvas.GetTop(rectangle)),
                 storyboard_Completed: RectangleBubbleAnimation_Completed
             );
-
+            if (_model != null) {
+                var x = from entry in _model.Entries
+                        where entry.DateTime.ToShortDateString() == rectangle.Name
+                        select entry;
+                if (x.Count() > 0) {
+                    StatistTotalByDateTime temp = x.First();
+                    temp.Total += 1;
+                    // 弹出悬浮对话框，给用户提供两种保存方式：
+                    // 1、更新原有文件
+                    // 2、作为新文件存储
+                }
+                else {
+                    _model.AddEntry(rectangle.Name);
+                }
+            }
+            else {
+                // _model为空证明用户在空白的状态下添加新条目
+                _model = new StatistTotalByDateTimeModel(new string[] { rectangle.Name });
+            }
+            SaveFileButton.Visibility = Visibility.Visible;
         }
 
         private static async void DisplayErrorDialog(string content) {
@@ -201,8 +221,8 @@ namespace MasturbationRecorder {
                     group = groups[groupsIncre];
                     foreach (var item in group) {
                         // 过滤掉非 Rectangle 的元素（比如 ProgressBoard）
-                        var rectangles = from rect in RectanglesCanvas.Children 
-                                         where rect is Rectangle 
+                        var rectangles = from rect in RectanglesCanvas.Children
+                                         where rect is Rectangle
                                          select rect;
                         foreach (Rectangle rect in rectangles) {
 #if DEBUG
@@ -256,7 +276,8 @@ namespace MasturbationRecorder {
         }
 
         private void SaveFileButton_Click(object sender, RoutedEventArgs e) {
-
+            // 在弹出路径选择器之前应渲染一个悬浮表单，让用户选择
+            // 保存方式、文件格式、文件名
         }
     }
 }

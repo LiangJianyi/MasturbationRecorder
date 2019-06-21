@@ -38,14 +38,13 @@ namespace MasturbationRecorder {
         /// </summary>
         /// <param name="lines"></param>
         public StatistTotalByDateTimeModel(IEnumerable<string> lines) {
-            LinkedList<StatistTotalByDateTime> dateTimes = new LinkedList<StatistTotalByDateTime>();
+            this._entries = new LinkedList<StatistTotalByDateTime>();
             foreach (var line in lines) {
                 if (line != "" && line != "\r") {   // 忽略空行
                     StatistTotalByDateTime statist = DatetimeParser.ParseExpr(line);
-                    dateTimes.AddLast(statist);
+                    this._entries.AddLast(statist);
                 }
             }
-            this._entries = dateTimes;
         }
         public List<IGrouping<BigInteger, StatistTotalByDateTime>>[] GroupDateTimesByTotal() {
             IOrderedEnumerable<IGrouping<BigInteger, StatistTotalByDateTime>> groupingForTotal = from e in _entries
@@ -129,10 +128,10 @@ namespace MasturbationRecorder {
             }
         }
         public void AddEntry(string rectName) {
-
+            this.AddEntry(DatetimeParser.ParseExpr(rectName));
         }
         public void AddEntry(StatistTotalByDateTime statistTotalByDateTime) {
-
+            this._entries.AddLast(statistTotalByDateTime);
         }
     }
 }
