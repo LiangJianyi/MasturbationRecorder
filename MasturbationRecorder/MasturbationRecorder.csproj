@@ -120,14 +120,14 @@
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
     <Compile Include="MainPageViewModel\Bubble.cs" />
-    <Compile Include="MainPageViewModel\DatetimeParser.cs" />
+    <Compile Include="Model\DatetimeParser.cs" />
     <Compile Include="MainPage.xaml.cs">
       <DependentUpon>MainPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="MainPageViewModel\MainPageViewModel.cs" />
     <Compile Include="MainPageViewModel\ProgressBoard.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="MainPageViewModel\StatistTotalByDateTime.cs" />
+    <Compile Include="Model\StatistTotalByDateTime.cs" />
   </ItemGroup>
   <ItemGroup>
     <AppxManifest Include="Package.appxmanifest">

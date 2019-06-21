@@ -10,8 +10,8 @@
 
     <Grid Name="Root">
         <CommandBar Name="Menu">
-            <AppBarButton Icon="OpenFile" Label="Pick record" Click="OpenFileButton_Click"/>
-            <AppBarButton Icon="Save" Label="Save"/>
+            <AppBarButton x:Name="OpenFileButton" Icon="OpenFile" Label="Pick record" Click="OpenFileButton_Click"/>
+            <AppBarButton x:Name="SaveFileButton" Icon="Save" Label="Save" Click="SaveFileButton_Click"/>
         </CommandBar>
         <TextBlock x:Name="TitleTextBlock" Text="今天你打飞机了吗？" FontSize="55" HorizontalAlignment="Center" Margin="0,100,0,0"/>
         <Border x:Name="OutermostBorder" BorderBrush="LightGray" BorderThickness="2" HorizontalAlignment="Center" VerticalAlignment="Center">

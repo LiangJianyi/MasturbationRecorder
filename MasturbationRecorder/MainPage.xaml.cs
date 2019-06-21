@@ -25,6 +25,7 @@ namespace MasturbationRecorder {
 #endif
             this.InitializeComponent();
             this.RectanglesLayout();
+            SaveFileButton.Visibility = Visibility.Collapsed;
         }
 
         private async void OpenFileButton_Click(object sender, RoutedEventArgs e) {
@@ -49,8 +50,8 @@ namespace MasturbationRecorder {
 #endif
                 IEnumerable<string> lines = DatetimeParser.SplitByLine(text);
                 try {
-                    LinkedList<StatistTotalByDateTime> dateTimes = MainPageViewModel.LinesConvertToStatistTotalByDateTimes(lines);
-                    List<IGrouping<BigInteger, StatistTotalByDateTime>>[] res = MainPageViewModel.GroupDateTimesByTotal(dateTimes);
+                    StatistTotalByDateTimeModel model = new StatistTotalByDateTimeModel(lines);
+                    List<IGrouping<BigInteger, StatistTotalByDateTime>>[] res = model.GroupDateTimesByTotal();
 #if DEBUG
                     for (int level = 0; level < res.Length; level++) {
                         Debug.WriteLine($"level: {level + 1}");
@@ -87,7 +88,9 @@ namespace MasturbationRecorder {
             );
             Bubble.CreateBubbleStoryboard(
                 hostPosition: (left: Canvas.GetLeft(rectangle), top: Canvas.GetTop(rectangle)),
-                storyboard_Completed: RectangleBubbleAnimation_Completed);
+                storyboard_Completed: RectangleBubbleAnimation_Completed
+            );
+
         }
 
         private static async void DisplayErrorDialog(string content) {
@@ -250,6 +253,10 @@ namespace MasturbationRecorder {
             }
             // 充值方块颜色之后要紧接着重新初始化该表
             _rectangleRegisteTable = new HashSet<Rectangle>();
+        }
+
+        private void SaveFileButton_Click(object sender, RoutedEventArgs e) {
+
         }
     }
 }
