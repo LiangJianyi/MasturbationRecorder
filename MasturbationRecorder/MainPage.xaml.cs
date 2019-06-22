@@ -26,7 +26,6 @@ namespace MasturbationRecorder {
 #endif
             this.InitializeComponent();
             this.RectanglesLayout();
-            SaveFileButton.Visibility = Visibility.Collapsed;
         }
 
         private async void OpenFileButton_Click(object sender, RoutedEventArgs e) {
@@ -196,11 +195,14 @@ namespace MasturbationRecorder {
             Canvas.SetTop(rect, canvasTop);
         }
 
-#if DEBUG
         private void Current_SizeChanged(object sender, Windows.UI.Core.WindowSizeChangedEventArgs e) {
+#if DEBUG
             Debug.WriteLine($"{this._window.Bounds.Width} , {this._window.Bounds.Height}");
-        }
 #endif
+            Menu.Width = this._window.Bounds.Width;
+            RootGrid.Width = this._window.Bounds.Width;
+            RootGrid.Height = this._window.Bounds.Height - ((double)RootCanvas.Resources["CanvasTopForRootGrid"]);
+        }
         /*
          * 气泡动画结束后从 Canvas 移除气泡方块
          */
@@ -278,6 +280,14 @@ namespace MasturbationRecorder {
         private void SaveFileButton_Click(object sender, RoutedEventArgs e) {
             // 在弹出路径选择器之前应渲染一个悬浮表单，让用户选择
             // 保存方式、文件格式、文件名
+        }
+
+        private void RootCanvas_Loaded(object sender, RoutedEventArgs e) {
+            SaveFileButton.Visibility = Visibility.Collapsed;
+            Debug.WriteLine($"RootCanvas.ActualHeight: {RootCanvas.ActualHeight}");
+            Menu.Width = this._window.Bounds.Width;
+            RootGrid.Width = this._window.Bounds.Width;
+            RootGrid.Height = this._window.Bounds.Height - ((double)RootCanvas.Resources["CanvasTopForRootGrid"]);
         }
     }
 }
