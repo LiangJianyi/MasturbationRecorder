@@ -91,12 +91,18 @@ namespace MasturbationRecorder {
                 storyboard_Completed: RectangleBubbleAnimation_Completed
             );
             if (_model != null) {
+                // 检测用户点击的方块对应的日期在之前打开的记录表中是否存在。
+                // 如果 x.Count() > 0 为 true 证明存在，否则添加新条目。
+                // 注意：x.Count() 和 x.First() 可能会导致两次查询，具体详情参见 MSDN
                 var x = from entry in _model.Entries
                         where entry.DateTime.ToShortDateString() == rectangle.Name
                         select entry;
                 if (x.Count() > 0) {
                     StatistTotalByDateTime temp = x.First();
                     temp.Total += 1;
+                    // 闪烁动画，提示用户该方块有未保存的变更；
+                    Blink.PlayBlink(rectangle);
+
                     // 弹出悬浮对话框，给用户提供两种保存方式：
                     // 1、更新原有文件
                     // 2、作为新文件存储
@@ -108,6 +114,7 @@ namespace MasturbationRecorder {
             else {
                 // _model为空证明用户在空白的状态下添加新条目
                 _model = new StatistTotalByDateTimeModel(new string[] { rectangle.Name });
+                Blink.PlayBlink(rectangle);
             }
             SaveFileButton.Visibility = Visibility.Visible;
         }

@@ -5,6 +5,11 @@ using System.Runtime.CompilerServices;
 
 [assembly: InternalsVisibleTo("MasturbationRecorderTest")]
 namespace MasturbationRecorder {
+    enum DateMode {
+        DateWithWhiteSpace,
+        DateWithSlash
+    }
+
     static class DatetimeParser {
         /// <summary>
         /// 转换月份的简写为对应的整数
@@ -38,7 +43,23 @@ namespace MasturbationRecorder {
                 case "dec":
                     return 12;
                 default:
-                    throw new ArgumentException($"Month acronym error: {month}");
+                    if (month == "1" ||
+                        month == "2" ||
+                        month == "3" ||
+                        month == "4" ||
+                        month == "5" ||
+                        month == "6" ||
+                        month == "7" ||
+                        month == "8" ||
+                        month == "9" ||
+                        month == "10" ||
+                        month == "11" ||
+                        month == "12") {
+                        return Convert.ToUInt16(month);
+                    }
+                    else {
+                        throw new ArgumentException($"Month acronym error: {month}");
+                    }
             }
         }
 
@@ -47,8 +68,8 @@ namespace MasturbationRecorder {
         /// </summary>
         /// <param name="text"></param>
         /// <returns></returns>
-        private static string[] GetToken(string text) {
-            return text.Split(' ');
+        private static string[] GetToken(string text, char separator) {
+            return text.Split(separator);
         }
 
         /// <summary>
@@ -73,8 +94,18 @@ namespace MasturbationRecorder {
         /// </summary>
         /// <param name="expr"></param>
         /// <returns></returns>
-        internal static StatistTotalByDateTime ParseExpr(string expr) {
-            string[] tokens = GetToken(expr);
+        internal static StatistTotalByDateTime ParseExpr(string expr, DateMode dateMode = DateMode.DateWithWhiteSpace) {
+            string[] tokens = null;
+            switch (dateMode) {
+                case DateMode.DateWithWhiteSpace:
+                    tokens = GetToken(expr, '/');
+                    break;
+                case DateMode.DateWithSlash:
+                    tokens = GetToken(expr, ' ');
+                    break;
+                default:
+                    break;
+            }
             if (tokens.Length == 3) {
                 ushort monthValue = StringToUInt16(tokens[0]);
                 ushort dayValue = Convert.ToUInt16(tokens[1]);
