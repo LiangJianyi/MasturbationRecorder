@@ -18,6 +18,9 @@ namespace MasturbationRecorder {
         /// 对已经填充颜色的 Rectangle 进行登记
         /// </summary>
         private static HashSet<Rectangle> _rectangleRegisteTable = null;
+        /// <summary>
+        /// 暂存当前页面的 StatistTotalByDateTime 集合
+        /// </summary>
         private static StatistTotalByDateTimeModel _model = null;
 
         public MainPage() {
@@ -103,9 +106,7 @@ namespace MasturbationRecorder {
                     StatistTotalByDateTime temp = x.First();
                     temp.Total += 1;
 
-                    // 弹出悬浮对话框，给用户提供两种保存方式：
-                    // 1、更新原有文件
-                    // 2、作为新文件存储
+                    // 显示刷新按钮，根据变更的时间频率对方块重新着色
                 }
                 else {
                     _model.AddEntry(rectangle.Name);
@@ -288,6 +289,17 @@ namespace MasturbationRecorder {
         private void SaveFileButton_Click(object sender, RoutedEventArgs e) {
             // 在弹出路径选择器之前应渲染一个悬浮表单，让用户选择
             // 保存方式、文件格式、文件名
+            // 给用户提供两种保存方式：
+            // 1、更新原有文件
+            // 2、作为新文件存储
+
+            /*
+             * if SaveMode==SaveMode.NewFile
+             * then
+             * SaveFileForm.Open(filename,SaveMode.NewFile)
+             * else
+             * SaveFileForm.Open(SaveMode.OrginalFile)
+             */
         }
 
         private void RootCanvas_Loaded(object sender, RoutedEventArgs e) {
