@@ -28,7 +28,11 @@ namespace MasturbationRecorder {
         /// <summary>
         /// 文件的保存模式
         /// </summary>
-        private static SaveMode _saveMode = SaveMode.OrginalFile;
+        private static SaveMode _saveMode = SaveMode.NewFile;
+        /// <summary>
+        /// 保存从文件选择器选取的文件
+        /// </summary>
+        private static StorageFile _file = null;
 
         public MainPage() {
 #if DEBUG
@@ -46,14 +50,14 @@ namespace MasturbationRecorder {
             openPicker.FileTypeFilter.Add(".txt");
             openPicker.FileTypeFilter.Add(".mast");
 
-            StorageFile file = await openPicker.PickSingleFileAsync();
+            _file = await openPicker.PickSingleFileAsync();
 
-            if (file != null) {
+            if (_file != null) {
                 ResetRectangleColor();  // 每次选择文件之后都要重置方块颜色
 
                 ProgressBoard.Slide(RectanglesCanvas, true);
-                Windows.Storage.AccessCache.StorageApplicationPermissions.FutureAccessList.Add(file);
-                string text = await FileIO.ReadTextAsync(file);
+                Windows.Storage.AccessCache.StorageApplicationPermissions.FutureAccessList.Add(_file);
+                string text = await FileIO.ReadTextAsync(_file);
 #if DEBUG
                 Debug.WriteLine(text);
                 Debug.WriteLine($"line count:{(from t in text where t == '\n' select t).Count() + 1}");
@@ -320,6 +324,8 @@ namespace MasturbationRecorder {
                     await saveDialog.ShowAsync();
                     break;
                 case SaveMode.OrginalFile:
+                    // 需要创建一个将 _model 转换为文本的方法
+                    await FileIO.WriteTextAsync(_file, "");
                     break;
                 default:
                     break;
