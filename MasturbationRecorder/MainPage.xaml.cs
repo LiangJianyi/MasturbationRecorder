@@ -13,7 +13,10 @@ namespace MasturbationRecorder {
     using Debug = System.Diagnostics.Debug;
 
     public sealed partial class MainPage : Page {
-        private Window _window = Window.Current;
+        /// <summary>
+        /// 获取当前 Window 对象
+        /// </summary>
+        private Window Window => Window.Current;
         /// <summary>
         /// 对已经填充颜色的 Rectangle 进行登记
         /// </summary>
@@ -29,7 +32,7 @@ namespace MasturbationRecorder {
 
         public MainPage() {
 #if DEBUG
-            this._window.SizeChanged += Current_SizeChanged;
+            this.Window.SizeChanged += Current_SizeChanged;
 #endif
             this.InitializeComponent();
             this.RectanglesLayout();
@@ -122,7 +125,7 @@ namespace MasturbationRecorder {
                 SaveFileButton.Visibility = Visibility.Visible;
             }
             // 显示刷新按钮，根据变更的时间频率对方块重新着色
-            if (RefreshButton.Visibility==Visibility.Collapsed) {
+            if (RefreshButton.Visibility == Visibility.Collapsed) {
                 RefreshButton.Visibility = Visibility.Visible;
             }
         }
@@ -211,11 +214,11 @@ namespace MasturbationRecorder {
 
         private void Current_SizeChanged(object sender, Windows.UI.Core.WindowSizeChangedEventArgs e) {
 #if DEBUG
-            Debug.WriteLine($"{this._window.Bounds.Width} , {this._window.Bounds.Height}");
+            Debug.WriteLine($"{this.Window.Bounds.Width} , {this.Window.Bounds.Height}");
 #endif
-            Menu.Width = this._window.Bounds.Width;
-            RootGrid.Width = this._window.Bounds.Width;
-            RootGrid.Height = this._window.Bounds.Height - ((double)RootCanvas.Resources["CanvasTopForRootGrid"]);
+            Menu.Width = this.Window.Bounds.Width;
+            RootGrid.Width = this.Window.Bounds.Width;
+            RootGrid.Height = this.Window.Bounds.Height - ((double)RootCanvas.Resources["CanvasTopForRootGrid"]);
         }
         /*
          * 气泡动画结束后从 Canvas 移除气泡方块
@@ -291,7 +294,7 @@ namespace MasturbationRecorder {
             _rectangleRegisteTable = new HashSet<Rectangle>();
         }
 
-        private void SaveFileButton_Click(object sender, RoutedEventArgs e) {
+        private async void SaveFileButton_Click(object sender, RoutedEventArgs e) {
             void saveDialog_PrimaryButtonClick(ContentDialog dialog, ContentDialogButtonClickEventArgs args) {
                 Debug.WriteLine(dialog.PrimaryButtonText);
             }
@@ -314,6 +317,7 @@ namespace MasturbationRecorder {
                     };
                     saveDialog.PrimaryButtonClick += saveDialog_PrimaryButtonClick;
                     saveDialog.SecondaryButtonClick += saveDialog_SecondaryButtonClick;
+                    await saveDialog.ShowAsync();
                     break;
                 case SaveMode.OrginalFile:
                     break;
@@ -330,12 +334,17 @@ namespace MasturbationRecorder {
              */
         }
 
+        /// <summary>
+        /// 页面加载完成后要对部分控件的视觉状态进行预设
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void RootCanvas_Loaded(object sender, RoutedEventArgs e) {
             SaveFileButton.Visibility = Visibility.Collapsed;
-            Debug.WriteLine($"RootCanvas.ActualHeight: {RootCanvas.ActualHeight}");
-            Menu.Width = this._window.Bounds.Width;
-            RootGrid.Width = this._window.Bounds.Width;
-            RootGrid.Height = this._window.Bounds.Height - ((double)RootCanvas.Resources["CanvasTopForRootGrid"]);
+            RefreshButton.Visibility = Visibility.Collapsed;
+            Menu.Width = this.Window.Bounds.Width;
+            RootGrid.Width = this.Window.Bounds.Width;
+            RootGrid.Height = this.Window.Bounds.Height - ((double)RootCanvas.Resources["CanvasTopForRootGrid"]);
         }
 
         private void Refresh_Click(object sender, RoutedEventArgs e) {
