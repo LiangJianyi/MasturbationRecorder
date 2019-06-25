@@ -13,6 +13,7 @@
             <x:Double x:Key="CanvasTopForRootGrid">100.0</x:Double>
         </Canvas.Resources>
         <CommandBar Name="Menu" Width="800">
+            <AppBarButton x:Name="RefreshButton" Icon="Refresh" Label="Refresh" Click="Refresh_Click"/>
             <AppBarButton x:Name="OpenFileButton" Icon="OpenFile" Label="Pick record" Click="OpenFileButton_Click"/>
             <AppBarButton x:Name="SaveFileButton" Icon="Save" Label="Save" Click="SaveFileButton_Click"/>
         </CommandBar>

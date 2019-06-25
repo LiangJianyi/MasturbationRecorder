@@ -22,6 +22,10 @@ namespace MasturbationRecorder {
         /// 暂存当前页面的 StatistTotalByDateTime 集合
         /// </summary>
         private static StatistTotalByDateTimeModel _model = null;
+        /// <summary>
+        /// 文件的保存模式
+        /// </summary>
+        private static SaveMode _saveMode = SaveMode.OrginalFile;
 
         public MainPage() {
 #if DEBUG
@@ -51,8 +55,8 @@ namespace MasturbationRecorder {
                 Debug.WriteLine(text);
                 Debug.WriteLine($"line count:{(from t in text where t == '\n' select t).Count() + 1}");
 #endif
-                IEnumerable<string> lines = DatetimeParser.SplitByLine(text);
                 try {
+                    IEnumerable<string> lines = DatetimeParser.SplitByLine(text);
                     _model = new StatistTotalByDateTimeModel(lines);
                     List<IGrouping<BigInteger, StatistTotalByDateTime>>[] res = _model.GroupDateTimesByTotal();
 #if DEBUG
@@ -70,10 +74,11 @@ namespace MasturbationRecorder {
                     DrawRectangleColor(res);
                 }
                 catch (ArgumentException err) {
-                    DisplayErrorDialog(err.Message);
+                    PopErrorDialog(err.Message);
                 }
                 finally {
                     ProgressBoard.Slide(RectanglesCanvas, false);
+                    _saveMode = SaveMode.OrginalFile; // 表示当前的操作基于磁盘上已有的文件
                 }
             }
         }
@@ -103,10 +108,7 @@ namespace MasturbationRecorder {
                         where entry.DateTime.ToShortDateString() == rectangle.Name
                         select entry;
                 if (x.Count() > 0) {
-                    StatistTotalByDateTime temp = x.First();
-                    temp.Total += 1;
-
-                    // 显示刷新按钮，根据变更的时间频率对方块重新着色
+                    x.First().Total += 1;
                 }
                 else {
                     _model.AddEntry(rectangle.Name);
@@ -119,15 +121,18 @@ namespace MasturbationRecorder {
             if (SaveFileButton.Visibility == Visibility.Collapsed) {
                 SaveFileButton.Visibility = Visibility.Visible;
             }
+            // 显示刷新按钮，根据变更的时间频率对方块重新着色
+            if (RefreshButton.Visibility==Visibility.Collapsed) {
+                RefreshButton.Visibility = Visibility.Visible;
+            }
         }
 
-        private static async void DisplayErrorDialog(string content) {
+        private static async void PopErrorDialog(string content) {
             ContentDialog fileOpenFailDialog = new ContentDialog {
                 Title = "Error",
                 Content = content,
                 CloseButtonText = "Ok"
             };
-
             ContentDialogResult result = await fileOpenFailDialog.ShowAsync();
         }
 
@@ -287,11 +292,34 @@ namespace MasturbationRecorder {
         }
 
         private void SaveFileButton_Click(object sender, RoutedEventArgs e) {
+            void saveDialog_PrimaryButtonClick(ContentDialog dialog, ContentDialogButtonClickEventArgs args) {
+                Debug.WriteLine(dialog.PrimaryButtonText);
+            }
+            void saveDialog_SecondaryButtonClick(ContentDialog dialog, ContentDialogButtonClickEventArgs args) {
+                Debug.WriteLine(dialog.SecondaryButtonText);
+            }
+
             // 在弹出路径选择器之前应渲染一个悬浮表单，让用户选择
             // 保存方式、文件格式、文件名
             // 给用户提供两种保存方式：
             // 1、更新原有文件
             // 2、作为新文件存储
+            switch (_saveMode) {
+                case SaveMode.NewFile:
+                    ContentDialog saveDialog = new ContentDialog() {
+                        Title = "SaveMode",
+                        Content = "选择一种保存方式：",
+                        PrimaryButtonText = "更新原有文件",
+                        SecondaryButtonText = "作为新文件存储",
+                    };
+                    saveDialog.PrimaryButtonClick += saveDialog_PrimaryButtonClick;
+                    saveDialog.SecondaryButtonClick += saveDialog_SecondaryButtonClick;
+                    break;
+                case SaveMode.OrginalFile:
+                    break;
+                default:
+                    break;
+            }
 
             /*
              * if SaveMode==SaveMode.NewFile
@@ -308,6 +336,10 @@ namespace MasturbationRecorder {
             Menu.Width = this._window.Bounds.Width;
             RootGrid.Width = this._window.Bounds.Width;
             RootGrid.Height = this._window.Bounds.Height - ((double)RootCanvas.Resources["CanvasTopForRootGrid"]);
+        }
+
+        private void Refresh_Click(object sender, RoutedEventArgs e) {
+
         }
     }
 }
