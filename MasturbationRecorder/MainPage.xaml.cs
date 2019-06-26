@@ -365,8 +365,13 @@ namespace MasturbationRecorder {
             RootGrid.Height = this.Window.Bounds.Height - ((double)RootCanvas.Resources["CanvasTopForRootGrid"]);
         }
 
+        /// <summary>
+        /// 刷新方块颜色
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void Refresh_Click(object sender, RoutedEventArgs e) {
-
+            DrawRectangleColor(_model?.GroupDateTimesByTotal());
         }
     }
 }
