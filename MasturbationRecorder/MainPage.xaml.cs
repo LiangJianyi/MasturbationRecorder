@@ -18,7 +18,7 @@ namespace MasturbationRecorder {
         /// </summary>
         private Window Window => Window.Current;
         /// <summary>
-        /// 对已经填充颜色的 Rectangle 进行登记
+        /// 注册已经填充颜色的 Rectangle
         /// </summary>
         private static HashSet<Rectangle> _rectangleRegisteTable = null;
         /// <summary>
@@ -122,7 +122,7 @@ namespace MasturbationRecorder {
                 }
             }
             else {
-                // _model为空证明用户在空白的状态下添加新条目
+                // _model为null证明用户在空白的状态下添加新条目
                 _model = new StatistTotalByDateTimeModel(new string[] { rectangle.Name });
             }
             if (SaveFileButton.Visibility == Visibility.Collapsed) {
@@ -248,9 +248,6 @@ namespace MasturbationRecorder {
                                          where rect is Rectangle
                                          select rect;
                         foreach (Rectangle rect in rectangles) {
-#if DEBUG
-                            Debug.WriteLine($"rect: {rect.Name}");
-#endif
                             if (rect.Name == item.DateTime.ToShortDateString()) {
                                 rect.Fill = colorDic[level + 1];
 #if DEBUG

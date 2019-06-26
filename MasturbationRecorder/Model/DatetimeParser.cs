@@ -98,10 +98,10 @@ namespace MasturbationRecorder {
             string[] tokens = null;
             switch (dateMode) {
                 case DateMode.DateWithWhiteSpace:
-                    tokens = GetToken(expr, '/');
+                    tokens = GetToken(expr, ' ');
                     break;
                 case DateMode.DateWithSlash:
-                    tokens = GetToken(expr, ' ');
+                    tokens = GetToken(expr, '/');
                     break;
                 default:
                     break;

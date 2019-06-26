@@ -20,7 +20,51 @@ namespace MasturbationRecorder {
                 return 1;
             }
         }
-        public override string ToString() => $"DateTime: {DateTime}, Total: {Total}";
+        public override string ToString() {
+            string month = null;
+            switch (DateTime.Month) {
+                case 1:
+                    month = "Jan";
+                    break;
+                case 2:
+                    month = "Feb";
+                    break;
+                case 3:
+                    month = "Mar";
+                    break;
+                case 4:
+                    month = "Apr";
+                    break;
+                case 5:
+                    month = "May";
+                    break;
+                case 6:
+                    month = "Jun";
+                    break;
+                case 7:
+                    month = "Jul";
+                    break;
+                case 8:
+                    month = "Aug";
+                    break;
+                case 9:
+                    month = "Sep";
+                    break;
+                case 10:
+                    month = "Oct";
+                    break;
+                case 11:
+                    month = "Nov";
+                    break;
+                case 12:
+                    month = "Dec";
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException("Month out of range.", $"Month = {DateTime.Month}");
+            }
+            return $"{month} {DateTime.Day} {DateTime.Year} x{Total}";
+        }
+
         public bool Equivalent(StatistTotalByDateTime other) => this.DateTime.Equals(other.DateTime) && this.Total.Equals(other.Total);
         public bool EarlierThan(StatistTotalByDateTime other) => this.DateTime < other.DateTime;
         public bool LaterThan(StatistTotalByDateTime other) => this.DateTime > other.DateTime;
@@ -128,7 +172,7 @@ namespace MasturbationRecorder {
             }
         }
         public void AddEntry(string rectName) {
-            this.AddEntry(DatetimeParser.ParseExpr(rectName));
+            this.AddEntry(DatetimeParser.ParseExpr(rectName, DateMode.DateWithSlash));
         }
         public void AddEntry(StatistTotalByDateTime statistTotalByDateTime) {
             this._entries.AddLast(statistTotalByDateTime);
