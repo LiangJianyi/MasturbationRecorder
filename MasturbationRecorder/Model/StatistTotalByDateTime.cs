@@ -90,6 +90,19 @@ namespace MasturbationRecorder {
                 }
             }
         }
+        /// <summary>
+        /// 该构造器接收一个字符串序列，把它转换成StatistTotalByDateTime链表
+        /// </summary>
+        /// <param name="lines"></param>
+        public StatistTotalByDateTimeModel(IEnumerable<string> lines, DateMode dateMode) {
+            this._entries = new LinkedList<StatistTotalByDateTime>();
+            foreach (var line in lines) {
+                if (line != "" && line != "\r") {   // 忽略空行
+                    StatistTotalByDateTime statist = DatetimeParser.ParseExpr(line, dateMode);
+                    this._entries.AddLast(statist);
+                }
+            }
+        }
         public List<IGrouping<BigInteger, StatistTotalByDateTime>>[] GroupDateTimesByTotal() {
             IOrderedEnumerable<IGrouping<BigInteger, StatistTotalByDateTime>> groupingForTotal = from e in _entries
                                                                                                  group e by e.Total into newgroup

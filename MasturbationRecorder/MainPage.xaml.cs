@@ -128,7 +128,7 @@ namespace MasturbationRecorder {
             }
             else {
                 // _model为null证明用户在空白的状态下添加新条目
-                _model = new StatistTotalByDateTimeModel(new string[] { rectangle.Name });
+                _model = new StatistTotalByDateTimeModel(new string[] { rectangle.Name }, DateMode.DateWithSlash);
             }
             if (SaveFileButton.Visibility == Visibility.Collapsed) {
                 SaveFileButton.Visibility = Visibility.Visible;
@@ -324,9 +324,11 @@ namespace MasturbationRecorder {
                     saveDialog.PrimaryButtonClick += saveDialog_PrimaryButtonClick;
                     saveDialog.SecondaryButtonClick += saveDialog_SecondaryButtonClickAsync;
                     await saveDialog.ShowAsync();
+                    DrawRectangleColor(_model?.GroupDateTimesByTotal());
                     break;
                 case SaveMode.OrginalFile:
                     await SaveNewFileAsync();
+                    DrawRectangleColor(_model?.GroupDateTimesByTotal());
                     break;
                 default:
                     throw new Exception($"Unknown Error. SaveMode = {_saveMode.ToString()}");
