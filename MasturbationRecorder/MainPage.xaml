@@ -14,8 +14,8 @@
         </Canvas.Resources>
         <CommandBar Name="Menu" Width="800">
             <AppBarButton x:Name="RefreshButton" Icon="Refresh" Label="Refresh" Click="Refresh_Click"/>
-            <AppBarButton x:Name="OpenFileButton" Icon="OpenFile" Label="Pick record" Click="OpenFileButton_Click"/>
-            <AppBarButton x:Name="SaveFileButton" Icon="Save" Label="Save" Click="SaveFileButton_Click"/>
+            <AppBarButton x:Name="OpenFileButton" Icon="OpenFile" Label="Pick record" Click="OpenFileButtonAsync_Click"/>
+            <AppBarButton x:Name="SaveFileButton" Icon="Save" Label="Save" Click="SaveFileButtonAsync_Click"/>
         </CommandBar>
         <Grid Name="RootGrid" Width="800" Height="600" Canvas.Top="100">
             <TextBlock x:Name="TitleTextBlock" Text="今天你打飞机了吗？" FontSize="55" HorizontalAlignment="Center" Margin="0,100,0,0"/>

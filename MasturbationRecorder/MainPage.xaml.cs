@@ -47,7 +47,7 @@ namespace MasturbationRecorder {
             this.RectanglesLayout();
         }
 
-        private async void OpenFileButton_Click(object sender, RoutedEventArgs e) {
+        private async void OpenFileButtonAsync_Click(object sender, RoutedEventArgs e) {
             FileOpenPicker openPicker = new FileOpenPicker {
                 ViewMode = PickerViewMode.Thumbnail,
                 SuggestedStartLocation = PickerLocationId.ComputerFolder
@@ -86,7 +86,7 @@ namespace MasturbationRecorder {
                     DrawRectangleColor(res);
                 }
                 catch (ArgumentException err) {
-                    PopErrorDialog(err.Message);
+                    PopErrorDialogAsync(err.Message);
                 }
                 finally {
                     ProgressBoard.Slide(RectanglesCanvas, false);
@@ -139,7 +139,7 @@ namespace MasturbationRecorder {
             }
         }
 
-        private static async void PopErrorDialog(string content) {
+        private static async void PopErrorDialogAsync(string content) {
             ContentDialog fileOpenFailDialog = new ContentDialog {
                 Title = "Error",
                 Content = content,
@@ -300,12 +300,12 @@ namespace MasturbationRecorder {
             _rectangleRegisteTable = new HashSet<Rectangle>();
         }
 
-        private async void SaveFileButton_Click(object sender, RoutedEventArgs e) {
-            void saveDialog_PrimaryButtonClick(ContentDialog dialog, ContentDialogButtonClickEventArgs args) {
-                Debug.WriteLine(dialog.PrimaryButtonText);
+        private async void SaveFileButtonAsync_Click(object sender, RoutedEventArgs e) {
+            async void saveDialog_PrimaryButtonClick(ContentDialog dialog, ContentDialogButtonClickEventArgs args) {
+                await SaveOrginalFileAsync();
             }
-            void saveDialog_SecondaryButtonClick(ContentDialog dialog, ContentDialogButtonClickEventArgs args) {
-                Debug.WriteLine(dialog.SecondaryButtonText);
+            async void saveDialog_SecondaryButtonClickAsync(ContentDialog dialog, ContentDialogButtonClickEventArgs args) {
+                await SaveNewFileAsync();
             }
 
             // 在弹出路径选择器之前应渲染一个悬浮表单，让用户选择
@@ -322,33 +322,53 @@ namespace MasturbationRecorder {
                         SecondaryButtonText = "作为新文件存储",
                     };
                     saveDialog.PrimaryButtonClick += saveDialog_PrimaryButtonClick;
-                    saveDialog.SecondaryButtonClick += saveDialog_SecondaryButtonClick;
+                    saveDialog.SecondaryButtonClick += saveDialog_SecondaryButtonClickAsync;
                     await saveDialog.ShowAsync();
                     break;
                 case SaveMode.OrginalFile:
-                    var savePicker = new FileSavePicker {
-                        SuggestedStartLocation = PickerLocationId.DocumentsLibrary,
-                        SuggestedFileName = "New Record"
-                    };
-                    savePicker.FileTypeChoices.Add("Plain Text", new List<string>() { ".txt", ".mast" });
-                    StorageFile file = await savePicker.PickSaveFileAsync();
-                    if (file != null) {
-                        CachedFileManager.DeferUpdates(file);
-                        await FileIO.WriteLinesAsync(file, _model.ToArray());
-                        Windows.Storage.Provider.FileUpdateStatus status = await CachedFileManager.CompleteUpdatesAsync(file);
-                        if (status == Windows.Storage.Provider.FileUpdateStatus.Complete) {
-                            Debug.WriteLine("File " + file.Name + " was saved.");
-                        }
-                        else {
-                            Debug.WriteLine("File " + file.Name + " couldn't be saved.");
-                        }
-                    }
-                    else {
-                        Debug.WriteLine("Operation cancelled.");
-                    }
+                    await SaveNewFileAsync();
                     break;
                 default:
-                    break;
+                    throw new Exception($"Unknown Error. SaveMode = {_saveMode.ToString()}");
+            }
+        }
+
+        /// <summary>
+        /// 将变更作为新文件存储
+        /// </summary>
+        /// <returns></returns>
+        private static async System.Threading.Tasks.Task SaveNewFileAsync() {
+            FileSavePicker savePicker = new FileSavePicker {
+                SuggestedStartLocation = PickerLocationId.DocumentsLibrary,
+                SuggestedFileName = "New Record"
+            };
+            savePicker.FileTypeChoices.Add("Plain Text", new List<string>() { ".txt", ".mast" });
+            StorageFile file = await savePicker.PickSaveFileAsync();
+            if (file != null) {
+                CachedFileManager.DeferUpdates(file);
+                await FileIO.WriteLinesAsync(file, _model.ToArray());
+                Windows.Storage.Provider.FileUpdateStatus status = await CachedFileManager.CompleteUpdatesAsync(file);
+                if (status == Windows.Storage.Provider.FileUpdateStatus.Complete) {
+                    Debug.WriteLine("File " + file.Name + " was saved.");
+                }
+                else {
+                    Debug.WriteLine("File " + file.Name + " couldn't be saved.");
+                }
+            }
+            else {
+                Debug.WriteLine("Operation cancelled.");
+            }
+        }
+
+        private static async System.Threading.Tasks.Task SaveOrginalFileAsync() {
+            CachedFileManager.DeferUpdates(_file);
+            await FileIO.WriteLinesAsync(_file, _model.ToArray());
+            Windows.Storage.Provider.FileUpdateStatus status = await CachedFileManager.CompleteUpdatesAsync(_file);
+            if (status == Windows.Storage.Provider.FileUpdateStatus.Complete) {
+                Debug.WriteLine("File " + _file.Name + " was saved.");
+            }
+            else {
+                Debug.WriteLine("File " + _file.Name + " couldn't be saved.");
             }
         }
 
