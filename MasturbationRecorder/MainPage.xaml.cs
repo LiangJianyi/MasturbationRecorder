@@ -12,6 +12,11 @@ using Windows.UI.Xaml.Shapes;
 namespace MasturbationRecorder {
     using Debug = System.Diagnostics.Debug;
 
+    enum SaveMode {
+        NewFile,
+        OrginalFile
+    }
+
     public sealed partial class MainPage : Page {
         /// <summary>
         /// 获取当前 Window 对象
