@@ -326,20 +326,30 @@ namespace MasturbationRecorder {
                     await saveDialog.ShowAsync();
                     break;
                 case SaveMode.OrginalFile:
-                    // 需要创建一个将 _model 转换为文本的方法
-                    await FileIO.WriteTextAsync(_file, "");
+                    var savePicker = new FileSavePicker {
+                        SuggestedStartLocation = PickerLocationId.DocumentsLibrary,
+                        SuggestedFileName = "New Record"
+                    };
+                    savePicker.FileTypeChoices.Add("Plain Text", new List<string>() { ".txt", ".mast" });
+                    StorageFile file = await savePicker.PickSaveFileAsync();
+                    if (file != null) {
+                        CachedFileManager.DeferUpdates(file);
+                        await FileIO.WriteLinesAsync(file, _model.ToArray());
+                        Windows.Storage.Provider.FileUpdateStatus status = await CachedFileManager.CompleteUpdatesAsync(file);
+                        if (status == Windows.Storage.Provider.FileUpdateStatus.Complete) {
+                            Debug.WriteLine("File " + file.Name + " was saved.");
+                        }
+                        else {
+                            Debug.WriteLine("File " + file.Name + " couldn't be saved.");
+                        }
+                    }
+                    else {
+                        Debug.WriteLine("Operation cancelled.");
+                    }
                     break;
                 default:
                     break;
             }
-
-            /*
-             * if SaveMode==SaveMode.NewFile
-             * then
-             * SaveFileForm.Open(filename,SaveMode.NewFile)
-             * else
-             * SaveFileForm.Open(SaveMode.OrginalFile)
-             */
         }
 
         /// <summary>
