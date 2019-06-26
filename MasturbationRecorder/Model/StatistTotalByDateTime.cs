@@ -177,5 +177,6 @@ namespace MasturbationRecorder {
         public void AddEntry(StatistTotalByDateTime statistTotalByDateTime) {
             this._entries.AddLast(statistTotalByDateTime);
         }
+        public string[] ToArray() => (from statistTotalByDateTime in this._entries select statistTotalByDateTime.ToString()).ToArray();
     }
 }
