@@ -312,6 +312,10 @@ namespace MasturbationRecorder {
             // 2、作为新文件存储
             switch (_saveMode) {
                 case SaveMode.NewFile:
+                    await SaveNewFileAsync();
+                    _saveMode = SaveMode.OrginalFile;
+                    break;
+                case SaveMode.OrginalFile:
                     ContentDialog saveDialog = new ContentDialog() {
                         Title = "SaveMode",
                         Content = "选择一种保存方式：",
@@ -320,9 +324,6 @@ namespace MasturbationRecorder {
                     };
                     saveDialog.PrimaryButtonClick += saveDialog_PrimaryButtonClick;
                     saveDialog.SecondaryButtonClick += saveDialog_SecondaryButtonClickAsync;
-                    await saveDialog.ShowAsync();
-                    break;
-                case SaveMode.OrginalFile:
                     await SaveOrginalFileAsync();
                     break;
                 default:
@@ -381,6 +382,7 @@ namespace MasturbationRecorder {
         private void RootCanvas_Loaded(object sender, RoutedEventArgs e) {
             SaveFileButton.Visibility = Visibility.Collapsed;
             RefreshButton.Visibility = Visibility.Collapsed;
+            ClearButton.Visibility = Visibility.Collapsed;
             Menu.Width = this.Window.Bounds.Width;
             RootGrid.Width = this.Window.Bounds.Width;
             RootGrid.Height = this.Window.Bounds.Height - ((double)RootCanvas.Resources["CanvasTopForRootGrid"]);
@@ -393,6 +395,22 @@ namespace MasturbationRecorder {
         /// <param name="e"></param>
         private void Refresh_Click(object sender, RoutedEventArgs e) {
             DrawRectangleColor(_model?.GroupDateTimesByTotal());
+        }
+
+        /// <summary>
+        /// 清空所有记录，重置所有状态
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void ClearButton_Click(object sender, RoutedEventArgs e) {
+            /*
+             * _rectangleRegisteTable 已在 ResetRectangleColor() 内部重新初始化，
+             * 这里无需再次执行 _rectangleRegisteTable = new HashSet<Rectangle>()
+             */
+            ResetRectangleColor();
+            _model = null;
+            _file = null;
+            _saveMode = SaveMode.NewFile;
         }
     }
 }

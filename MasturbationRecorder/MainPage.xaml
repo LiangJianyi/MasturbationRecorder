@@ -14,6 +14,7 @@
         </Canvas.Resources>
         <CommandBar Name="Menu" Width="800">
             <AppBarButton x:Name="RefreshButton" Icon="Refresh" Label="Refresh" Click="Refresh_Click"/>
+            <AppBarButton x:Name="ClearButton" Icon="Clear" Label="Clear all recorde" Click="ClearButton_Click"/>
             <AppBarButton x:Name="OpenFileButton" Icon="OpenFile" Label="Pick record" Click="OpenFileButtonAsync_Click"/>
             <AppBarButton x:Name="SaveFileButton" Icon="Save" Label="Save" Click="SaveFileButtonAsync_Click"/>
         </CommandBar>
