@@ -26,7 +26,7 @@ namespace MasturbationRecorder {
         /// <summary>
         /// 注册已经填充颜色的 Rectangle
         /// </summary>
-        private static HashSet<Rectangle> _rectangleRegisteTable = null;
+        private static HashSet<Rectangle> _rectangleRegisteTable = new HashSet<Rectangle>();
         /// <summary>
         /// 暂存当前页面的 StatistTotalByDateTime 集合
         /// </summary>
@@ -284,18 +284,16 @@ namespace MasturbationRecorder {
         /// 重置方块的颜色
         /// </summary>
         private void ResetRectangleColor() {
-            // 程序首次执行时 -rectangleRegisteTable 为 null
-            if (_rectangleRegisteTable != null) {
-                foreach (Rectangle rect in this.RectanglesCanvas.Children) {
-                    if (_rectangleRegisteTable.Contains(rect)) {
-                        rect.Fill = new SolidColorBrush(MainPageViewModel.LightGray);
+            // 把绿色的方块变回灰色
+            foreach (Rectangle rect in this.RectanglesCanvas.Children) {
+                if (_rectangleRegisteTable.Contains(rect)) {
+                    rect.Fill = new SolidColorBrush(MainPageViewModel.LightGray);
 #if DEBUG
-                        (ToolTipService.GetToolTip(rect) as ToolTip).Content = rect.Name;
+                    (ToolTipService.GetToolTip(rect) as ToolTip).Content = rect.Name;
 #endif
-                    }
                 }
             }
-            // 充值方块颜色之后要紧接着重新初始化该表
+            // 重置方块颜色之后要紧接着重新初始化该表
             _rectangleRegisteTable = new HashSet<Rectangle>();
         }
 
@@ -323,7 +321,6 @@ namespace MasturbationRecorder {
                     saveDialog.PrimaryButtonClick += saveDialog_PrimaryButtonClick;
                     saveDialog.SecondaryButtonClick += saveDialog_SecondaryButtonClickAsync;
                     await saveDialog.ShowAsync();
-                    DrawRectangleColor(_model?.GroupDateTimesByTotal());
                     break;
                 case SaveMode.OrginalFile:
                     await SaveOrginalFileAsync();
@@ -331,6 +328,7 @@ namespace MasturbationRecorder {
                 default:
                     throw new InvalidOperationException($"Unknown Error. SaveMode = {_saveMode.ToString()}");
             }
+            DrawRectangleColor(_model?.GroupDateTimesByTotal());
         }
 
         /// <summary>
