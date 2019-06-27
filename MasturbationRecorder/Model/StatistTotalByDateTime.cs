@@ -80,7 +80,7 @@ namespace MasturbationRecorder {
         /// <summary>
         /// 该构造器接收一个字符串序列，把它转换成StatistTotalByDateTime链表
         /// </summary>
-        /// <param name="lines"></param>
+        /// <param name="lines">文本序列</param>
         public StatistTotalByDateTimeModel(IEnumerable<string> lines) {
             this._entries = new LinkedList<StatistTotalByDateTime>();
             foreach (var line in lines) {
@@ -91,14 +91,31 @@ namespace MasturbationRecorder {
             }
         }
         /// <summary>
-        /// 该构造器接收一个字符串序列，把它转换成StatistTotalByDateTime链表
+        /// 该构造器接收一个字符串序列，把它转换成StatistTotalByDateTime链表，同时接收一个 DateMode 指示日期字符串的分割方式
         /// </summary>
-        /// <param name="lines"></param>
+        /// <param name="lines">文本序列</param>
+        /// <param name="dateMode">指示日期字符串的分割方式</param>
         public StatistTotalByDateTimeModel(IEnumerable<string> lines, DateMode dateMode) {
             this._entries = new LinkedList<StatistTotalByDateTime>();
             foreach (var line in lines) {
                 if (line != "" && line != "\r") {   // 忽略空行
                     StatistTotalByDateTime statist = DatetimeParser.ParseExpr(line, dateMode);
+                    this._entries.AddLast(statist);
+                }
+            }
+        }
+        /// <summary>
+        /// 该构造器接收一个字符串序列，把它转换成StatistTotalByDateTime链表并显式指定每个StatistTotalByDateTime的Total，同时接收一个 DateMode 指示日期字符串的分割方式
+        /// </summary>
+        /// <param name="lines">文本序列</param>
+        /// <param name="total">指定每个StatistTotalByDateTime的Tota</param>
+        /// <param name="dateMode">指示日期字符串的分割方式</param>
+        public StatistTotalByDateTimeModel(IEnumerable<string> lines, BigInteger total, DateMode dateMode) {
+            this._entries = new LinkedList<StatistTotalByDateTime>();
+            foreach (var line in lines) {
+                if (line != "" && line != "\r") {   // 忽略空行
+                    StatistTotalByDateTime statist = DatetimeParser.ParseExpr(line, dateMode);
+                    statist.Total = total;
                     this._entries.AddLast(statist);
                 }
             }

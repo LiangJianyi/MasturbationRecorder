@@ -120,21 +120,44 @@ namespace MasturbationRecorder {
                         select entry;
                 if (x.Count() > 0) {
                     x.First().Total += 1;
+#if DEBUG
+                    ToolTip toolTip = new ToolTip {
+                        Content = rectangle.Name + $"  Level:0  Total:{x.First().Total}  Color:{(rectangle.Fill as SolidColorBrush).Color}"
+                    };
+                    ToolTipService.SetToolTip(rectangle, toolTip);
+#endif
                 }
                 else {
                     _model.AddEntry(rectangle.Name);
+#if DEBUG
+                    ToolTip toolTip = new ToolTip {
+                        Content = rectangle.Name + $"  Level:0  Total:1  Color:{(rectangle.Fill as SolidColorBrush).Color}"
+                    };
+                    ToolTipService.SetToolTip(rectangle, toolTip);
+#endif
                 }
             }
             else {
                 // _model为null证明用户在空白的状态下添加新条目
                 _model = new StatistTotalByDateTimeModel(new string[] { rectangle.Name }, DateMode.DateWithSlash);
+#if DEBUG
+                ToolTip toolTip = new ToolTip {
+                    Content = rectangle.Name + $"  Level:0  Total:1  Color:{(rectangle.Fill as SolidColorBrush).Color}"
+                };
+                ToolTipService.SetToolTip(rectangle, toolTip);
+#endif
             }
+            // 显示保存按钮，将变更添加到指定文件中
             if (SaveFileButton.Visibility == Visibility.Collapsed) {
                 SaveFileButton.Visibility = Visibility.Visible;
             }
             // 显示刷新按钮，根据变更的时间频率对方块重新着色
             if (RefreshButton.Visibility == Visibility.Collapsed) {
                 RefreshButton.Visibility = Visibility.Visible;
+            }
+            // 显示清空按钮
+            if (ClearButton.Visibility == Visibility.Collapsed) {
+                ClearButton.Visibility = Visibility.Visible;
             }
         }
 
@@ -298,11 +321,18 @@ namespace MasturbationRecorder {
         }
 
         private async void SaveFileButtonAsync_Click(object sender, RoutedEventArgs e) {
+            /*
+             * 把 DrawRectangleColor(_model?.GroupDateTimesByTotal()) 写进下面两个 Save 异步方法
+             * 可以避免用户触发 CloseButtonClick 事件时对方块颜色重新渲染
+             */
             async void saveDialog_PrimaryButtonClick(ContentDialog dialog, ContentDialogButtonClickEventArgs args) {
                 await SaveOrginalFileAsync();
             }
             async void saveDialog_SecondaryButtonClickAsync(ContentDialog dialog, ContentDialogButtonClickEventArgs args) {
                 await SaveNewFileAsync();
+            }
+            void saveDialog_CloseButtonClick(ContentDialog dialog, ContentDialogButtonClickEventArgs args) {
+                dialog.Hide();
             }
 
             // 在弹出路径选择器之前应渲染一个悬浮表单，让用户选择
@@ -321,15 +351,16 @@ namespace MasturbationRecorder {
                         Content = "选择一种保存方式：",
                         PrimaryButtonText = "更新原有文件",
                         SecondaryButtonText = "作为新文件存储",
+                        CloseButtonText = "放弃更改"
                     };
                     saveDialog.PrimaryButtonClick += saveDialog_PrimaryButtonClick;
                     saveDialog.SecondaryButtonClick += saveDialog_SecondaryButtonClickAsync;
-                    await SaveOrginalFileAsync();
+                    saveDialog.CloseButtonClick += saveDialog_CloseButtonClick;
+                    await saveDialog.ShowAsync();
                     break;
                 default:
                     throw new InvalidOperationException($"Unknown Error. SaveMode = {_saveMode.ToString()}");
             }
-            DrawRectangleColor(_model?.GroupDateTimesByTotal());
         }
 
         /// <summary>
@@ -338,7 +369,7 @@ namespace MasturbationRecorder {
         /// <returns>
         /// 返回一个元组，Status 字段代表文件的更新状态，FileIsPick 字段代表用户是否在文件选取器上选取文件，true 为已选取，false 为用户关闭了文件选取器
         /// </returns>
-        private static async Task SaveNewFileAsync() {
+        private async Task SaveNewFileAsync() {
             FileSavePicker savePicker = new FileSavePicker {
                 SuggestedStartLocation = PickerLocationId.DocumentsLibrary,
                 SuggestedFileName = "New Record"
@@ -360,9 +391,10 @@ namespace MasturbationRecorder {
                         throw new FilePickFaildException($"Pick a file faild! Windows.Storage.Provider.FileUpdateStatus = {status}");
                 }
             }
+            DrawRectangleColor(_model?.GroupDateTimesByTotal());
         }
 
-        private static async Task SaveOrginalFileAsync() {
+        private async Task SaveOrginalFileAsync() {
             CachedFileManager.DeferUpdates(_file);
             await FileIO.WriteLinesAsync(_file, _model.ToArray());
             Windows.Storage.Provider.FileUpdateStatus status = await CachedFileManager.CompleteUpdatesAsync(_file);
@@ -372,6 +404,7 @@ namespace MasturbationRecorder {
             else {
                 throw new FileNotSaveException($"File {_file.Name} couldn't be saved.");
             }
+            DrawRectangleColor(_model?.GroupDateTimesByTotal());
         }
 
         /// <summary>
