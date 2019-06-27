@@ -121,6 +121,7 @@
     </Compile>
     <Compile Include="MainPageViewModel\Blink.cs" />
     <Compile Include="MainPageViewModel\Bubble.cs" />
+    <Compile Include="MainPageViewModel\MainPageException.cs" />
     <Compile Include="Model\DatetimeParser.cs" />
     <Compile Include="MainPage.xaml.cs">
       <DependentUpon>MainPage.xaml</DependentUpon>

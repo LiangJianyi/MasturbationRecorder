@@ -181,7 +181,7 @@ namespace MasturbationRecorder {
                 return entries;
             }
             else {
-                throw new Exception($"Unkown error. Groups is {groups}");
+                throw new InvalidOperationException($"Unkown error. Groups is {groups}");
             }
         }
         public void AddEntry(string rectName) {

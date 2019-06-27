@@ -2,6 +2,7 @@
 using System.Numerics;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Windows.Storage;
 using Windows.Storage.Pickers;
 using Windows.UI.Xaml;
@@ -88,10 +89,8 @@ namespace MasturbationRecorder {
                 catch (ArgumentException err) {
                     PopErrorDialogAsync(err.Message);
                 }
-                finally {
-                    ProgressBoard.Slide(RectanglesCanvas, false);
-                    _saveMode = SaveMode.OrginalFile; // 表示当前的操作基于磁盘上已有的文件
-                }
+                ProgressBoard.Slide(RectanglesCanvas, false);
+                _saveMode = SaveMode.OrginalFile; // 表示当前的操作基于磁盘上已有的文件
             }
         }
 
@@ -327,19 +326,20 @@ namespace MasturbationRecorder {
                     DrawRectangleColor(_model?.GroupDateTimesByTotal());
                     break;
                 case SaveMode.OrginalFile:
-                    await SaveNewFileAsync();
-                    DrawRectangleColor(_model?.GroupDateTimesByTotal());
+                    await SaveOrginalFileAsync();
                     break;
                 default:
-                    throw new Exception($"Unknown Error. SaveMode = {_saveMode.ToString()}");
+                    throw new InvalidOperationException($"Unknown Error. SaveMode = {_saveMode.ToString()}");
             }
         }
 
         /// <summary>
         /// 将变更作为新文件存储
         /// </summary>
-        /// <returns></returns>
-        private static async System.Threading.Tasks.Task SaveNewFileAsync() {
+        /// <returns>
+        /// 返回一个元组，Status 字段代表文件的更新状态，FileIsPick 字段代表用户是否在文件选取器上选取文件，true 为已选取，false 为用户关闭了文件选取器
+        /// </returns>
+        private static async Task SaveNewFileAsync() {
             FileSavePicker savePicker = new FileSavePicker {
                 SuggestedStartLocation = PickerLocationId.DocumentsLibrary,
                 SuggestedFileName = "New Record"
@@ -347,22 +347,23 @@ namespace MasturbationRecorder {
             savePicker.FileTypeChoices.Add("Plain Text", new List<string>() { ".txt", ".mast" });
             StorageFile file = await savePicker.PickSaveFileAsync();
             if (file != null) {
-                CachedFileManager.DeferUpdates(file);
-                await FileIO.WriteLinesAsync(file, _model.ToArray());
                 Windows.Storage.Provider.FileUpdateStatus status = await CachedFileManager.CompleteUpdatesAsync(file);
-                if (status == Windows.Storage.Provider.FileUpdateStatus.Complete) {
-                    Debug.WriteLine("File " + file.Name + " was saved.");
+                switch (status) {
+                    case Windows.Storage.Provider.FileUpdateStatus.Complete:
+                        await FileIO.WriteLinesAsync(file, _model.ToArray());
+                        break;
+                    case Windows.Storage.Provider.FileUpdateStatus.Incomplete:
+                    case Windows.Storage.Provider.FileUpdateStatus.UserInputNeeded:
+                    case Windows.Storage.Provider.FileUpdateStatus.CurrentlyUnavailable:
+                    case Windows.Storage.Provider.FileUpdateStatus.Failed:
+                    case Windows.Storage.Provider.FileUpdateStatus.CompleteAndRenamed:
+                    default:
+                        throw new FilePickFaildException($"Pick a file faild! Windows.Storage.Provider.FileUpdateStatus = {status}");
                 }
-                else {
-                    Debug.WriteLine("File " + file.Name + " couldn't be saved.");
-                }
-            }
-            else {
-                Debug.WriteLine("Operation cancelled.");
             }
         }
 
-        private static async System.Threading.Tasks.Task SaveOrginalFileAsync() {
+        private static async Task SaveOrginalFileAsync() {
             CachedFileManager.DeferUpdates(_file);
             await FileIO.WriteLinesAsync(_file, _model.ToArray());
             Windows.Storage.Provider.FileUpdateStatus status = await CachedFileManager.CompleteUpdatesAsync(_file);
@@ -370,7 +371,7 @@ namespace MasturbationRecorder {
                 Debug.WriteLine("File " + _file.Name + " was saved.");
             }
             else {
-                Debug.WriteLine("File " + _file.Name + " couldn't be saved.");
+                throw new FileNotSaveException($"File {_file.Name} couldn't be saved.");
             }
         }
 

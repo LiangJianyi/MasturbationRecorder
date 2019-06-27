@@ -55,7 +55,7 @@ namespace MasturbationRecorder {
                                 { 5, new SolidColorBrush(FiveLevelColor) }
                             };
                 default:
-                    throw new System.IO.InvalidDataException($"levelRange out of range: {groups}");
+                    throw new System.ArgumentOutOfRangeException($"levelRange out of range: {groups}");
             }
         }
     }
