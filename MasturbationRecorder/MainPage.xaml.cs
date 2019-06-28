@@ -24,7 +24,7 @@ namespace MasturbationRecorder {
         /// </summary>
         private Window Window => Window.Current;
         /// <summary>
-        /// 注册已经填充颜色的 Rectangle
+        /// 注册已经填充颜色的 Rectangle，每个 Rectangle 只能注册一次
         /// </summary>
         private static HashSet<Rectangle> _rectangleRegisteTable = new HashSet<Rectangle>();
         /// <summary>
@@ -118,7 +118,7 @@ namespace MasturbationRecorder {
                 var x = from entry in _model.Entries
                         where entry.DateTime.ToShortDateString() == rectangle.Name
                         select entry;
-                if (x.Count() > 0) {
+                if (x.Count() > 0) { // 点击绿色方块
                     x.First().Total += 1;
 #if DEBUG
                     ToolTip toolTip = new ToolTip {
@@ -127,7 +127,7 @@ namespace MasturbationRecorder {
                     ToolTipService.SetToolTip(rectangle, toolTip);
 #endif
                 }
-                else {
+                else {  // 点击灰色方块
                     _model.AddEntry(rectangle.Name);
 #if DEBUG
                     ToolTip toolTip = new ToolTip {
@@ -138,7 +138,7 @@ namespace MasturbationRecorder {
                 }
             }
             else {
-                // _model为null证明用户在空白的状态下添加新条目
+                // _model 为 null 证明用户在空白的状态下添加新条目
                 _model = new StatistTotalByDateTimeModel(new string[] { rectangle.Name }, DateMode.DateWithSlash);
 #if DEBUG
                 ToolTip toolTip = new ToolTip {
@@ -269,17 +269,17 @@ namespace MasturbationRecorder {
                 IGrouping<BigInteger, StatistTotalByDateTime> group = null;
                 for (int groupsIncre = 0; groupsIncre < groups.LongCount(); groupsIncre++) {
                     group = groups[groupsIncre];
-                    foreach (var item in group) {
+                    foreach (StatistTotalByDateTime entry in group) {
                         // 过滤掉非 Rectangle 的元素（比如 ProgressBoard）
                         var rectangles = from rect in RectanglesCanvas.Children
                                          where rect is Rectangle
                                          select rect;
                         foreach (Rectangle rect in rectangles) {
-                            if (rect.Name == item.DateTime.ToShortDateString()) {
+                            if (rect.Name == entry.DateTime.ToShortDateString()) {
                                 rect.Fill = colorDic[level + 1];
 #if DEBUG
                                 ToolTip toolTip = new ToolTip {
-                                    Content = rect.Name + $"  Level:{level + 1}  Total:{item.Total}  Color:{(rect.Fill as SolidColorBrush).Color}"
+                                    Content = rect.Name + $"  Level:{level + 1}  Total:{entry.Total}  Color:{(rect.Fill as SolidColorBrush).Color}"
                                 };
                                 ToolTipService.SetToolTip(rect, toolTip);
 #endif
@@ -307,14 +307,8 @@ namespace MasturbationRecorder {
         /// 重置方块的颜色
         /// </summary>
         private void ResetRectangleColor() {
-            // 把绿色的方块变回灰色
-            foreach (Rectangle rect in this.RectanglesCanvas.Children) {
-                if (_rectangleRegisteTable.Contains(rect)) {
-                    rect.Fill = new SolidColorBrush(MainPageViewModel.LightGray);
-#if DEBUG
-                    (ToolTipService.GetToolTip(rect) as ToolTip).Content = rect.Name;
-#endif
-                }
+            foreach (var rect in _rectangleRegisteTable) {
+                rect.Fill = new SolidColorBrush(MainPageViewModel.LightGray);
             }
             // 重置方块颜色之后要紧接着重新初始化该表
             _rectangleRegisteTable = new HashSet<Rectangle>();
