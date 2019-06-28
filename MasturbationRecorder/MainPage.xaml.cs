@@ -394,6 +394,10 @@ namespace MasturbationRecorder {
             DrawRectangleColor(_model?.GroupDateTimesByTotal());
         }
 
+        /// <summary>
+        /// 将变更覆盖原有文件
+        /// </summary>
+        /// <returns></returns>
         private async Task SaveOrginalFileAsync() {
             CachedFileManager.DeferUpdates(_file);
             await FileIO.WriteLinesAsync(_file, _model.ToArray());
