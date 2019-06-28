@@ -59,7 +59,7 @@ namespace MasturbationRecorder {
             _file = await openPicker.PickSingleFileAsync();
 
             if (_file != null) {
-                ResetRectangleColor();  // 每次选择文件之后都要重置方块颜色
+                ResetRectangle();  // 每次选择文件之后都要重置方块颜色
 
                 ProgressBoard.Slide(RectanglesCanvas, true);
                 Windows.Storage.AccessCache.StorageApplicationPermissions.FutureAccessList.Add(_file);
@@ -304,14 +304,18 @@ namespace MasturbationRecorder {
         }
 
         /// <summary>
-        /// 重置方块的颜色
+        /// 重置方块的颜色和闪烁状态
         /// </summary>
-        private void ResetRectangleColor() {
+        private void ResetRectangle() {
             foreach (var rect in _rectangleRegisteTable) {
                 rect.Fill = new SolidColorBrush(MainPageViewModel.LightGray);
             }
             // 重置方块颜色之后要紧接着重新初始化该表
             _rectangleRegisteTable = new HashSet<Rectangle>();
+            // 停止所有闪烁状态的方块
+            foreach (var rect in Blink.BlinkedRectangles) {
+                Blink.StopBlink(rect.Value.rectangle);
+            }
         }
 
         private async void SaveFileButtonAsync_Click(object sender, RoutedEventArgs e) {
@@ -425,6 +429,11 @@ namespace MasturbationRecorder {
         /// <param name="sender"></param>
         /// <param name="e"></param>
         private void Refresh_Click(object sender, RoutedEventArgs e) {
+            /*
+             * _rectangleRegisteTable 已在 ResetRectangleColor() 内部重新初始化，
+             * 这里无需再次执行 _rectangleRegisteTable = new HashSet<Rectangle>()
+             */
+            ResetRectangle();
             DrawRectangleColor(_model?.GroupDateTimesByTotal());
         }
 
@@ -438,10 +447,13 @@ namespace MasturbationRecorder {
              * _rectangleRegisteTable 已在 ResetRectangleColor() 内部重新初始化，
              * 这里无需再次执行 _rectangleRegisteTable = new HashSet<Rectangle>()
              */
-            ResetRectangleColor();
+            ResetRectangle();
             _model = null;
             _file = null;
             _saveMode = SaveMode.NewFile;
+            RefreshButton.Visibility = Visibility.Collapsed;
+            SaveFileButton.Visibility = Visibility.Collapsed;
+            ClearButton.Visibility = Visibility.Collapsed;
         }
     }
 }
