@@ -61,24 +61,24 @@ namespace MasturbationRecorder {
             Storyboard startStoryboard = new Storyboard();
             KeyTime startTime = KeyTime.FromTimeSpan(new TimeSpan(0, 0, 0, 0, 0));
             KeyTime endTime = KeyTime.FromTimeSpan(new TimeSpan(0, 0, 0, 0, 300));
-            DoubleAnimationUsingKeyFrames top_DoubleAnimationUsingKeyFrames = new DoubleAnimationUsingKeyFrames();
+            DoubleAnimationUsingKeyFrames slideAnimationUsingKeyFrames = new DoubleAnimationUsingKeyFrames();
 
-            if (isActive) {
-                top_DoubleAnimationUsingKeyFrames.KeyFrames.Add(new LinearDoubleKeyFrame() {
+            if (isActive) { // 下降
+                slideAnimationUsingKeyFrames.KeyFrames.Add(new LinearDoubleKeyFrame() {
                     Value = Canvas.GetTop(ProgressBoard._progressBoard),
                     KeyTime = startTime
                 });
-                top_DoubleAnimationUsingKeyFrames.KeyFrames.Add(new LinearDoubleKeyFrame() {
+                slideAnimationUsingKeyFrames.KeyFrames.Add(new LinearDoubleKeyFrame() {
                     Value = (parentCanvas.ActualHeight - ProgressBoard._progressBoard.Height) / 2,
                     KeyTime = endTime
                 });
             }
-            else {
-                top_DoubleAnimationUsingKeyFrames.KeyFrames.Add(new LinearDoubleKeyFrame() {
+            else {  // 上升
+                slideAnimationUsingKeyFrames.KeyFrames.Add(new LinearDoubleKeyFrame() {
                     Value = Canvas.GetTop(ProgressBoard._progressBoard),
                     KeyTime = startTime
                 });
-                top_DoubleAnimationUsingKeyFrames.KeyFrames.Add(new LinearDoubleKeyFrame() {
+                slideAnimationUsingKeyFrames.KeyFrames.Add(new LinearDoubleKeyFrame() {
                     Value = -100,
                     KeyTime = endTime
                 });
@@ -91,10 +91,10 @@ namespace MasturbationRecorder {
                 }
                 startStoryboard.Completed += StartStoryboard_Completed;
             }
-            startStoryboard.Children.Add(top_DoubleAnimationUsingKeyFrames);
-            Storyboard.SetTarget(top_DoubleAnimationUsingKeyFrames, ProgressBoard._progressBoard);
-            Storyboard.SetTargetName(top_DoubleAnimationUsingKeyFrames, ProgressBoard._progressBoard.Name);
-            Storyboard.SetTargetProperty(top_DoubleAnimationUsingKeyFrames, "(Canvas.Top)");
+            startStoryboard.Children.Add(slideAnimationUsingKeyFrames);
+            Storyboard.SetTarget(slideAnimationUsingKeyFrames, ProgressBoard._progressBoard);
+            Storyboard.SetTargetName(slideAnimationUsingKeyFrames, ProgressBoard._progressBoard.Name);
+            Storyboard.SetTargetProperty(slideAnimationUsingKeyFrames, "(Canvas.Top)");
             startStoryboard.Begin();
         }
 
