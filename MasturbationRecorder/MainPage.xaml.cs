@@ -61,7 +61,7 @@ namespace MasturbationRecorder {
             if (_file != null) {
                 ResetRectangle();  // 每次选择文件之后都要重置方块颜色
 
-                ProgressBoard.Slide(RectanglesCanvas, true);
+                ProgressBoard.Slide(RectanglesCanvas);
                 Windows.Storage.AccessCache.StorageApplicationPermissions.FutureAccessList.Add(_file);
                 string text = await FileIO.ReadTextAsync(_file);
 #if DEBUG
@@ -84,12 +84,11 @@ namespace MasturbationRecorder {
                         }
                     }
 #endif
-                    DrawRectangleColor(res);
+                    DrawRectangleColorAsync(res, false);
                 }
                 catch (ArgumentException err) {
                     PopErrorDialogAsync(err.Message);
                 }
-                ProgressBoard.Slide(RectanglesCanvas, false);
                 _saveMode = SaveMode.OrginalFile; // 表示当前的操作基于磁盘上已有的文件
             }
         }
@@ -258,49 +257,63 @@ namespace MasturbationRecorder {
             RectanglesCanvas.Children.Remove(Bubble._bubble);
         }
 
-        private void DrawRectangleColor(List<IGrouping<BigInteger, StatistTotalByDateTime>>[] entries) {
+        /// <summary>
+        /// 绘制方块颜色
+        /// </summary>
+        /// <param name="entries">分级后条目列表</param>
+        /// <param name="haveProgressBoard">是否开启进度条面板，true 为开启，反之不开启</param>
+        private async void DrawRectangleColorAsync(List<IGrouping<BigInteger, StatistTotalByDateTime>>[] entries, bool haveProgressBoard) {
 #if DEBUG
             Debug.WriteLine($"Executing DrawRectangleColor:");
 #endif
+            if (haveProgressBoard) {
+                ProgressBoard.Slide(RectanglesCanvas);
+            }
             IDictionary<int, SolidColorBrush> colorDic = MainPageViewModel.ClassifyColorByLevelScore(entries.Length);
-            // level 作为 entries 的索引值，值越小对应的 Total 越小
-            for (int level = 0; level < entries.Length; level++) {
-                List<IGrouping<BigInteger, StatistTotalByDateTime>> groups = entries[level];
-                IGrouping<BigInteger, StatistTotalByDateTime> group = null;
-                for (int groupsIncre = 0; groupsIncre < groups.LongCount(); groupsIncre++) {
-                    group = groups[groupsIncre];
-                    foreach (StatistTotalByDateTime entry in group) {
-                        // 过滤掉非 Rectangle 的元素（比如 ProgressBoard）
-                        var rectangles = from rect in RectanglesCanvas.Children
-                                         where rect is Rectangle
-                                         select rect;
-                        foreach (Rectangle rect in rectangles) {
-                            if (rect.Name == entry.DateTime.ToShortDateString()) {
-                                rect.Fill = colorDic[level + 1];
+
+            await Windows.ApplicationModel.Core.CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(
+                priority: Windows.UI.Core.CoreDispatcherPriority.Normal,
+                agileCallback: () => {
+                    // level 作为 entries 的索引值，值越小对应的 Total 越小
+                    for (int level = 0; level < entries.Length; level++) {
+                        List<IGrouping<BigInteger, StatistTotalByDateTime>> groups = entries[level];
+                        IGrouping<BigInteger, StatistTotalByDateTime> group = null;
+                        for (int groupsIncre = 0; groupsIncre < groups.LongCount(); groupsIncre++) {
+                            group = groups[groupsIncre];
+                            foreach (StatistTotalByDateTime entry in group) {
+                                // 过滤掉非 Rectangle 的元素（比如 ProgressBoard）
+                                var rectangles = from rect in RectanglesCanvas.Children
+                                                 where rect is Rectangle
+                                                 select rect;
+                                foreach (Rectangle rect in rectangles) {
+                                    if (rect.Name == entry.DateTime.ToShortDateString()) {
+                                        rect.Fill = colorDic[level + 1];
 #if DEBUG
-                                ToolTip toolTip = new ToolTip {
-                                    Content = rect.Name + $"  Level:{level + 1}  Total:{entry.Total}  Color:{(rect.Fill as SolidColorBrush).Color}"
-                                };
-                                ToolTipService.SetToolTip(rect, toolTip);
+                                        ToolTip toolTip = new ToolTip {
+                                            Content = rect.Name + $"  Level:{level + 1}  Total:{entry.Total}  Color:{(rect.Fill as SolidColorBrush).Color}"
+                                        };
+                                        ToolTipService.SetToolTip(rect, toolTip);
 #endif
-                                _rectangleRegisteTable.Add(rect);
-                                break;
-                            }
-                            else {
-                                if (!_rectangleRegisteTable.Contains(rect)) {
-                                    rect.Fill = colorDic[0];
+                                        _rectangleRegisteTable.Add(rect);
+                                        break;
+                                    }
+                                    else {
+                                        if (!_rectangleRegisteTable.Contains(rect)) {
+                                            rect.Fill = colorDic[0];
 #if DEBUG
-                                    ToolTip toolTip = new ToolTip {
-                                        Content = rect.Name + $"  Level:0  Total:0  Color:{(rect.Fill as SolidColorBrush).Color}"
-                                    };
-                                    ToolTipService.SetToolTip(rect, toolTip);
+                                            ToolTip toolTip = new ToolTip {
+                                                Content = rect.Name + $"  Level:0  Total:0  Color:{(rect.Fill as SolidColorBrush).Color}"
+                                            };
+                                            ToolTipService.SetToolTip(rect, toolTip);
 #endif
+                                        }
+                                    }
                                 }
                             }
                         }
                     }
                 }
-            }
+            );
         }
 
         /// <summary>
@@ -389,7 +402,7 @@ namespace MasturbationRecorder {
                         throw new FilePickFaildException($"Pick a file faild! Windows.Storage.Provider.FileUpdateStatus = {status}");
                 }
             }
-            DrawRectangleColor(_model?.GroupDateTimesByTotal());
+            DrawRectangleColorAsync(_model?.GroupDateTimesByTotal(), true);
         }
 
         /// <summary>
@@ -406,7 +419,7 @@ namespace MasturbationRecorder {
             else {
                 throw new FileNotSaveException($"File {_file.Name} couldn't be saved.");
             }
-            DrawRectangleColor(_model?.GroupDateTimesByTotal());
+            DrawRectangleColorAsync(_model?.GroupDateTimesByTotal(), true);
         }
 
         /// <summary>
@@ -434,7 +447,8 @@ namespace MasturbationRecorder {
              * 这里无需再次执行 _rectangleRegisteTable = new HashSet<Rectangle>()
              */
             ResetRectangle();
-            DrawRectangleColor(_model?.GroupDateTimesByTotal());
+            DrawRectangleColorAsync(_model?.GroupDateTimesByTotal(), true);
+            Blink.BlinkedRectangles.Clear();
         }
 
         /// <summary>
@@ -451,6 +465,7 @@ namespace MasturbationRecorder {
             _model = null;
             _file = null;
             _saveMode = SaveMode.NewFile;
+            Blink.BlinkedRectangles.Clear();
             RefreshButton.Visibility = Visibility.Collapsed;
             SaveFileButton.Visibility = Visibility.Collapsed;
             ClearButton.Visibility = Visibility.Collapsed;
