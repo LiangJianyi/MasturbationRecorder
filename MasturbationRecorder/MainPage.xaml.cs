@@ -84,7 +84,7 @@ namespace MasturbationRecorder {
                         }
                     }
 #endif
-                    DrawRectangleColorAsync(res, false);
+                    DrawRectangleColor(res, false);
                 }
                 catch (ArgumentException err) {
                     PopErrorDialogAsync(err.Message);
@@ -262,7 +262,7 @@ namespace MasturbationRecorder {
         /// </summary>
         /// <param name="entries">分级后条目列表</param>
         /// <param name="haveProgressBoard">是否开启进度条面板，true 为开启，反之不开启</param>
-        private async void DrawRectangleColorAsync(List<IGrouping<BigInteger, StatistTotalByDateTime>>[] entries, bool haveProgressBoard) {
+        private void DrawRectangleColor(List<IGrouping<BigInteger, StatistTotalByDateTime>>[] entries, bool haveProgressBoard) {
 #if DEBUG
             Debug.WriteLine($"Executing DrawRectangleColor:");
 #endif
@@ -271,11 +271,13 @@ namespace MasturbationRecorder {
             }
             IDictionary<int, SolidColorBrush> colorDic = MainPageViewModel.ClassifyColorByLevelScore(entries.Length);
 
-            await Windows.ApplicationModel.Core.CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(
-                priority: Windows.UI.Core.CoreDispatcherPriority.Normal,
-                agileCallback: () => {
-                    // level 作为 entries 的索引值，值越小对应的 Total 越小
-                    for (int level = 0; level < entries.Length; level++) {
+            Windows.Foundation.IAsyncAction action = Windows.System.Threading.ThreadPool.RunAsync(
+                async (asyncAction) => {
+                    await Windows.ApplicationModel.Core.CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(
+                    priority: Windows.UI.Core.CoreDispatcherPriority.Normal,
+                    agileCallback: () => {
+                        // level 作为 entries 的索引值，值越小对应的 Total 越小
+                        for (int level = 0; level < entries.Length; level++) {
                         List<IGrouping<BigInteger, StatistTotalByDateTime>> groups = entries[level];
                         IGrouping<BigInteger, StatistTotalByDateTime> group = null;
                         for (int groupsIncre = 0; groupsIncre < groups.LongCount(); groupsIncre++) {
@@ -312,8 +314,9 @@ namespace MasturbationRecorder {
                             }
                         }
                     }
-                }
-            );
+                    });
+                });
+
         }
 
         /// <summary>
@@ -402,7 +405,7 @@ namespace MasturbationRecorder {
                         throw new FilePickFaildException($"Pick a file faild! Windows.Storage.Provider.FileUpdateStatus = {status}");
                 }
             }
-            DrawRectangleColorAsync(_model?.GroupDateTimesByTotal(), true);
+            DrawRectangleColor(_model?.GroupDateTimesByTotal(), true);
         }
 
         /// <summary>
@@ -419,7 +422,7 @@ namespace MasturbationRecorder {
             else {
                 throw new FileNotSaveException($"File {_file.Name} couldn't be saved.");
             }
-            DrawRectangleColorAsync(_model?.GroupDateTimesByTotal(), true);
+            DrawRectangleColor(_model?.GroupDateTimesByTotal(), true);
         }
 
         /// <summary>
@@ -447,7 +450,7 @@ namespace MasturbationRecorder {
              * 这里无需再次执行 _rectangleRegisteTable = new HashSet<Rectangle>()
              */
             ResetRectangle();
-            DrawRectangleColorAsync(_model?.GroupDateTimesByTotal(), true);
+            DrawRectangleColor(_model?.GroupDateTimesByTotal(), true);
             Blink.BlinkedRectangles.Clear();
         }
 
