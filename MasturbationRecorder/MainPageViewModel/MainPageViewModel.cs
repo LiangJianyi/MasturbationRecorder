@@ -85,6 +85,20 @@ namespace MasturbationRecorder {
                                                  where g.Key == minTopGroupKey
                                                  select g).First();
 
+            var leftTaggingRectangles = from rect in res1
+                                        where DatetimeParser.ParseExpressToDateTime((rect as Rectangle).Name, DateMode.DateWithSlash).DayOfWeek == System.DayOfWeek.Monday ||
+                                              DatetimeParser.ParseExpressToDateTime((rect as Rectangle).Name, DateMode.DateWithSlash).DayOfWeek == System.DayOfWeek.Wednesday ||
+                                              DatetimeParser.ParseExpressToDateTime((rect as Rectangle).Name, DateMode.DateWithSlash).DayOfWeek == System.DayOfWeek.Friday
+                                        select rect;
+            foreach (var rect in leftTaggingRectangles) {
+                var tbx = new TextBlock() {
+                    Text = "Mon",
+                    FontSize = 6,
+                    Foreground = new SolidColorBrush(Windows.UI.Colors.Gray)
+                };
+                Canvas.SetLeft(tbx, Canvas.GetLeft(rect) - 10);
+                Canvas.SetTop(tbx, Canvas.GetTop(rect));
+            }
         }
     }
 }

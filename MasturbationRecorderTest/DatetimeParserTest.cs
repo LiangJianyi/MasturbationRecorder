@@ -182,7 +182,7 @@ namespace MasturbationRecorderTest {
             };
             int index = 0;
             foreach (var item in exceptedStatistTotalByDateTimes) {
-                Assert.IsTrue(item.Equivalent(DatetimeParser.ParseExpr(CommonTestResource.TestTextLine[index])));
+                Assert.IsTrue(item.Equivalent(DatetimeParser.ParseExpressToStatistTotalByDateTime(CommonTestResource.TestTextLine[index])));
                 index += 1;
             }
         }

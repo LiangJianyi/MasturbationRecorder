@@ -85,7 +85,7 @@ namespace MasturbationRecorder {
             this._entries = new LinkedList<StatistTotalByDateTime>();
             foreach (var line in lines) {
                 if (line != "" && line != "\r") {   // 忽略空行
-                    StatistTotalByDateTime statist = DatetimeParser.ParseExpr(line);
+                    StatistTotalByDateTime statist = DatetimeParser.ParseExpressToStatistTotalByDateTime(line);
                     this._entries.AddLast(statist);
                 }
             }
@@ -99,7 +99,7 @@ namespace MasturbationRecorder {
             this._entries = new LinkedList<StatistTotalByDateTime>();
             foreach (var line in lines) {
                 if (line != "" && line != "\r") {   // 忽略空行
-                    StatistTotalByDateTime statist = DatetimeParser.ParseExpr(line, dateMode);
+                    StatistTotalByDateTime statist = DatetimeParser.ParseExpressToStatistTotalByDateTime(line, dateMode);
                     this._entries.AddLast(statist);
                 }
             }
@@ -114,7 +114,7 @@ namespace MasturbationRecorder {
             this._entries = new LinkedList<StatistTotalByDateTime>();
             foreach (var line in lines) {
                 if (line != "" && line != "\r") {   // 忽略空行
-                    StatistTotalByDateTime statist = DatetimeParser.ParseExpr(line, dateMode);
+                    StatistTotalByDateTime statist = DatetimeParser.ParseExpressToStatistTotalByDateTime(line, dateMode);
                     statist.Total = total;
                     this._entries.AddLast(statist);
                 }
@@ -202,7 +202,7 @@ namespace MasturbationRecorder {
             }
         }
         public void AddEntry(string rectName) {
-            this.AddEntry(DatetimeParser.ParseExpr(rectName, DateMode.DateWithSlash));
+            this.AddEntry(DatetimeParser.ParseExpressToStatistTotalByDateTime(rectName, DateMode.DateWithSlash));
         }
         public void AddEntry(StatistTotalByDateTime statistTotalByDateTime) {
             this._entries.AddLast(statistTotalByDateTime);

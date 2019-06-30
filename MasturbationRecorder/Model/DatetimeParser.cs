@@ -92,9 +92,10 @@ namespace MasturbationRecorder {
         /// <summary>
         /// 把每行表达式转换为 StatistTotalByDateTime
         /// </summary>
-        /// <param name="expr"></param>
+        /// <param name="expr">接收一个字符串表达式，格式为“mm dd yyyy x{Total}”或“mm/dd/yyyy”</param>
+        /// <param name="dateMode">字符串切割模式</param>
         /// <returns></returns>
-        internal static StatistTotalByDateTime ParseExpr(string expr, DateMode dateMode = DateMode.DateWithWhiteSpace) {
+        internal static StatistTotalByDateTime ParseExpressToStatistTotalByDateTime(string expr, DateMode dateMode = DateMode.DateWithWhiteSpace) {
             string[] tokens = null;
             switch (dateMode) {
                 case DateMode.DateWithWhiteSpace:
@@ -118,6 +119,35 @@ namespace MasturbationRecorder {
                 ushort yearValue = Convert.ToUInt16(tokens[2]);
                 BigInteger count = GetFrequency(tokens[3]);
                 return new StatistTotalByDateTime() { DateTime = new DateTime(yearValue, monthValue, dayValue), Total = count };
+            }
+            else {
+                throw new ArgumentOutOfRangeException($"Date time format error: {tokens}");
+            }
+        }
+
+        /// <summary>
+        /// 把每行表达式转换为 DateTime
+        /// </summary>
+        /// <param name="expr">接收一个字符串表达式，格式为“mm/dd/yyyy”</param>
+        /// <param name="dateMode"></param>
+        /// <returns></returns>
+        internal static DateTime ParseExpressToDateTime(string expr, DateMode dateMode = DateMode.DateWithWhiteSpace) {
+            string[] tokens = null;
+            switch (dateMode) {
+                case DateMode.DateWithWhiteSpace:
+                    tokens = GetToken(expr, ' ');
+                    break;
+                case DateMode.DateWithSlash:
+                    tokens = GetToken(expr, '/');
+                    break;
+                default:
+                    break;
+            }
+            if (tokens.Length == 3) {
+                ushort monthValue = StringToUInt16(tokens[0]);
+                ushort dayValue = Convert.ToUInt16(tokens[1]);
+                ushort yearValue = Convert.ToUInt16(tokens[2]);
+                return new DateTime(yearValue, monthValue, dayValue);
             }
             else {
                 throw new ArgumentOutOfRangeException($"Date time format error: {tokens}");
