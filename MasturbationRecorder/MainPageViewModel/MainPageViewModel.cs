@@ -1,5 +1,9 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
+using Windows.UI.Xaml;
+using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Media;
+using Windows.UI.Xaml.Shapes;
 
 namespace MasturbationRecorder {
     /// <summary>
@@ -57,6 +61,30 @@ namespace MasturbationRecorder {
                 default:
                     throw new System.ArgumentOutOfRangeException($"levelRange out of range: {groups}");
             }
+        }
+
+        /// <summary>
+        /// 给相应的 Rectangle 标记上日期和星期数
+        /// </summary>
+        /// <param name="canvas"></param>
+        public static void DateTag(Canvas canvas) {
+            /*
+             * 下面的查询语句用来提取画布中最左侧的一列方块(res1)和最上侧的一行方块(res2)，
+             * 然后将这些方块标记上星期数和月份
+             */
+            IEnumerable<IGrouping<double, UIElement>> leftGroup = from rect in canvas.Children
+                                                                  group rect by Canvas.GetLeft(rect);
+            IEnumerable<IGrouping<double, UIElement>> topGroup = from rect in canvas.Children
+                                                                 group rect by Canvas.GetTop(rect);
+            double minLeftGroupKey = leftGroup.Min(group => group.Key);
+            double minTopGroupKey = topGroup.Min(group => group.Key);
+            IGrouping<double, UIElement> res1 = (from g in leftGroup
+                                                 where g.Key == minLeftGroupKey
+                                                 select g).First();
+            IGrouping<double, UIElement> res2 = (from g in topGroup
+                                                 where g.Key == minTopGroupKey
+                                                 select g).First();
+
         }
     }
 }
