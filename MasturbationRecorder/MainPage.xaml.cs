@@ -431,6 +431,7 @@ namespace MasturbationRecorder {
             Menu.Width = this.Window.Bounds.Width;
             RootGrid.Width = this.Window.Bounds.Width;
             RootGrid.Height = this.Window.Bounds.Height - ((double)RootCanvas.Resources["CanvasTopForRootGrid"]);
+            MainPageViewModel.DateTag(RectanglesCanvas);
         }
 
         /// <summary>
