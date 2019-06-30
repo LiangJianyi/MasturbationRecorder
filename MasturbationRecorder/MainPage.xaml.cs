@@ -172,7 +172,7 @@ namespace MasturbationRecorder {
         private void RectanglesLayout() {
             DateTime today = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day);
             DateTime todayOfLastyear = new DateTime(today.Year - 1, today.Month, today.Day);
-            TimeSpan fuck = today - todayOfLastyear;
+            TimeSpan pastDay = today - todayOfLastyear;
             const int rectWidth = 10;
             const int rectHeight = 10;
             const int columnDistance = 3;
@@ -182,9 +182,9 @@ namespace MasturbationRecorder {
             const int leftSpace = 80;
             const int topSpace = 37;
             const int rightSpace = leftSpace;
-            int rectCount = fuck.Days;
-            int totalWeek = fuck.Days / 7;
-            int remainDaysOfYear = fuck.Days % 7;
+            int rectCount = pastDay.Days;
+            int totalWeek = pastDay.Days / 7;
+            int remainDaysOfYear = pastDay.Days % 7;
             if (remainDaysOfYear == 0) {
                 this.RectanglesCanvas.Width = (totalWeek - 1) * columnDistance + leftSpace + rightSpace + totalWeek * rectWidth;
             }
