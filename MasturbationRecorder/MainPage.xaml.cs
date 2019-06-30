@@ -184,13 +184,7 @@ namespace MasturbationRecorder {
             const int rightSpace = leftSpace;
             int rectCount = pastDay.Days;
             int totalWeek = pastDay.Days / 7;
-            int remainDaysOfYear = pastDay.Days % 7;
-            if (remainDaysOfYear == 0) {
-                this.RectanglesCanvas.Width = (totalWeek - 1) * columnDistance + leftSpace + rightSpace + totalWeek * rectWidth;
-            }
-            else {
-                this.RectanglesCanvas.Width = totalWeek * columnDistance + leftSpace + rightSpace + totalWeek * rectWidth + rectWidth;
-            }
+            this.RectanglesCanvas.Width = totalWeek * columnDistance + leftSpace + rightSpace + totalWeek * rectWidth + rectWidth;
             this.RectanglesCanvas.Height = rowDistance * 6 + bottomSpace + monthTitleSpace + 7 * rectHeight;
             DateTime dateOfEachRectangle = today;
             for (int column = totalWeek; column >= 0; column--) {
