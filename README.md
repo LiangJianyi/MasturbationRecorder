@@ -104,6 +104,12 @@ Oct 5 2018
 
 DrawRectangleColor 方法的着色原理很简单，传递List<IGrouping<BigInteger, StatistTotalByDateTime>>[]的长度给ClassifyColorByLevelScore方法获得色阶字典，类型为IDictionary<int, SolidColorBrush>，然后根据每个条目所在的索引分配指定颜色。
 
+方块有4种状态：
++ 方块对应的日期没有事件发生且用户没有点击它进行修改，用灰色表示：
++ 方块对应的日期有事件发生且用户没有点击它进行修改，根据事件发生的频率高低用五种颜色表示：
++ 方块对应的日期没有事件发生且用户点击它进行修改，闪烁为红色：![story1](https://github.com/LiangJianyi/liangjianyi.github.io/blob/master/image/story1.gif)
++ 方块对应的日期有事件发生且用户点击它进行修改，闪烁为红色： ![story2](https://github.com/LiangJianyi/liangjianyi.github.io/blob/master/image/story2.gif) ![story3](https://github.com/LiangJianyi/liangjianyi.github.io/blob/master/image/story3.gif)
+
   
 注意：整个项目使用整数的地方几乎都采用 BigInteger，这是为了对付几亿数据量设计的，用来做极限测试。
 
