@@ -85,19 +85,23 @@ namespace MasturbationRecorder {
                                                  where g.Key == minTopGroupKey
                                                  select g).First();
 
+            /*
+             * 给周一、周三、周五的方块打上标记 Mon、Wed、Fri
+             */
             var leftTaggingRectangles = from rect in res1
                                         where DatetimeParser.ParseExpressToDateTime((rect as Rectangle).Name, DateMode.DateWithSlash).DayOfWeek == System.DayOfWeek.Monday ||
                                               DatetimeParser.ParseExpressToDateTime((rect as Rectangle).Name, DateMode.DateWithSlash).DayOfWeek == System.DayOfWeek.Wednesday ||
                                               DatetimeParser.ParseExpressToDateTime((rect as Rectangle).Name, DateMode.DateWithSlash).DayOfWeek == System.DayOfWeek.Friday
                                         select rect;
-            foreach (var rect in leftTaggingRectangles) {
+            foreach (Rectangle rect in leftTaggingRectangles) {
                 var tbx = new TextBlock() {
-                    Text = "Mon",
-                    FontSize = 6,
+                    Text = DatetimeParser.ParseExpressToDateTime((rect as Rectangle).Name, DateMode.DateWithSlash).DayOfWeek.ToString().Substring(0, 3),
+                    FontSize = 10,
                     Foreground = new SolidColorBrush(Windows.UI.Colors.Gray)
                 };
-                Canvas.SetLeft(tbx, Canvas.GetLeft(rect) - 10);
+                Canvas.SetLeft(tbx, Canvas.GetLeft(rect) - 30);
                 Canvas.SetTop(tbx, Canvas.GetTop(rect));
+                canvas.Children.Add(tbx);
             }
         }
     }
