@@ -88,20 +88,19 @@ namespace MasturbationRecorder {
             /*
              * 给周一、周三、周五的方块打上标记 Mon、Wed、Fri
              */
-            var leftTaggingRectangles = from rect in res1
-                                        where DatetimeParser.ParseExpressToDateTime((rect as Rectangle).Name, DateMode.DateWithSlash).DayOfWeek == System.DayOfWeek.Monday ||
-                                              DatetimeParser.ParseExpressToDateTime((rect as Rectangle).Name, DateMode.DateWithSlash).DayOfWeek == System.DayOfWeek.Wednesday ||
-                                              DatetimeParser.ParseExpressToDateTime((rect as Rectangle).Name, DateMode.DateWithSlash).DayOfWeek == System.DayOfWeek.Friday
-                                        select rect;
-            foreach (Rectangle rect in leftTaggingRectangles) {
-                var tbx = new TextBlock() {
-                    Text = DatetimeParser.ParseExpressToDateTime((rect as Rectangle).Name, DateMode.DateWithSlash).DayOfWeek.ToString().Substring(0, 3),
-                    FontSize = 10,
-                    Foreground = new SolidColorBrush(Windows.UI.Colors.Gray)
-                };
-                Canvas.SetLeft(tbx, Canvas.GetLeft(rect) - 30);
-                Canvas.SetTop(tbx, Canvas.GetTop(rect));
-                canvas.Children.Add(tbx);
+            foreach (Rectangle rect in res1) {
+                if (DatetimeParser.ParseExpressToDateTime((rect as Rectangle).Name, DateMode.DateWithSlash).DayOfWeek == System.DayOfWeek.Monday ||
+                    DatetimeParser.ParseExpressToDateTime((rect as Rectangle).Name, DateMode.DateWithSlash).DayOfWeek == System.DayOfWeek.Wednesday ||
+                    DatetimeParser.ParseExpressToDateTime((rect as Rectangle).Name, DateMode.DateWithSlash).DayOfWeek == System.DayOfWeek.Friday) {
+                    var tbx = new TextBlock() {
+                        Text = DatetimeParser.ParseExpressToDateTime((rect as Rectangle).Name, DateMode.DateWithSlash).DayOfWeek.ToString().Substring(0, 3),
+                        FontSize = 10,
+                        Foreground = new SolidColorBrush(Windows.UI.Colors.Gray)
+                    };
+                    Canvas.SetLeft(tbx, Canvas.GetLeft(rect) - 30);
+                    Canvas.SetTop(tbx, Canvas.GetTop(rect));
+                    canvas.Children.Add(tbx);
+                }
             }
         }
     }
