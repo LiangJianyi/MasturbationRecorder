@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
@@ -89,9 +90,9 @@ namespace MasturbationRecorder {
              * 给周一、周三、周五的方块打上标记 Mon、Wed、Fri
              */
             foreach (Rectangle rect in res1) {
-                if (DatetimeParser.ParseExpressToDateTime((rect as Rectangle).Name, DateMode.DateWithSlash).DayOfWeek == System.DayOfWeek.Monday ||
-                    DatetimeParser.ParseExpressToDateTime((rect as Rectangle).Name, DateMode.DateWithSlash).DayOfWeek == System.DayOfWeek.Wednesday ||
-                    DatetimeParser.ParseExpressToDateTime((rect as Rectangle).Name, DateMode.DateWithSlash).DayOfWeek == System.DayOfWeek.Friday) {
+                if (DatetimeParser.ParseExpressToDateTime((rect as Rectangle).Name, DateMode.DateWithSlash).DayOfWeek == DayOfWeek.Monday ||
+                    DatetimeParser.ParseExpressToDateTime((rect as Rectangle).Name, DateMode.DateWithSlash).DayOfWeek == DayOfWeek.Wednesday ||
+                    DatetimeParser.ParseExpressToDateTime((rect as Rectangle).Name, DateMode.DateWithSlash).DayOfWeek == DayOfWeek.Friday) {
                     var tbx = new TextBlock() {
                         Text = DatetimeParser.ParseExpressToDateTime((rect as Rectangle).Name, DateMode.DateWithSlash).DayOfWeek.ToString().Substring(0, 3),
                         FontSize = 10,
@@ -101,6 +102,34 @@ namespace MasturbationRecorder {
                     Canvas.SetTop(tbx, Canvas.GetTop(rect));
                     canvas.Children.Add(tbx);
                 }
+            }
+
+            /*
+             * 给每个月份开头的方块打上标记，从 Jan 到 Dec
+             */
+            Rectangle previous = null;
+            foreach (Rectangle rect in res2.Reverse()) {
+                void setTopTag(string text) {
+                    var tbx = new TextBlock() {
+                        Text = text,
+                        FontSize = 10,
+                        Foreground = new SolidColorBrush(Windows.UI.Colors.Gray)
+                    };
+                    Canvas.SetLeft(tbx, Canvas.GetLeft(rect));
+                    Canvas.SetTop(tbx, Canvas.GetTop(rect) - 15);
+                    canvas.Children.Add(tbx);
+                }
+                if (previous == null) {
+                    setTopTag(DatetimeParser.NumberToMonth(DatetimeParser.ParseExpressToDateTime(rect.Name, DateMode.DateWithSlash).Month));
+                }
+                else {
+                    int monthOfPreviousRectangle = DatetimeParser.ParseExpressToDateTime(previous.Name, DateMode.DateWithSlash).Month;
+                    int monthOfCurrentRectangle = DatetimeParser.ParseExpressToDateTime(rect.Name, DateMode.DateWithSlash).Month;
+                    if (monthOfCurrentRectangle != monthOfPreviousRectangle) {
+                        setTopTag(DatetimeParser.NumberToMonth(DatetimeParser.ParseExpressToDateTime(rect.Name, DateMode.DateWithSlash).Month));
+                    }
+                }
+                previous = rect;
             }
         }
     }
