@@ -13,15 +13,34 @@ using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
 
-// The Blank Page item template is documented at https://go.microsoft.com/fwlink/?LinkId=234238
-
 namespace MasturbationRecorder {
-    /// <summary>
-    /// An empty page that can be used on its own or navigated to within a Frame.
-    /// </summary>
     public sealed partial class GuidancePage : Page {
         public GuidancePage() {
             this.InitializeComponent();
+        }
+
+        private void Login_Click(object sender, RoutedEventArgs e) {
+            if (string.IsNullOrEmpty(AccountTextBox.Text) ||
+                string.IsNullOrEmpty(PasswordBox.Password)) {
+                PopErrorDialogAsync("账户和密码不能为空");
+            }
+            else if (string.IsNullOrWhiteSpace(AccountTextBox.Text) ||
+                     string.IsNullOrWhiteSpace(PasswordBox.Password)) {
+                PopErrorDialogAsync("账户和密码不能包含空格");
+            }
+            else {
+                Frame rootFrame = Window.Current.Content as Frame;
+                rootFrame.Navigate(typeof(MainPage));
+            }
+        }
+
+        private static async void PopErrorDialogAsync(string content) {
+            ContentDialog fileOpenFailDialog = new ContentDialog {
+                Title = "Error",
+                Content = content,
+                CloseButtonText = "Ok"
+            };
+            ContentDialogResult result = await fileOpenFailDialog.ShowAsync();
         }
     }
 }

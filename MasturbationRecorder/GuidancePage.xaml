@@ -11,15 +11,15 @@
     <Grid>
         <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
             <StackPanel Orientation="Horizontal" Margin="0,0,0,20">
-                <TextBox Header="用户名："/>
+                <TextBox x:Name="AccountTextBox" Header="用户名："/>
             </StackPanel>
             <StackPanel Orientation="Horizontal" Margin="0,0,0,20">
-                <PasswordBox Header="密码："/>
+                <PasswordBox x:Name="PasswordBox" Header="密码："/>
             </StackPanel>
             <StackPanel Orientation="Horizontal" Margin="0,0,0,20">
                 <TextBox Header="输入标题（可选）：" PlaceholderText="你今天写代码了吗？"/>
             </StackPanel>
-            <Button Content="登录"/>
+            <Button Content="登录" Click="Login_Click"/>
         </StackPanel>
     </Grid>
 </Page>
