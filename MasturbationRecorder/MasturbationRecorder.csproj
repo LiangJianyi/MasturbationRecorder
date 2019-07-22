@@ -119,6 +119,9 @@
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
+    <Compile Include="GuidancePage.xaml.cs">
+      <DependentUpon>GuidancePage.xaml</DependentUpon>
+    </Compile>
     <Compile Include="MainPageViewModel\Blink.cs" />
     <Compile Include="MainPageViewModel\Bubble.cs" />
     <Compile Include="MainPageViewModel\MainPageException.cs" />
@@ -152,6 +155,10 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Page Include="GuidancePage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="MainPage.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
