@@ -8,8 +8,8 @@
     mc:Ignorable="d"
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
-    <Grid>
-        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+    <Grid Loaded="Grid_Loaded">
+        <StackPanel x:Name="LoginFormPanel" HorizontalAlignment="Center" VerticalAlignment="Center">
             <StackPanel Orientation="Horizontal" Margin="0,0,0,20">
                 <TextBox x:Name="AccountTextBox" Header="用户名："/>
             </StackPanel>
@@ -17,7 +17,7 @@
                 <PasswordBox x:Name="PasswordBox" Header="密码："/>
             </StackPanel>
             <StackPanel Orientation="Horizontal" Margin="0,0,0,20">
-                <TextBox Header="输入标题（可选）：" PlaceholderText="你今天写代码了吗？"/>
+                <TextBox x:Name="TitleBox" Header="输入标题（可选）：" PlaceholderText="你今天写代码了吗？"/>
             </StackPanel>
             <Button Content="登录" Click="Login_Click"/>
         </StackPanel>

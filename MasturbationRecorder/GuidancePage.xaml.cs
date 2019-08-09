@@ -14,6 +14,8 @@ using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
 
 namespace MasturbationRecorder {
+    using Debug = System.Diagnostics.Debug;
+
     public sealed partial class GuidancePage : Page {
         public GuidancePage() {
             this.InitializeComponent();
@@ -41,6 +43,11 @@ namespace MasturbationRecorder {
                 CloseButtonText = "Ok"
             };
             ContentDialogResult result = await fileOpenFailDialog.ShowAsync();
+        }
+
+        private void Grid_Loaded(object sender, RoutedEventArgs e) {
+            AccountTextBox.Width = TitleBox.ActualWidth;
+            PasswordBox.Width = TitleBox.ActualWidth;
         }
     }
 }
