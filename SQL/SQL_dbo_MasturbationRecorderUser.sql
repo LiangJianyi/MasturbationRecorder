@@ -12,11 +12,14 @@ ELSE
 BEGIN
 	IF (NOT EXISTS(SELECT UserName FROM dbo.MasturbationRecorderUser))
 	BEGIN
-		insert into dbo.MasturbationRecorderUser (UserName,Password) 
+		INSERT INTO dbo.MasturbationRecorderUser (UserName,Password) 
 		VALUES('Janyee Liang', 'ddbc4578'),
 		      ('Phoebe Kilminster', 'phoebe001234'),
 		      ('Reina Stamm', 'edc54gbyuio'),
 		      ('Lsm', '1234567890AXC'),
 		      ('Han Solo', 'Wow!!Shit007')
+
+		INSERT INTO dbo.MasturbationRecorderUser (UserName,Password,PersonData)
+		VALUES('Sherlock Holemes','sH..TheGameIsOn!',(SELECT BulkColumn FROM Openrowset( Bulk 'C:\Users\a124p\Pictures\Status.png', Single_Blob) as img))
 	END
 END
