@@ -1,0 +1,10 @@
+﻿IF (NOT EXISTS(SELECT TABLE_SCHEMA, TABLE_NAME FROM INFORMATION_SCHEMA.TABLES 
+				WHERE TABLE_SCHEMA = 'dbo' AND TABLE_NAME = 'MasturbationRecorderUser'))
+BEGIN
+CREATE TABLE dbo.MasturbationRecorderUser(
+	UserId INT PRIMARY KEY IDENTITY(0,1),
+	UserName NCHAR(128) CHECK(LEN(UserName) > 0) UNIQUE NOT NULL,
+	Password CHAR(256) CHECK(LEN(Password) >= 8) NOT NULL,
+	PersonData image
+)
+END
