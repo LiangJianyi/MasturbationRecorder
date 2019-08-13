@@ -19,6 +19,9 @@ BEGIN
 		      ('Lsm', '1234567890AXC'),
 		      ('Han Solo', 'Wow!!Shit007')
 
+		--参见：
+		-- https://stackoverflow.com/questions/15659835/how-to-store-image-in-sql-server-database-tables-column
+		-- https://docs.microsoft.com/en-us/sql/t-sql/functions/openrowset-transact-sql?view=sql-server-2017#remarks
 		INSERT INTO dbo.MasturbationRecorderUser (UserName,Password,PersonData)
 		VALUES('Sherlock Holemes','sH..TheGameIsOn!',(SELECT BulkColumn FROM Openrowset( Bulk 'C:\Users\a124p\Pictures\Status.png', Single_Blob) as img))
 	END
