@@ -3,10 +3,20 @@
 BEGIN
 	CREATE TABLE dbo.MasturbationRecorderUser(
 		UserId INT PRIMARY KEY IDENTITY(0,1),
-		UserName NCHAR(128) CHECK(LEN(UserName) > 0) UNIQUE NOT NULL,
-		Password CHAR(256) CHECK(LEN(Password) >= 8) NOT NULL,
+		UserName NCHAR(128) NOT NULL,
+		Password CHAR(256) NOT NULL,
 		PersonData image
 	)
+
+	ALTER TABLE dbo.MasturbationRecorderUser   
+	ADD CONSTRAINT UQ_MasturbationRecorder_UserName UNIQUE(UserName)
+
+	ALTER TABLE dbo.MasturbationRecorderUser
+	ADD CONSTRAINT CK_MasturbationRecorder_UserName CHECK(LEN(UserName) > 0)
+
+	ALTER TABLE dbo.MasturbationRecorderUser
+	ADD CONSTRAINT CK_MasturbationRecorder_Password CHECK(LEN(Password) >= 8)
+
 END
 ELSE
 BEGIN
