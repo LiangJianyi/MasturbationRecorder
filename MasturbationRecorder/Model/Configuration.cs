@@ -59,8 +59,8 @@ namespace MasturbationRecorder {
         public override string ToString() {
             return $"Title: {this.Title}\n" +
                    $"Theme: {this.Theme}\n" +
-                   $"Avatar path: {this.Avatar.Name}\n" +
-                   $"Record path: {this.RecordFile.Name}";
+                   $"Avatar file name: {this.Avatar?.Name}\n" +
+                   $"Record file name: {this.RecordFile?.Name}";
         }
     }
 }

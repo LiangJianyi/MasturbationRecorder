@@ -34,9 +34,10 @@ namespace MasturbationRecorder {
                 PopErrorDialogAsync("账户和密码不能包含空格");
             }
             else {
-                if (await AzureSqlDbHelper.LoginAsync(new Configuration(AccountTextBox.Text, PasswordBox.Password))) {
+                Configuration configuration = new Configuration(AccountTextBox.Text, PasswordBox.Password, TitleBox.Text);
+                if (await AzureSqlDbHelper.LoginAsync(configuration)) {
                     Frame rootFrame = Window.Current.Content as Frame;
-                    rootFrame.Navigate(typeof(MainPage)); 
+                    rootFrame.Navigate(typeof(MainPage), configuration);
                 }
                 else {
                     PopErrorDialogAsync("账号或密码错误");

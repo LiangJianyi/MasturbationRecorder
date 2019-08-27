@@ -11,6 +11,7 @@ using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Shapes;
 
 namespace MasturbationRecorder {
+    using Windows.UI.Xaml.Navigation;
     using Debug = System.Diagnostics.Debug;
 
     enum SaveMode {
@@ -471,6 +472,21 @@ namespace MasturbationRecorder {
             RefreshButton.Visibility = Visibility.Collapsed;
             SaveFileButton.Visibility = Visibility.Collapsed;
             ClearButton.Visibility = Visibility.Collapsed;
+        }
+
+        /// <summary>
+        /// 导航到MainPage页面时会触发该方法
+        /// </summary>
+        /// <param name="e">从 Source Page 传递过来的参数</param>
+        protected override void OnNavigatedTo(NavigationEventArgs e) {
+            Configuration res = e.Parameter as Configuration;
+            if (string.IsNullOrEmpty(res.Title)) {
+                TitleTextBlock.Visibility = Visibility.Collapsed;
+            }
+            else {
+                TitleTextBlock.Text = res.Title;
+            }
+            base.OnNavigatedTo(e);
         }
     }
 }
