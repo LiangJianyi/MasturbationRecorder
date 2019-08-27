@@ -8,7 +8,13 @@
     mc:Ignorable="d"
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
-    <Grid Loaded="Grid_Loaded">
+    <Grid Loaded="Grid_Loaded" FocusVisualPrimaryBrush="#FF548489" FocusVisualSecondaryBrush="#9948D4D4">
+        <Grid.Background>
+            <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+                <GradientStop Color="#9948D4D4"/>
+                <GradientStop Color="#FFCF4BE4" Offset="1"/>
+            </LinearGradientBrush>
+        </Grid.Background>
         <StackPanel x:Name="LoginFormPanel" HorizontalAlignment="Center" VerticalAlignment="Center">
             <StackPanel Orientation="Horizontal" Margin="0,0,0,20">
                 <TextBox x:Name="AccountTextBox" Header="用户名："/>
