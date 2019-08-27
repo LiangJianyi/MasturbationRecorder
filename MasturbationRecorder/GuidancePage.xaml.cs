@@ -13,13 +13,12 @@ using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
+using MasturbationRecorder.SqlDbHelper;
 
 namespace MasturbationRecorder {
     using Debug = System.Diagnostics.Debug;
 
     public sealed partial class GuidancePage : Page {
-        private const string CONNECT_STRING = "Data Source=(localdb)\\ProjectsV13;Initial Catalog=\"Janyee Database\";Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=False;ApplicationIntent=ReadWrite;MultiSubnetFailover=False";
-
         public GuidancePage() {
             this.InitializeComponent();
         }
@@ -34,9 +33,13 @@ namespace MasturbationRecorder {
                 PopErrorDialogAsync("账户和密码不能包含空格");
             }
             else {
-                CommitUserNameAndPassword(CONNECT_STRING, AccountTextBox.Text, PasswordBox.Password);
-                Frame rootFrame = Window.Current.Content as Frame;
-                rootFrame.Navigate(typeof(MainPage));
+                if (AzureSqlDbHelper.Login(new Configuration(AccountTextBox.Text, PasswordBox.Password))) {
+                    Frame rootFrame = Window.Current.Content as Frame;
+                    rootFrame.Navigate(typeof(MainPage)); 
+                }
+                else {
+                    PopErrorDialogAsync("账号或密码错误");
+                }
             }
         }
 
