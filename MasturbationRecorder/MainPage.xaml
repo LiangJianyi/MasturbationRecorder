@@ -11,6 +11,7 @@
     <Canvas Name="RootCanvas" Loaded="RootCanvas_Loaded">
         <Canvas.Resources>
             <x:Double x:Key="CanvasTopForRootGrid">100.0</x:Double>
+            <x:String x:Key="DemoAvatar">https://previews.123rf.com/images/urfandadashov/urfandadashov1809/urfandadashov180900496/109085218-demo-vector-icon-isolated-on-transparent-background-demo-logo-concept.jpg</x:String>
         </Canvas.Resources>
         <CommandBar Name="Menu" Width="800">
             <AppBarButton x:Name="RefreshButton" Icon="Refresh" Label="Refresh" Click="Refresh_Click"/>
@@ -18,6 +19,7 @@
             <AppBarButton x:Name="OpenFileButton" Icon="OpenFile" Label="Pick record" Click="OpenFileButtonAsync_Click"/>
             <AppBarButton x:Name="SaveFileButton" Icon="Save" Label="Save" Click="SaveFileButtonAsync_Click"/>
         </CommandBar>
+        <Image x:Name="Avatar" Width="80" Height="80" Source="/Assets/avatar_icon.png"/>
         <Grid Name="RootGrid" Width="800" Height="600" Canvas.Top="100">
             <TextBlock x:Name="TitleTextBlock" Text="今天你打飞机了吗？" FontSize="55" HorizontalAlignment="Center" Margin="0,100,0,0"/>
             <Border x:Name="OutermostBorder" BorderBrush="LightGray" BorderThickness="2" HorizontalAlignment="Center" VerticalAlignment="Center">

@@ -14,6 +14,7 @@ using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
 using MasturbationRecorder.SqlDbHelper;
+using System.Threading.Tasks;
 
 namespace MasturbationRecorder {
     using Debug = System.Diagnostics.Debug;
@@ -23,7 +24,7 @@ namespace MasturbationRecorder {
             this.InitializeComponent();
         }
 
-        private void Login_Click(object sender, RoutedEventArgs e) {
+        private async void Login_ClickAsync(object sender, RoutedEventArgs e) {
             if (string.IsNullOrEmpty(AccountTextBox.Text) ||
                 string.IsNullOrEmpty(PasswordBox.Password)) {
                 PopErrorDialogAsync("账户和密码不能为空");
@@ -33,7 +34,7 @@ namespace MasturbationRecorder {
                 PopErrorDialogAsync("账户和密码不能包含空格");
             }
             else {
-                if (AzureSqlDbHelper.Login(new Configuration(AccountTextBox.Text, PasswordBox.Password))) {
+                if (await AzureSqlDbHelper.LoginAsync(new Configuration(AccountTextBox.Text, PasswordBox.Password))) {
                     Frame rootFrame = Window.Current.Content as Frame;
                     rootFrame.Navigate(typeof(MainPage)); 
                 }

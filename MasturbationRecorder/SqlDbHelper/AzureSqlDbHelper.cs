@@ -5,6 +5,7 @@ using System.Text;
 using System.Data.SqlClient;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Data;
+using System.Threading.Tasks;
 
 namespace MasturbationRecorder.SqlDbHelper {
     using Debug = System.Diagnostics.Debug;
@@ -26,7 +27,7 @@ namespace MasturbationRecorder.SqlDbHelper {
         /// </summary>
         /// <param name="configuration">接收应用程序的配置</param>
         /// <returns>登陆成功返回 true，否则返回 false</returns>
-        public static bool Login(Configuration configuration) {
+        public async static Task<bool> LoginAsync(Configuration configuration) {
             try {
                 using (SqlConnection connection = new SqlConnection(_builder.ConnectionString)) {
                     connection.Open();
@@ -49,7 +50,7 @@ namespace MasturbationRecorder.SqlDbHelper {
                         command.Parameters.Add(parameter_username);
                         command.Parameters.Add(parameter_password);
 
-                        return command.ExecuteScalar() != null;
+                        return await command.ExecuteScalarAsync() != null;
                     }
                 }
             }

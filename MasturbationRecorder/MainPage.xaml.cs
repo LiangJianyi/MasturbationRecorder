@@ -243,6 +243,8 @@ namespace MasturbationRecorder {
             Menu.Width = this.Window.Bounds.Width;
             RootGrid.Width = this.Window.Bounds.Width;
             RootGrid.Height = this.Window.Bounds.Height - ((double)RootCanvas.Resources["CanvasTopForRootGrid"]);
+            Canvas.SetTop(Avatar, 80);
+            Canvas.SetLeft(Avatar, this.Window.Bounds.Width - 80);
         }
         /*
          * 气泡动画结束后从 Canvas 移除气泡方块
@@ -432,6 +434,8 @@ namespace MasturbationRecorder {
             RootGrid.Width = this.Window.Bounds.Width;
             RootGrid.Height = this.Window.Bounds.Height - ((double)RootCanvas.Resources["CanvasTopForRootGrid"]);
             MainPageViewModel.DateTag(RectanglesCanvas);
+            Canvas.SetTop(Avatar, 80);
+            Canvas.SetLeft(Avatar, this.Window.Bounds.Width - 80);
         }
 
         /// <summary>
