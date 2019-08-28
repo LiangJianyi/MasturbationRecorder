@@ -1,9 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
+using Windows.Storage;
+using Windows.Storage.Streams;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Media;
+using Windows.UI.Xaml.Media.Imaging;
 using Windows.UI.Xaml.Shapes;
 
 namespace MasturbationRecorder {
@@ -131,6 +135,35 @@ namespace MasturbationRecorder {
                 }
                 previous = rect;
             }
+        }
+
+        /// <summary>
+        /// 从流中提取照片设置传递进去的 Image 控件
+        /// </summary>
+        /// <param name="imageControl">要设置照片的控件</param>
+        /// <param name="file">文件流</param>
+        /// <param name="decodePixelWidth">照片的宽度</param>
+        /// <param name="decodePixelHeight">照片的高度</param>
+        public static async Task LoadImageFromStreamAsync(Image imageControl, StorageFile file, int decodePixelWidth, int decodePixelHeight) {
+            using (IRandomAccessStream fileStream = await file.OpenAsync(FileAccessMode.Read)) {
+                // Set the image source to the selected bitmap
+                BitmapImage bitmapImage = new BitmapImage {
+                    DecodePixelHeight = decodePixelHeight,
+                    DecodePixelWidth = decodePixelWidth
+                };
+                await bitmapImage.SetSourceAsync(fileStream);
+                imageControl.Source = bitmapImage;
+            }
+        }
+
+        /// <summary>
+        /// 给 Configuration.Avatar 设置默认头像
+        /// </summary>
+        /// <param name="res"></param>
+        public static async Task GetDefaultAvatarForConfigurationAsync(Configuration res) {
+            StorageFolder installFolder = Windows.ApplicationModel.Package.Current.InstalledLocation;
+            StorageFolder assetsFolder = await installFolder.GetFolderAsync("Assets");
+            res.Avatar = await assetsFolder.GetFileAsync("avatar_icon.png");
         }
     }
 }

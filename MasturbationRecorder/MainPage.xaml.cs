@@ -11,6 +11,8 @@ using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Shapes;
 
 namespace MasturbationRecorder {
+    using Windows.Storage.Streams;
+    using Windows.UI.Xaml.Media.Imaging;
     using Windows.UI.Xaml.Navigation;
     using Debug = System.Diagnostics.Debug;
 
@@ -244,8 +246,8 @@ namespace MasturbationRecorder {
             Menu.Width = this.Window.Bounds.Width;
             RootGrid.Width = this.Window.Bounds.Width;
             RootGrid.Height = this.Window.Bounds.Height - ((double)RootCanvas.Resources["CanvasTopForRootGrid"]);
-            Canvas.SetTop(Avatar, 80);
-            Canvas.SetLeft(Avatar, this.Window.Bounds.Width - 80);
+            Canvas.SetTop(AvatarStack, 80);
+            Canvas.SetLeft(AvatarStack, this.Window.Bounds.Width - 80);
         }
         /*
          * 气泡动画结束后从 Canvas 移除气泡方块
@@ -275,42 +277,42 @@ namespace MasturbationRecorder {
                     agileCallback: () => {
                         // level 作为 entries 的索引值，值越小对应的 Total 越小
                         for (int level = 0; level < entries.Length; level++) {
-                        List<IGrouping<BigInteger, StatistTotalByDateTime>> groups = entries[level];
-                        IGrouping<BigInteger, StatistTotalByDateTime> group = null;
-                        for (int groupsIncre = 0; groupsIncre < groups.LongCount(); groupsIncre++) {
-                            group = groups[groupsIncre];
-                            foreach (StatistTotalByDateTime entry in group) {
-                                // 过滤掉非 Rectangle 的元素（比如 ProgressBoard）
-                                var rectangles = from rect in RectanglesCanvas.Children
-                                                 where rect is Rectangle
-                                                 select rect;
-                                foreach (Rectangle rect in rectangles) {
-                                    if (rect.Name == entry.DateTime.ToShortDateString()) {
-                                        rect.Fill = colorDic[level + 1];
-#if DEBUG
-                                        ToolTip toolTip = new ToolTip {
-                                            Content = rect.Name + $"  Level:{level + 1}  Total:{entry.Total}  Color:{(rect.Fill as SolidColorBrush).Color}"
-                                        };
-                                        ToolTipService.SetToolTip(rect, toolTip);
-#endif
-                                        _rectangleRegisteTable.Add(rect);
-                                        break;
-                                    }
-                                    else {
-                                        if (!_rectangleRegisteTable.Contains(rect)) {
-                                            rect.Fill = colorDic[0];
+                            List<IGrouping<BigInteger, StatistTotalByDateTime>> groups = entries[level];
+                            IGrouping<BigInteger, StatistTotalByDateTime> group = null;
+                            for (int groupsIncre = 0; groupsIncre < groups.LongCount(); groupsIncre++) {
+                                group = groups[groupsIncre];
+                                foreach (StatistTotalByDateTime entry in group) {
+                                    // 过滤掉非 Rectangle 的元素（比如 ProgressBoard）
+                                    var rectangles = from rect in RectanglesCanvas.Children
+                                                     where rect is Rectangle
+                                                     select rect;
+                                    foreach (Rectangle rect in rectangles) {
+                                        if (rect.Name == entry.DateTime.ToShortDateString()) {
+                                            rect.Fill = colorDic[level + 1];
 #if DEBUG
                                             ToolTip toolTip = new ToolTip {
-                                                Content = rect.Name + $"  Level:0  Total:0  Color:{(rect.Fill as SolidColorBrush).Color}"
+                                                Content = rect.Name + $"  Level:{level + 1}  Total:{entry.Total}  Color:{(rect.Fill as SolidColorBrush).Color}"
                                             };
                                             ToolTipService.SetToolTip(rect, toolTip);
 #endif
+                                            _rectangleRegisteTable.Add(rect);
+                                            break;
+                                        }
+                                        else {
+                                            if (!_rectangleRegisteTable.Contains(rect)) {
+                                                rect.Fill = colorDic[0];
+#if DEBUG
+                                                ToolTip toolTip = new ToolTip {
+                                                    Content = rect.Name + $"  Level:0  Total:0  Color:{(rect.Fill as SolidColorBrush).Color}"
+                                                };
+                                                ToolTipService.SetToolTip(rect, toolTip);
+#endif
+                                            }
                                         }
                                     }
                                 }
                             }
                         }
-                    }
                     });
                 });
 
@@ -435,8 +437,8 @@ namespace MasturbationRecorder {
             RootGrid.Width = this.Window.Bounds.Width;
             RootGrid.Height = this.Window.Bounds.Height - ((double)RootCanvas.Resources["CanvasTopForRootGrid"]);
             MainPageViewModel.DateTag(RectanglesCanvas);
-            Canvas.SetTop(Avatar, 80);
-            Canvas.SetLeft(Avatar, this.Window.Bounds.Width - 80);
+            Canvas.SetTop(AvatarStack, 80);
+            Canvas.SetLeft(AvatarStack, this.Window.Bounds.Width - 80);
         }
 
         /// <summary>
@@ -485,6 +487,12 @@ namespace MasturbationRecorder {
             }
             else {
                 TitleTextBlock.Text = res.Title;
+                UserName.Text = res.UserName;
+                //Task.WaitAll(MainPageViewModel.GetDefaultAvatarForConfigurationAsync(res), 
+                //             MainPageViewModel.LoadImageFromStreamAsync(Avatar, res.Avatar, Convert.ToInt32(Avatar.Width), Convert.ToInt32(Avatar.Height)));
+                Task t1 = MainPageViewModel.GetDefaultAvatarForConfigurationAsync(res);
+                t1.Wait();
+                Task t2 = MainPageViewModel.LoadImageFromStreamAsync(Avatar, res.Avatar, Convert.ToInt32(Avatar.Width), Convert.ToInt32(Avatar.Height));
             }
             base.OnNavigatedTo(e);
         }
