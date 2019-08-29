@@ -24,7 +24,7 @@ namespace MasturbationRecorder {
             this.InitializeComponent();
         }
 
-        private async void Login_ClickAsync(object sender, RoutedEventArgs e) {
+        private void Login_Click(object sender, RoutedEventArgs e) {
             if (string.IsNullOrEmpty(AccountTextBox.Text) ||
                 string.IsNullOrEmpty(PasswordBox.Password)) {
                 PopErrorDialogAsync("账户和密码不能为空");
@@ -42,10 +42,8 @@ namespace MasturbationRecorder {
                     avatar: null,
                     record: null
                 );
-                var assetsFolder = await Windows.ApplicationModel.Package.Current.InstalledLocation.GetFolderAsync("Assets");
-                
-                byte[] avatarBytes = AzureSqlDbHelper.Login(configuration, assetsFolder.Path + "\\Status.png");
-                if (avatarBytes != null) {
+
+                if (AzureSqlDbHelper.Login(configuration)) {
                     Frame rootFrame = Window.Current.Content as Frame;
                     rootFrame.Navigate(typeof(MainPage), configuration);
                 }
@@ -67,6 +65,7 @@ namespace MasturbationRecorder {
         private void Grid_Loaded(object sender, RoutedEventArgs e) {
             AccountTextBox.Width = TitleBox.ActualWidth;
             PasswordBox.Width = TitleBox.ActualWidth;
+            Debug.WriteLine(Windows.Storage.ApplicationData.Current.LocalFolder.Path);
         }
 
         private void Register_Click(object sender, RoutedEventArgs e) {

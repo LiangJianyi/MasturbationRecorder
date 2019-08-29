@@ -209,5 +209,12 @@ namespace MasturbationRecorder {
                 image.Source = bitmapImage;
             }
         }
+
+        public static async Task<StorageFile> AsStorageFile(this byte[] byteArray, string fileName) {
+            StorageFolder localFolder = ApplicationData.Current.LocalFolder;
+            StorageFile file = await localFolder.CreateFileAsync(fileName, CreationCollisionOption.ReplaceExisting);
+            await FileIO.WriteBytesAsync(file, byteArray);
+            return file;
+        }
     }
 }

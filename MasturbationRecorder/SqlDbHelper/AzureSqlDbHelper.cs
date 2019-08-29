@@ -132,5 +132,46 @@ namespace MasturbationRecorder.SqlDbHelper {
 
             return outbyte;
         }
+
+        public static bool Login(Configuration configuration) {
+            bool status = false;
+            using (SqlConnection connect = new SqlConnection(_builder.ConnectionString)) {
+                const string SQL = "SELECT TRIM(UserName), TRIM(Password), PersonData FROM dbo.MasturbationRecorderUser " +
+                                   "WHERE UserName = @name AND Password = @pwd";
+                SqlCommand command = new SqlCommand(SQL, connect);
+                // Create sql parameter @name
+                IDataParameter parameter_username = command.CreateParameter();
+                parameter_username.ParameterName = "name";
+                parameter_username.DbType = DbType.String;
+                parameter_username.Value = configuration.UserName;
+
+                // Create sql parameter @pwd
+                IDataParameter parameter_password = command.CreateParameter();
+                parameter_password.ParameterName = "pwd";
+                parameter_password.DbType = DbType.String;
+                parameter_password.Value = configuration.Password;
+
+                command.Parameters.Add(parameter_username);
+                command.Parameters.Add(parameter_password);
+
+                connect.Open();
+                using (SqlDataReader reader = command.ExecuteReader(CommandBehavior.SequentialAccess)) {
+                    while (reader.Read()) {
+                        byte[] bytes = reader.GetSqlBinary(2).Value;
+                        try {
+                            Task<Windows.Storage.StorageFile> file = bytes.AsStorageFile("Status.png");
+                            configuration.Avatar = file.Result;
+                            file.Wait();
+                        }
+                        catch (AggregateException ex) {
+                            Debug.WriteLine(ex.InnerException.Message);
+                            throw;
+                        }
+                        status = true;
+                    }
+                }
+            }
+            return status;
+        }
     }
 }
