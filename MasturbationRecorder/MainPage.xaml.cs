@@ -488,11 +488,24 @@ namespace MasturbationRecorder {
             else {
                 TitleTextBlock.Text = res.Title;
                 UserName.Text = res.UserName;
-                //Task.WaitAll(MainPageViewModel.GetDefaultAvatarForConfigurationAsync(res), 
-                //             MainPageViewModel.LoadImageFromStreamAsync(Avatar, res.Avatar, Convert.ToInt32(Avatar.Width), Convert.ToInt32(Avatar.Height)));
-                Task t1 = MainPageViewModel.GetDefaultAvatarForConfigurationAsync(res);
-                t1.Wait();
-                Task t2 = MainPageViewModel.LoadImageFromStreamAsync(Avatar, res.Avatar, Convert.ToInt32(Avatar.Width), Convert.ToInt32(Avatar.Height));
+                if (res.Avatar != null) {
+                    Task avatarTask = MainPageViewModel.GetAvatarAsync(Avatar, res, Convert.ToInt32(Avatar.Width), Convert.ToInt32(Avatar.Height));
+                }
+                else {  // 如果 res.Avatar 为空，表明用户还未上传头像，开始使用本地图像
+                        //Task.WaitAll(MainPageViewModel.GetDefaultAvatarForConfigurationAsync(res), 
+                        //             MainPageViewModel.LoadImageFromStreamAsync(Avatar, res.Avatar, Convert.ToInt32(Avatar.Width), Convert.ToInt32(Avatar.Height)));
+                        //MainPageViewModel.GetDefaultAvatarForConfiguration(res);
+
+                    //try {
+                    //    Task t2 = MainPageViewModel.LoadImageFromStreamAsync(Avatar, res.Avatar, Convert.ToInt32(Avatar.Width), Convert.ToInt32(Avatar.Height));
+                    //}
+                    //catch (AggregateException ex) {
+                    //    Debug.WriteLine(ex.Message);
+                    //    Debug.WriteLine(ex.InnerException.Message);
+                    //    throw;
+                    //}
+                    Task avatarTask = MainPageViewModel.GetAvatarAsync(Avatar, Convert.ToInt32(Avatar.Width), Convert.ToInt32(Avatar.Height));
+                }
             }
             base.OnNavigatedTo(e);
         }

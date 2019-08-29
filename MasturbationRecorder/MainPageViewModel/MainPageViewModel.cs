@@ -145,6 +145,7 @@ namespace MasturbationRecorder {
         /// <param name="decodePixelWidth">照片的宽度</param>
         /// <param name="decodePixelHeight">照片的高度</param>
         public static async Task LoadImageFromStreamAsync(Image imageControl, StorageFile file, int decodePixelWidth, int decodePixelHeight) {
+            System.Diagnostics.Debug.WriteLine("Invoking LoadImageFromStreamAsync...");
             using (IRandomAccessStream fileStream = await file.OpenAsync(FileAccessMode.Read)) {
                 // Set the image source to the selected bitmap
                 BitmapImage bitmapImage = new BitmapImage {
@@ -159,11 +160,54 @@ namespace MasturbationRecorder {
         /// <summary>
         /// 给 Configuration.Avatar 设置默认头像
         /// </summary>
-        /// <param name="res"></param>
+        /// <param name="res">用于设置 Avatar 属性的 Configuration 实例</param>
         public static async Task GetDefaultAvatarForConfigurationAsync(Configuration res) {
+            System.Diagnostics.Debug.WriteLine("Invoking GetDefaultAvatarForConfigurationAsync...");
             StorageFolder installFolder = Windows.ApplicationModel.Package.Current.InstalledLocation;
             StorageFolder assetsFolder = await installFolder.GetFolderAsync("Assets");
             res.Avatar = await assetsFolder.GetFileAsync("avatar_icon.png");
+        }
+
+        /// <summary>
+        /// 给 Configuration.Avatar 设置默认头像
+        /// </summary>
+        /// <param name="res">用于设置 Avatar 属性的 Configuration 实例</param>
+        public static void GetDefaultAvatarForConfiguration(Configuration res) {
+            System.Diagnostics.Debug.WriteLine("Invoking GetDefaultAvatarForConfigurationAsync2...");
+            StorageFolder installFolder = Windows.ApplicationModel.Package.Current.InstalledLocation;
+            StorageFolder assetsFolder = installFolder.GetFolderAsync("Assets").AsTask().GetAwaiter().GetResult();
+            res.Avatar = assetsFolder.GetFileAsync("avatar_icon.png").AsTask().GetAwaiter().GetResult();
+        }
+
+        public static async Task GetAvatarAsync(Image image, int decodePixelWidth, int decodePixelHeight) {
+            System.Diagnostics.Debug.WriteLine("Invoking GetAvatarAsync...");
+            StorageFolder installFolder = Windows.ApplicationModel.Package.Current.InstalledLocation;
+            StorageFolder assetsFolder = await installFolder.GetFolderAsync("Assets");
+            StorageFile avatar = await assetsFolder.GetFileAsync("avatar_icon.png");
+            using (IRandomAccessStream fileStream = await avatar.OpenAsync(FileAccessMode.Read)) {
+                // Set the image source to the selected bitmap
+                BitmapImage bitmapImage = new BitmapImage {
+                    DecodePixelHeight = decodePixelHeight,
+                    DecodePixelWidth = decodePixelWidth
+                };
+
+                await bitmapImage.SetSourceAsync(fileStream);
+                image.Source = bitmapImage;
+            }
+        }
+
+        public static async Task GetAvatarAsync(Image image, Configuration configuration, int decodePixelWidth, int decodePixelHeight) {
+            System.Diagnostics.Debug.WriteLine("Invoking GetAvatarAsync...");
+            using (IRandomAccessStream fileStream = await configuration.Avatar.OpenAsync(FileAccessMode.Read)) {
+                // Set the image source to the selected bitmap
+                BitmapImage bitmapImage = new BitmapImage {
+                    DecodePixelHeight = decodePixelHeight,
+                    DecodePixelWidth = decodePixelWidth
+                };
+
+                await bitmapImage.SetSourceAsync(fileStream);
+                image.Source = bitmapImage;
+            }
         }
     }
 }

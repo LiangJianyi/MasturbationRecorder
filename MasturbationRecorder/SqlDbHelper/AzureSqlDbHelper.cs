@@ -28,10 +28,10 @@ namespace MasturbationRecorder.SqlDbHelper {
             try {
                 using (SqlConnection connection = new SqlConnection(_builder.ConnectionString)) {
                     connection.Open();
-                    String sql = "SELECT TRIM(UserName), TRIM(Password), PersonData FROM dbo.MasturbationRecorderUser " +
-                                 "WHERE UserName = @name AND Password = @pwd";
+                    const string SQL = "SELECT TRIM(UserName), TRIM(Password), PersonData FROM dbo.MasturbationRecorderUser " +
+                                       "WHERE UserName = @name AND Password = @pwd";
 
-                    using (SqlCommand command = new SqlCommand(sql, connection)) {
+                    using (SqlCommand command = new SqlCommand(SQL, connection)) {
                         // Create sql parameter @name
                         IDataParameter parameter_username = command.CreateParameter();
                         parameter_username.ParameterName = "name";
@@ -63,9 +63,25 @@ namespace MasturbationRecorder.SqlDbHelper {
         /*
          * Reference: https://stackoverflow.com/a/5371286/10975306
          */
-        static byte[] ReadBinaryDataFromSqlServer(SqlConnectionStringBuilder builder, string outputPath) {
-            SqlConnection connect = new SqlConnection(builder.ConnectionString);
-            SqlCommand cmd = new SqlCommand("SELECT PersonData FROM dbo.MasturbationRecorderUser WHERE UserName='Janyee Liang'", connect);
+        public static byte[] Login(Configuration configuration, string outputPath) {
+            SqlConnection connect = new SqlConnection(_builder.ConnectionString);
+            const string SQL = "SELECT TRIM(UserName), TRIM(Password), PersonData FROM dbo.MasturbationRecorderUser " +
+                               "WHERE UserName = @name AND Password = @pwd";
+            SqlCommand command = new SqlCommand(SQL, connect);
+            // Create sql parameter @name
+            IDataParameter parameter_username = command.CreateParameter();
+            parameter_username.ParameterName = "name";
+            parameter_username.DbType = DbType.String;
+            parameter_username.Value = configuration.UserName;
+
+            // Create sql parameter @pwd
+            IDataParameter parameter_password = command.CreateParameter();
+            parameter_password.ParameterName = "pwd";
+            parameter_password.DbType = DbType.String;
+            parameter_password.Value = configuration.Password;
+
+            command.Parameters.Add(parameter_username);
+            command.Parameters.Add(parameter_password);
 
             // Create a file to hold the output.
             // Writes the BLOB to a file (*.png).
@@ -73,22 +89,22 @@ namespace MasturbationRecorder.SqlDbHelper {
             // Streams the BLOB to the FileStream object.
             BinaryWriter binaryWriter = new BinaryWriter(fileStream);
 
-            int bufferSize = int.MaxValue / 100;                  // Size of the BLOB buffer.
-            int columnIndex = 0;                            // Index within the column of SQL Server.
-            byte[] outbyte = new byte[bufferSize];          // The BLOB byte[] buffer to be filled by GetBytes.
-            long retval;                                    // The bytes returned from GetBytes.
-            long startIndex = 0;                            // The starting position in the BLOB output.
+            int bufferSize = int.MaxValue / 100;                    // Size of the BLOB buffer.
+            int columnIndex = 0;                                    // Index within the column of SQL Server.
+            byte[] outbyte = new byte[bufferSize];                  // The BLOB byte[] buffer to be filled by GetBytes.
+            long retval;                                            // The bytes returned from GetBytes.
+            long startIndex = 0;                                    // The starting position in the BLOB output.
 
             // Open the connection and read data into the DataReader.
             connect.Open();
-            SqlDataReader myReader = cmd.ExecuteReader(CommandBehavior.SequentialAccess);
+            SqlDataReader reader = command.ExecuteReader(CommandBehavior.SequentialAccess);
 
-            while (myReader.Read()) {
+            while (reader.Read()) {
                 // Reset the starting byte for the new BLOB.
                 startIndex = 0;
 
                 // Read the bytes into outbyte[] and retain the number of bytes returned.
-                retval = myReader.GetBytes(columnIndex, startIndex, outbyte, 0, bufferSize);
+                retval = reader.GetBytes(columnIndex, startIndex, outbyte, 0, bufferSize);
 
                 // Continue reading and writing while there are bytes beyond the size of the buffer.
                 while (retval == bufferSize) {
@@ -97,7 +113,7 @@ namespace MasturbationRecorder.SqlDbHelper {
 
                     // Reposition the start index to the end of the last buffer and fill the buffer.
                     startIndex += bufferSize;
-                    retval = myReader.GetBytes(1, startIndex, outbyte, 0, bufferSize);
+                    retval = reader.GetBytes(2, startIndex, outbyte, 0, bufferSize);
                 }
 
                 // Write the remaining buffer.
@@ -111,7 +127,7 @@ namespace MasturbationRecorder.SqlDbHelper {
             }
 
             // Close the reader and the connection.
-            myReader.Close();
+            reader.Close();
             connect.Close();
 
             return outbyte;
