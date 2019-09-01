@@ -43,7 +43,8 @@ namespace MasturbationRecorder {
                     record: null
                 );
 
-                if (AzureSqlDbHelper.Login(configuration)) {
+                Task<bool> isLoginSuccessed = AzureSqlDbHelper.Login(configuration);
+                if (isLoginSuccessed.Result) {
                     Frame rootFrame = Window.Current.Content as Frame;
                     rootFrame.Navigate(typeof(MainPage), configuration);
                 }
