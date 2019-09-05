@@ -161,15 +161,13 @@ namespace MasturbationRecorder {
         /// 给 Configuration.Avatar 设置默认头像
         /// </summary>
         /// <param name="res">用于设置 Avatar 属性的 Configuration 实例</param>
-        public static async Task GetDefaultAvatarForConfigurationAsync(Configuration res) {
-            System.Diagnostics.Debug.WriteLine("Invoking GetDefaultAvatarForConfigurationAsync...");
+        public static async Task GetDefaultAvatarAsync(Configuration res) {
             StorageFolder installFolder = Windows.ApplicationModel.Package.Current.InstalledLocation;
             StorageFolder assetsFolder = await installFolder.GetFolderAsync("Assets");
             res.Avatar = await assetsFolder.GetFileAsync("avatar_icon.png");
         }
 
         public static async Task GetAvatarAsync(Image image, int decodePixelWidth, int decodePixelHeight) {
-            System.Diagnostics.Debug.WriteLine("Invoking GetAvatarAsync...");
             StorageFolder installFolder = Windows.ApplicationModel.Package.Current.InstalledLocation;
             StorageFolder assetsFolder = await installFolder.GetFolderAsync("Assets");
             StorageFile avatar = await assetsFolder.GetFileAsync("avatar_icon.png");

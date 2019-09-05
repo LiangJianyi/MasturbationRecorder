@@ -1,5 +1,4 @@
 ﻿using System;
-using System.IO;
 using System.Data;
 using System.Data.SqlClient;
 using System.Threading.Tasks;
@@ -48,9 +47,10 @@ namespace MasturbationRecorder.SqlDbHelper {
                 await connect.OpenAsync();
                 using (SqlDataReader reader = await command.ExecuteReaderAsync(CommandBehavior.SequentialAccess)) {
                     while (reader.Read()) {
-                        byte[] bytes = reader.GetSqlBinary(2).Value;
-                        Windows.Storage.StorageFile file = await bytes.AsStorageFile("Status.png");
-                        configuration.Avatar = file;
+                        if (reader.GetSqlBinary(2).IsNull == false) {
+                            byte[] bytes = reader.GetSqlBinary(2).Value;
+                            configuration.Avatar = await bytes?.AsStorageFile("Status.png");
+                        }
                         status = true;
                     }
                 }
