@@ -69,21 +69,5 @@ namespace MasturbationRecorder {
         private void Register_Click(object sender, RoutedEventArgs e) {
 
         }
-
-        private static void CommitUserNameAndPassword(string connectionString, string username, string password) {
-            string queryString = $"select UserName,Password,PersonData from dbo.MasturbationRecorderUser " +
-                                 $"where UserName='{username}' and Password='{password}'";
-
-            using (SqlConnection connection = new SqlConnection(connectionString)) {
-                SqlCommand command = new SqlCommand(queryString, connection);
-                connection.Open();
-                using (SqlDataReader reader = command.ExecuteReader()) {
-                    // Call Read before accessing data.
-                    while (reader.Read()) {
-                        Debug.WriteLine($"UserName: {reader[0]}, Password: {reader[1]}");
-                    }
-                }
-            }
-        }
     }
 }
