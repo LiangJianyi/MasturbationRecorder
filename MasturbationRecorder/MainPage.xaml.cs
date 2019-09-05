@@ -260,12 +260,12 @@ namespace MasturbationRecorder {
             RootGrid.Width = this.Window.Bounds.Width;
             RootGrid.Height = this.Window.Bounds.Height - ((double)RootCanvas.Resources["CanvasTopForRootGrid"]);
             Canvas.SetTop(AvatarStack, 80);
-            Canvas.SetLeft(AvatarStack, this.Window.Bounds.Width - 80);
+            Canvas.SetLeft(AvatarStack, this.Window.Bounds.Width - 110);
         }
 
         /*
-* 气泡动画结束后从 Canvas 移除气泡方块
-*/
+         * 气泡动画结束后从 Canvas 移除气泡方块
+         */
         private void RectangleBubbleAnimation_Completed(object sender, object e) {
             RectanglesCanvas.Children.Remove(Bubble._bubble);
         }
