@@ -260,7 +260,7 @@ namespace MasturbationRecorder {
             RootGrid.Width = this.Window.Bounds.Width;
             RootGrid.Height = this.Window.Bounds.Height - ((double)RootCanvas.Resources["CanvasTopForRootGrid"]);
             Canvas.SetTop(AvatarStack, 80);
-            Canvas.SetLeft(AvatarStack, this.Window.Bounds.Width - 110);
+            Canvas.SetLeft(AvatarStack, this.Window.Bounds.Width - AvatarStack.ActualWidth - 50);
         }
 
         /*
