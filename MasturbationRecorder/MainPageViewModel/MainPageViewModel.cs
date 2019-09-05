@@ -168,17 +168,6 @@ namespace MasturbationRecorder {
             res.Avatar = await assetsFolder.GetFileAsync("avatar_icon.png");
         }
 
-        /// <summary>
-        /// 给 Configuration.Avatar 设置默认头像
-        /// </summary>
-        /// <param name="res">用于设置 Avatar 属性的 Configuration 实例</param>
-        public static void GetDefaultAvatarForConfiguration(Configuration res) {
-            System.Diagnostics.Debug.WriteLine("Invoking GetDefaultAvatarForConfigurationAsync2...");
-            StorageFolder installFolder = Windows.ApplicationModel.Package.Current.InstalledLocation;
-            StorageFolder assetsFolder = installFolder.GetFolderAsync("Assets").AsTask().GetAwaiter().GetResult();
-            res.Avatar = assetsFolder.GetFileAsync("avatar_icon.png").AsTask().GetAwaiter().GetResult();
-        }
-
         public static async Task GetAvatarAsync(Image image, int decodePixelWidth, int decodePixelHeight) {
             System.Diagnostics.Debug.WriteLine("Invoking GetAvatarAsync...");
             StorageFolder installFolder = Windows.ApplicationModel.Package.Current.InstalledLocation;
@@ -210,6 +199,13 @@ namespace MasturbationRecorder {
             }
         }
 
+        /// <summary>
+        /// 将字节数组转换为 StorageFile
+        /// </summary>
+        /// <param name="byteArray">接收一个字节数组</param>
+        /// <param name="fileName">要创建的 StorageFile 名称</param>
+        /// <returns></returns>
+        /// <remarks>https://social.msdn.microsoft.com/Forums/en-US/3c70c644-df5d-419f-9d19-55a9414c36dd/uwp-how-to-covert-back-byte-array-to-storage-file-c?forum=wpdevelop</remarks>
         public static async Task<StorageFile> AsStorageFile(this byte[] byteArray, string fileName) {
             StorageFolder localFolder = ApplicationData.Current.LocalFolder;
             StorageFile file = await localFolder.CreateFileAsync(fileName, CreationCollisionOption.ReplaceExisting);
