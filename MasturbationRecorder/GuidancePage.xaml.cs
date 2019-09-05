@@ -24,7 +24,7 @@ namespace MasturbationRecorder {
             this.InitializeComponent();
         }
 
-        private void Login_Click(object sender, RoutedEventArgs e) {
+        private async void Login_Click(object sender, RoutedEventArgs e) {
             if (string.IsNullOrEmpty(AccountTextBox.Text) ||
                 string.IsNullOrEmpty(PasswordBox.Password)) {
                 PopErrorDialogAsync("账户和密码不能为空");
@@ -38,13 +38,10 @@ namespace MasturbationRecorder {
                     username: AccountTextBox.Text,
                     password: PasswordBox.Password,
                     title: TitleBox.Text,
-                    theme: Theme.Light,
-                    avatar: null,
-                    record: null
+                    theme: Theme.Light
                 );
 
-                Task<bool> isLoginSuccessed = AzureSqlDbHelper.Login(configuration);
-                if (isLoginSuccessed.Result) {
+                if (await AzureSqlDbHelper.LoginAsync(configuration)) {
                     Frame rootFrame = Window.Current.Content as Frame;
                     rootFrame.Navigate(typeof(MainPage), configuration);
                 }
