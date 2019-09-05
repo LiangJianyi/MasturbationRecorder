@@ -239,19 +239,33 @@ namespace MasturbationRecorder {
             Canvas.SetTop(rect, canvasTop);
         }
 
+        /// <summary>
+        /// 当前窗体大小发生变化时需要更新 UI 布局
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void Current_SizeChanged(object sender, Windows.UI.Core.WindowSizeChangedEventArgs e) {
 #if DEBUG
             Debug.WriteLine($"{this.Window.Bounds.Width} , {this.Window.Bounds.Height}");
 #endif
+            UpdateMainPageLayout();
+        }
+
+        /// <summary>
+        /// 初始化页面和改变窗体大小都需要调用该方法对 UI 布局进行变更，
+        /// 该方法为设计自适应界面而准备。
+        /// </summary>
+        private void UpdateMainPageLayout() {
             Menu.Width = this.Window.Bounds.Width;
             RootGrid.Width = this.Window.Bounds.Width;
             RootGrid.Height = this.Window.Bounds.Height - ((double)RootCanvas.Resources["CanvasTopForRootGrid"]);
             Canvas.SetTop(AvatarStack, 80);
             Canvas.SetLeft(AvatarStack, this.Window.Bounds.Width - 80);
         }
+
         /*
-         * 气泡动画结束后从 Canvas 移除气泡方块
-         */
+* 气泡动画结束后从 Canvas 移除气泡方块
+*/
         private void RectangleBubbleAnimation_Completed(object sender, object e) {
             RectanglesCanvas.Children.Remove(Bubble._bubble);
         }
@@ -433,12 +447,8 @@ namespace MasturbationRecorder {
             SaveFileButton.Visibility = Visibility.Collapsed;
             RefreshButton.Visibility = Visibility.Collapsed;
             ClearButton.Visibility = Visibility.Collapsed;
-            Menu.Width = this.Window.Bounds.Width;
-            RootGrid.Width = this.Window.Bounds.Width;
-            RootGrid.Height = this.Window.Bounds.Height - ((double)RootCanvas.Resources["CanvasTopForRootGrid"]);
             MainPageViewModel.DateTag(RectanglesCanvas);
-            Canvas.SetTop(AvatarStack, 80);
-            Canvas.SetLeft(AvatarStack, this.Window.Bounds.Width - 80);
+            UpdateMainPageLayout();
         }
 
         /// <summary>
