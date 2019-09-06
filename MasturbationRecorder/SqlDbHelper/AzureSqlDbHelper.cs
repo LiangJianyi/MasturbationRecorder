@@ -47,8 +47,9 @@ namespace MasturbationRecorder.SqlDbHelper {
                 await connect.OpenAsync();
                 using (SqlDataReader reader = await command.ExecuteReaderAsync(CommandBehavior.SequentialAccess)) {
                     while (reader.Read()) {
-                        if (reader.GetSqlBinary(2).IsNull == false) {
-                            byte[] bytes = reader.GetSqlBinary(2).Value;
+                        System.Data.SqlTypes.SqlBinary binary = reader.GetSqlBinary(2);
+                        if (binary.IsNull == false) {
+                            byte[] bytes = binary.Value;
                             configuration.Avatar = await bytes?.AsStorageFile("Status.png");
                         }
                         status = true;

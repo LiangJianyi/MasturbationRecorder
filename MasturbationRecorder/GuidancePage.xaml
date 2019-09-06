@@ -26,8 +26,8 @@
                 <TextBox x:Name="TitleBox" Header="输入标题（可选）：" PlaceholderText="你今天写代码了吗？"/>
             </StackPanel>
             <StackPanel x:Name="StackPanelWithButtons" Orientation="Horizontal">
-                <Button Content="登录" Click="Login_Click" Margin="0,0,20,0"/>
-                <Button Content="注册" Click="Register_Click"  Margin="20,0,0,0"/>
+                <Button x:Name="LoginButton" Content="登录" Click="Login_Click" Margin="0,0,20,0"/>
+                <Button x:Name="RegisterButton" Content="注册" Click="Register_Click"  Margin="20,0,0,0"/>
             </StackPanel>
         </StackPanel>
     </Grid>
