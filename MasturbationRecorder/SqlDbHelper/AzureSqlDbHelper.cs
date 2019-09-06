@@ -56,7 +56,6 @@ namespace MasturbationRecorder.SqlDbHelper {
                          *      byte[] bytes = reader.GetSqlBinary(2).Value;
                          *      configuration.Avatar = await bytes?.AsStorageFile("Status.png");
                          * }
-                        }
                          */
                         System.Data.SqlTypes.SqlBinary binary = reader.GetSqlBinary(2);
                         if (binary.IsNull == false) {
