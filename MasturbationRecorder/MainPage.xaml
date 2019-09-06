@@ -20,7 +20,7 @@
             <AppBarButton x:Name="SaveFileButton" Icon="Save" Label="Save" Click="SaveFileButtonAsync_Click"/>
         </CommandBar>
         <StackPanel x:Name="AvatarStack">
-            <Image x:Name="Avatar" Width="80" Height="80" Source="/Assets/demo.jpg"/>
+            <Image x:Name="Avatar" Width="80" Height="80" Source="Assets/avatar_icon.png"/>
             <TextBlock x:Name="UserName" Text="DemoUser" HorizontalAlignment="Center"/>
         </StackPanel>
         <Grid Name="RootGrid" Width="800" Height="600" Canvas.Top="100">
