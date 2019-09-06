@@ -47,6 +47,17 @@ namespace MasturbationRecorder.SqlDbHelper {
                 await connect.OpenAsync();
                 using (SqlDataReader reader = await command.ExecuteReaderAsync(CommandBehavior.SequentialAccess)) {
                     while (reader.Read()) {
+                        /*
+                         * 使用临时变量 binary 的原因是如果调用两次 GetSqlBinary(2) 会抛出异常，
+                         * 下面的代码会抛出 System.InvalidOperationException: 'Invalid attempt to read from column ordinal '2'.  
+                         *  With CommandBehavior.SequentialAccess, you may only read from column ordinal '3' or greater.'
+                         * 
+                         * if (reader.GetSqlBinary(2).IsNull == false) {
+                         *      byte[] bytes = reader.GetSqlBinary(2).Value;
+                         *      configuration.Avatar = await bytes?.AsStorageFile("Status.png");
+                         * }
+                        }
+                         */
                         System.Data.SqlTypes.SqlBinary binary = reader.GetSqlBinary(2);
                         if (binary.IsNull == false) {
                             byte[] bytes = binary.Value;
