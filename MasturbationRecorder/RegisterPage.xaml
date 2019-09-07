@@ -26,8 +26,9 @@
             <StackPanel Orientation="Horizontal" Margin="0,0,0,20">
                 <TextBox x:Name="TitleBox" Header="输入标题（可选）：" PlaceholderText="你今天写代码了吗？"/>
             </StackPanel>
-            <StackPanel x:Name="StackPanelWithImage" Orientation="Horizontal">
-                <Image x:Name="Avatar" Margin="20,0,0,0" Width="80" Height="80" Source="Assets/avatar_icon.png"/>
+            <StackPanel x:Name="StackPanelWithImage" Orientation="Vertical">
+                <Image x:Name="Avatar" Width="80" Height="80" Source="Assets/avatar_icon.png" PointerReleased="Avatar_PointerReleasedAsync"/>
+                <TextBlock x:Name="UploadAvatarTextBlock" Text="点击上传头像"/>
             </StackPanel>
             <StackPanel x:Name="StackPanelWithButtons" Orientation="Horizontal" Margin="0,50,0,0">
                 <Button x:Name="RegisterButton" Content="注册" Click="RegisterButton_Click"  Margin="20,0,0,0"/>

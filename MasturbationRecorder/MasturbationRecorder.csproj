@@ -138,6 +138,7 @@
     <Compile Include="RegisterPage.xaml.cs">
       <DependentUpon>RegisterPage.xaml</DependentUpon>
     </Compile>
+    <Compile Include="RegisterPageViewModel\RegisterPage.cs" />
     <Compile Include="SqlDbHelper\AzureSqlDbHelper.cs" />
   </ItemGroup>
   <ItemGroup>
