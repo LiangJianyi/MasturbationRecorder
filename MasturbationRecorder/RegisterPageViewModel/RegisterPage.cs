@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Windows.Storage;
 using Windows.Storage.Streams;
+using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Media.Imaging;
 
 namespace MasturbationRecorder {
@@ -45,5 +46,19 @@ namespace MasturbationRecorder {
                 return bitmapImage;
             }
         }
+
+        /// <summary>
+        /// 弹出错误提示
+        /// </summary>
+        /// <param name="content"></param>
+        public async Task PopErrorDialogAsync(string content) {
+            ContentDialog fileOpenFailDialog = new ContentDialog {
+                Title = "Error",
+                Content = content,
+                CloseButtonText = "Ok"
+            };
+            ContentDialogResult result = await fileOpenFailDialog.ShowAsync();
+        }
+
     }
 }

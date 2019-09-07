@@ -19,6 +19,51 @@ namespace MasturbationRecorder.SqlDbHelper {
         };
 
         /// <summary>
+        /// 注册账户
+        /// </summary>
+        /// <param name="username">用户名</param>
+        /// <param name="password">密码</param>
+        /// <param name="fileBytes">PersonData文件字节流</param>
+        public static async Task<int> RegisterUserAsync(string username, string password, byte[] fileBytes) {
+            try {
+                using (SqlConnection connection = new SqlConnection(_builder.ConnectionString)) {
+                    string commandText = "INSERT INTO dbo.MasturbationRecorderUser (UserName,Password,PersonData) " +
+                                         "VALUES(@username, @pwd, @personData)";
+                    using (SqlCommand cmd = new SqlCommand(commandText, connection)) {
+                        // Create sql parameter @username
+                        IDataParameter parameter_username = cmd.CreateParameter();
+                        parameter_username.ParameterName = "username";
+                        parameter_username.DbType = DbType.String;
+                        parameter_username.Value = username;
+
+                        // Create sql parameter @pwd
+                        IDataParameter parameter_password = cmd.CreateParameter();
+                        parameter_password.ParameterName = "pwd";
+                        parameter_password.DbType = DbType.String;
+                        parameter_password.Value = password;
+
+                        // Create sql parameter @bytes
+                        IDataParameter parameter_bytes = cmd.CreateParameter();
+                        parameter_bytes.ParameterName = "personData";
+                        parameter_bytes.DbType = DbType.Binary;
+                        parameter_bytes.Value = fileBytes;
+
+                        cmd.Parameters.Add(parameter_username);
+                        cmd.Parameters.Add(parameter_password);
+                        cmd.Parameters.Add(parameter_bytes);
+
+                        await cmd.Connection.OpenAsync();
+                        return await cmd.ExecuteNonQueryAsync();
+                    }
+                }
+            }
+            catch (SqlException e) {
+                Debug.WriteLine(e.ToString());
+            }
+            return -1;
+        }
+
+        /// <summary>
         /// 登录账户
         /// </summary>
         /// <param name="configuration">接收应用程序的配置</param>
