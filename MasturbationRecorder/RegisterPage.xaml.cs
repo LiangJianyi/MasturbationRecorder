@@ -1,4 +1,5 @@
-﻿using System;
+﻿using MasturbationRecorder.SqlDbHelper;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -15,6 +16,8 @@ using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
 
 namespace MasturbationRecorder {
+    using Debug = System.Diagnostics.Debug;
+
     public sealed partial class RegisterPage : Page {
         private byte[] _fileBytes;
 
@@ -23,11 +26,26 @@ namespace MasturbationRecorder {
         }
 
         private void Grid_Loaded(object sender, RoutedEventArgs e) {
-
+            UpdateRegisterPageLayout();
         }
 
-        private void RegisterButton_Click(object sender, RoutedEventArgs e) {
-            // AzureSqlDbHelper.RegisterUser(Account,Password,_fileBytes)
+        private async void RegisterButton_ClickAsync(object sender, RoutedEventArgs e) {
+            if (await AzureSqlDbHelper.RegisterUserAsync(AccountTextBox.Text, PasswordBox.Password, _fileBytes) > 0) {
+                Configuration configuration = new Configuration(
+                    username: AccountTextBox.Text,
+                    password: PasswordBox.Password,
+                    title: TitleBox.Text,
+                    theme: Theme.Light,
+                    avatar: null
+                );
+                if (await AzureSqlDbHelper.LoginAsync(configuration)) {
+                    Frame rootFrame = Window.Current.Content as Frame;
+                    rootFrame.Navigate(typeof(MainPage));
+                }
+            }
+            else {
+                await PopErrorDialogAsync("注册发生错误！");
+            }
         }
 
         private async void Avatar_PointerReleasedAsync(object sender, PointerRoutedEventArgs e) {
@@ -44,6 +62,14 @@ namespace MasturbationRecorder {
                 await StorageFileToBytesAsync(file);
                 Avatar.Source = await StorageFileToBitmapImageAsync(file, (int)Avatar.Width, (int)Avatar.Height);
             }
+        }
+
+        private void LightRadioButton_Checked(object sender, RoutedEventArgs e) {
+
+        }
+
+        private void DarkRadioButton_Checked(object sender, RoutedEventArgs e) {
+
         }
     }
 }

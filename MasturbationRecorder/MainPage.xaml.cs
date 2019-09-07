@@ -44,9 +44,7 @@ namespace MasturbationRecorder {
         private static StorageFile _file = null;
 
         public MainPage() {
-#if DEBUG
             this.Window.SizeChanged += Current_SizeChanged;
-#endif
             this.InitializeComponent();
             this.RectanglesLayout();
         }

@@ -15,8 +15,12 @@
                 <GradientStop Color="#FFCF4BE4" Offset="1"/>
             </LinearGradientBrush>
         </Grid.Background>
-        <TextBlock Text="填写用户注册信息" FontSize="50" Margin="120"/>
-        <StackPanel x:Name="LoginFormPanel" HorizontalAlignment="Center" VerticalAlignment="Center">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="5*" MinHeight="80"/>
+        </Grid.RowDefinitions>
+        <TextBlock Text="填写用户注册信息" FontSize="50" Margin="12,12,0,0" Grid.Row="0"/>
+        <StackPanel x:Name="RegisterFormPanel" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Row="1">
             <StackPanel Orientation="Horizontal" Margin="0,0,0,20">
                 <TextBox x:Name="AccountTextBox" Header="用户名："/>
             </StackPanel>
@@ -30,8 +34,12 @@
                 <Image x:Name="Avatar" Width="80" Height="80" Source="Assets/avatar_icon.png" PointerReleased="Avatar_PointerReleasedAsync"/>
                 <TextBlock x:Name="UploadAvatarTextBlock" Text="点击上传头像"/>
             </StackPanel>
+            <StackPanel x:Name="StackPanleWithRadioButtons" Orientation="Horizontal" Margin="0,25,0,25">
+                <RadioButton x:Name="LightRadioButton" Content="Light Theme" Tag="Light" Checked="LightRadioButton_Checked"/>
+                <RadioButton x:Name="DarkRadioButton" Content="Dark Theme" Tag="Dark" Checked="DarkRadioButton_Checked"/>
+            </StackPanel>
             <StackPanel x:Name="StackPanelWithButtons" Orientation="Horizontal" Margin="0,50,0,0">
-                <Button x:Name="RegisterButton" Content="注册" Click="RegisterButton_Click"  Margin="20,0,0,0"/>
+                <Button x:Name="RegisterButton" Content="注册" Click="RegisterButton_ClickAsync"  Margin="20,0,0,0"/>
             </StackPanel>
         </StackPanel>
     </Grid>
