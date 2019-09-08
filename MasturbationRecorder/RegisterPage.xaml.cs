@@ -33,7 +33,25 @@ namespace MasturbationRecorder {
         }
 
         private async void RegisterButton_ClickAsync(object sender, RoutedEventArgs e) {
-            if (await AzureSqlDbHelper.RegisterUserAsync(AccountTextBox.Text, PasswordBox.Password, _fileBytes) > 0) {
+            if (string.IsNullOrEmpty(AccountTextBox.Text) == false) {
+                await PopErrorDialogAsync("用户名不能为空！");
+            }
+            else if (string.IsNullOrWhiteSpace(AccountTextBox.Text) == false) {
+                await PopErrorDialogAsync("用户名不能有空白字符！");
+            }
+            else if (AccountTextBox.Text.Length <= 128) {
+                await PopErrorDialogAsync("用户名长度不能超过128个字符！");
+            }
+            else if (string.IsNullOrEmpty(PasswordBox.Password) == false) {
+                await PopErrorDialogAsync("密码不能为空！");
+            }
+            else if (string.IsNullOrWhiteSpace(PasswordBox.Password) == false) {
+                await PopErrorDialogAsync("密码不能有空白字符！");
+            }
+            else if (PasswordBox.Password.Length <= 256) {
+                await PopErrorDialogAsync("密码长度不能超过256个字符！");
+            }
+            else if (await AzureSqlDbHelper.RegisterUserAsync(AccountTextBox.Text, PasswordBox.Password, _fileBytes) > 0) {
                 Configuration configuration = new Configuration(
                     username: AccountTextBox.Text,
                     password: PasswordBox.Password,
