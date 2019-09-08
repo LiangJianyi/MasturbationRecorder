@@ -46,25 +46,26 @@ namespace MasturbationRecorder {
                 RecordFile = await this.RecordFile?.ToBytesAsync()
             };
 
-        public static byte[] SerializeToBytes(Configuration configuration) {
+        public static async Task<byte[]> SerializeToBytesAsync(Configuration configuration) {
+            SerializationConfiguration serializationConfiguration = await configuration.AsSerializationConfigurationAsync();
             //内存实例
             MemoryStream ms = new MemoryStream();
             //创建序列化的实例
             BinaryFormatter formatter = new BinaryFormatter();
-            formatter.Serialize(ms, configuration);//序列化对象，写入内存流中  
+            formatter.Serialize(ms, serializationConfiguration);//序列化对象，写入内存流中  
             byte[] bytes = ms.GetBuffer();
             ms.Close();
             return bytes;
         }
 
-        public static Configuration DeserializeObject(byte[] bytes) {
+        public static async Task<Configuration> DeserializeObjectAsync(byte[] bytes) {
             //利用传来的byte[]创建一个内存流
             MemoryStream ms = new MemoryStream(bytes);
             ms.Position = 0;
             BinaryFormatter formatter = new BinaryFormatter();
-            Configuration obj = formatter.Deserialize(ms) as Configuration;//把内存流反序列成对象  
+            SerializationConfiguration obj = formatter.Deserialize(ms) as SerializationConfiguration;   //把内存流反序列成对象  
             ms.Close();
-            return obj;
+            return await obj.AsConfigurationAsync();
         }
 
         public override string ToString() {
@@ -84,25 +85,13 @@ namespace MasturbationRecorder {
         public byte[] Avatar { get; set; }
         public byte[] RecordFile { get; set; }
 
-        public static byte[] SerializeToBytes(Configuration configuration) {
-            //内存实例
-            MemoryStream ms = new MemoryStream();
-            //创建序列化的实例
-            BinaryFormatter formatter = new BinaryFormatter();
-            formatter.Serialize(ms, configuration);//序列化对象，写入内存流中  
-            byte[] bytes = ms.GetBuffer();
-            ms.Close();
-            return bytes;
-        }
-
-        public static Configuration DeserializeObject(byte[] bytes) {
-            //利用传来的byte[]创建一个内存流
-            MemoryStream ms = new MemoryStream(bytes);
-            ms.Position = 0;
-            BinaryFormatter formatter = new BinaryFormatter();
-            Configuration obj = formatter.Deserialize(ms) as Configuration;//把内存流反序列成对象  
-            ms.Close();
-            return obj;
-        }
+        public async Task<Configuration> AsConfigurationAsync() => new Configuration(
+            username: this.UserName,
+            password: this.Password,
+            title: this.Title,
+            theme: this.Theme,
+            avatar: await this.Avatar.AsStorageFile("Avatar.png"),
+            record: await this.RecordFile.AsStorageFile("RecordFile.txt")
+        );
     }
 }
