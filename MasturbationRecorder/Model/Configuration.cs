@@ -15,6 +15,9 @@ namespace MasturbationRecorder {
         Dark
     }
 
+    /// <summary>
+    /// 表示用户的配置
+    /// </summary>
     class Configuration {
         public string UserName { get; set; }
         public string Password { get; set; }
@@ -76,6 +79,9 @@ namespace MasturbationRecorder {
         }
     }
 
+    /// <summary>
+    /// Configuration 的可序列化版本
+    /// </summary>
     [Serializable]
     class SerializationConfiguration {
         public string UserName { get; set; }
