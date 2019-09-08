@@ -33,39 +33,43 @@ namespace MasturbationRecorder {
         }
 
         private async void RegisterButton_ClickAsync(object sender, RoutedEventArgs e) {
-            if (string.IsNullOrEmpty(AccountTextBox.Text) == false) {
+            if (string.IsNullOrEmpty(AccountTextBox.Text)) {
                 await PopErrorDialogAsync("用户名不能为空！");
             }
-            else if (string.IsNullOrWhiteSpace(AccountTextBox.Text) == false) {
+            else if (string.IsNullOrWhiteSpace(AccountTextBox.Text)) {
                 await PopErrorDialogAsync("用户名不能有空白字符！");
             }
-            else if (AccountTextBox.Text.Length <= 128) {
+            else if (AccountTextBox.Text.Length > 128) {
                 await PopErrorDialogAsync("用户名长度不能超过128个字符！");
             }
-            else if (string.IsNullOrEmpty(PasswordBox.Password) == false) {
+            else if (string.IsNullOrEmpty(PasswordBox.Password)) {
                 await PopErrorDialogAsync("密码不能为空！");
             }
-            else if (string.IsNullOrWhiteSpace(PasswordBox.Password) == false) {
+            else if (string.IsNullOrWhiteSpace(PasswordBox.Password)) {
                 await PopErrorDialogAsync("密码不能有空白字符！");
             }
-            else if (PasswordBox.Password.Length <= 256) {
+            else if (PasswordBox.Password.Length > 256) {
                 await PopErrorDialogAsync("密码长度不能超过256个字符！");
             }
-            else if (await AzureSqlDbHelper.RegisterUserAsync(AccountTextBox.Text, PasswordBox.Password, _fileBytes) > 0) {
-                Configuration configuration = new Configuration(
-                    username: AccountTextBox.Text,
-                    password: PasswordBox.Password,
-                    title: TitleBox.Text,
-                    theme: this._theme,
-                    avatar: _file
-                );
-                if (await AzureSqlDbHelper.LoginAsync(configuration)) {
-                    Frame rootFrame = Window.Current.Content as Frame;
-                    rootFrame.Navigate(typeof(MainPage));
-                }
-            }
             else {
-                await PopErrorDialogAsync("注册发生错误！");
+                Configuration configuration = new Configuration(
+                        username: AccountTextBox.Text,
+                        password: PasswordBox.Password,
+                        title: TitleBox.Text,
+                        theme: this._theme,
+                        avatar: _file
+                );
+                if (await AzureSqlDbHelper.RegisterUserAsync(configuration) > 0) {
+                    // 注册成功后要用 configuration 再登陆一次
+                    configuration = await AzureSqlDbHelper.LoginAsync(configuration.UserName, configuration.Password);
+                    if (configuration != null) {
+                        Frame rootFrame = Window.Current.Content as Frame;
+                        rootFrame.Navigate(typeof(MainPage), configuration);
+                    }
+                }
+                else {
+                    await PopErrorDialogAsync("注册发生错误！");
+                }
             }
         }
 
