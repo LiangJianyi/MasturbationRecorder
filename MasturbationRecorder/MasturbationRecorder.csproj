@@ -119,6 +119,7 @@
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
+    <Compile Include="CommonTool\Tool.cs" />
     <Compile Include="GuidancePage.xaml.cs">
       <DependentUpon>GuidancePage.xaml</DependentUpon>
     </Compile>

@@ -11,6 +11,7 @@ using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Shapes;
 
 namespace MasturbationRecorder {
+    using MasturbationRecorder.CommonTool;
     using Windows.Storage.Streams;
     using Windows.UI.Xaml.Media.Imaging;
     using Windows.UI.Xaml.Navigation;
@@ -497,11 +498,11 @@ namespace MasturbationRecorder {
                 TitleTextBlock.Text = res.Title;
                 UserName.Text = res.UserName;
                 if (res.Avatar != null) {
-                    Task avatarTask = MainPageViewModel.GetAvatarAsync(Avatar, res, Convert.ToInt32(Avatar.Width), Convert.ToInt32(Avatar.Height));
+                    Task avatarTask = Tool.GetAvatarAsync(Avatar, res, Convert.ToInt32(Avatar.Width), Convert.ToInt32(Avatar.Height));
                 }
                 else {  // 如果 res.Avatar 为空，表明用户还未上传头像，开始使用本地图像
-                    Task.WhenAll(MainPageViewModel.GetDefaultAvatarAsync(res),
-                                 MainPageViewModel.LoadImageFromStreamAsync(Avatar, res.Avatar, Convert.ToInt32(Avatar.Width), Convert.ToInt32(Avatar.Height)));
+                    Task.WhenAll(Tool.GetDefaultAvatarAsync(res),
+                                 Tool.LoadImageFromStreamAsync(Avatar, res.Avatar, Convert.ToInt32(Avatar.Width), Convert.ToInt32(Avatar.Height)));
                     
                 }
             }
