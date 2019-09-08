@@ -16,10 +16,13 @@ using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
 
 namespace MasturbationRecorder {
+    using Windows.Storage;
     using Debug = System.Diagnostics.Debug;
 
     public sealed partial class RegisterPage : Page {
         private byte[] _fileBytes;
+        private Theme _theme;
+        private StorageFile _file;
 
         public RegisterPage() {
             this.InitializeComponent();
@@ -35,8 +38,8 @@ namespace MasturbationRecorder {
                     username: AccountTextBox.Text,
                     password: PasswordBox.Password,
                     title: TitleBox.Text,
-                    theme: Theme.Light,
-                    avatar: null
+                    theme: this._theme,
+                    avatar: _file
                 );
                 if (await AzureSqlDbHelper.LoginAsync(configuration)) {
                     Frame rootFrame = Window.Current.Content as Frame;
@@ -57,19 +60,19 @@ namespace MasturbationRecorder {
             picker.FileTypeFilter.Add(".jpeg");
             picker.FileTypeFilter.Add(".png");
 
-            Windows.Storage.StorageFile file = await picker.PickSingleFileAsync();
-            if (file != null) {
-                await StorageFileToBytesAsync(file);
-                Avatar.Source = await StorageFileToBitmapImageAsync(file, (int)Avatar.Width, (int)Avatar.Height);
+            _file = await picker.PickSingleFileAsync();
+            if (_file != null) {
+                await StorageFileToBytesAsync(_file);
+                Avatar.Source = await StorageFileToBitmapImageAsync(_file, (int)Avatar.Width, (int)Avatar.Height);
             }
         }
 
         private void LightRadioButton_Checked(object sender, RoutedEventArgs e) {
-
+            this._theme = Theme.Light;
         }
 
         private void DarkRadioButton_Checked(object sender, RoutedEventArgs e) {
-
+            this._theme = Theme.Dark;
         }
     }
 }

@@ -34,15 +34,12 @@ namespace MasturbationRecorder {
         /// 1、字节码原本是由非图像数据转换而成；
         /// 2、字节码由一张遭遇损坏的图像文件转换而成；
         /// </remarks>
-        public async Task<BitmapImage> StorageFileToBitmapImageAsync(StorageFile file, int decodePixelWidth, int decodePixelHeight, Windows.UI.Xaml.RoutedEventHandler imageOpenedEvent = null) {
+        public async Task<BitmapImage> StorageFileToBitmapImageAsync(StorageFile file, int decodePixelWidth, int decodePixelHeight) {
             using (IRandomAccessStream fileStream = await file.OpenAsync(FileAccessMode.Read)) {
                 BitmapImage bitmapImage = new BitmapImage {
                     DecodePixelHeight = decodePixelHeight,
                     DecodePixelWidth = decodePixelWidth
                 };
-                if (imageOpenedEvent != null) {
-                    bitmapImage.ImageOpened += imageOpenedEvent;
-                }
                 await bitmapImage.SetSourceAsync(fileStream);
                 return bitmapImage;
             }

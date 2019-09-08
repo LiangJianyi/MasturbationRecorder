@@ -35,7 +35,7 @@
                 <TextBlock x:Name="UploadAvatarTextBlock" Text="点击上传头像"/>
             </StackPanel>
             <StackPanel x:Name="StackPanleWithRadioButtons" Orientation="Horizontal" Margin="0,25,0,25">
-                <RadioButton x:Name="LightRadioButton" Content="Light Theme" Tag="Light" Checked="LightRadioButton_Checked"/>
+                <RadioButton x:Name="LightRadioButton" Content="Light Theme" Tag="Light" Checked="LightRadioButton_Checked" IsChecked="True"/>
                 <RadioButton x:Name="DarkRadioButton" Content="Dark Theme" Tag="Dark" Checked="DarkRadioButton_Checked"/>
             </StackPanel>
             <StackPanel x:Name="StackPanelWithButtons" Orientation="Horizontal" Margin="0,50,0,0">
