@@ -39,6 +39,10 @@ namespace MasturbationRecorder {
             }
         }
 
+        /// <summary>
+        /// 转换可序列化版本用于序列化
+        /// </summary>
+        /// <returns></returns>
         private async Task<SerializationConfiguration> AsSerializationConfigurationAsync()
             => new SerializationConfiguration() {
                 UserName = this.UserName,
@@ -49,6 +53,11 @@ namespace MasturbationRecorder {
                 RecordFile = await this.RecordFile?.ToBytesAsync()
             };
 
+        /// <summary>
+        /// 序列化为字节数组
+        /// </summary>
+        /// <param name="configuration"></param>
+        /// <returns></returns>
         public static async Task<byte[]> SerializeToBytesAsync(Configuration configuration) {
             SerializationConfiguration serializationConfiguration = await configuration.AsSerializationConfigurationAsync();
             //内存实例
@@ -61,6 +70,11 @@ namespace MasturbationRecorder {
             return bytes;
         }
 
+        /// <summary>
+        /// 将字节数组反序列化为 Configuration
+        /// </summary>
+        /// <param name="bytes"></param>
+        /// <returns></returns>
         public static async Task<Configuration> DeserializeObjectAsync(byte[] bytes) {
             //利用传来的byte[]创建一个内存流
             MemoryStream ms = new MemoryStream(bytes);
@@ -91,6 +105,10 @@ namespace MasturbationRecorder {
         public byte[] Avatar { get; set; }
         public byte[] RecordFile { get; set; }
 
+        /// <summary>
+        /// 转换为 Configuration
+        /// </summary>
+        /// <returns></returns>
         public async Task<Configuration> AsConfigurationAsync() => new Configuration(
             username: this.UserName,
             password: this.Password,
