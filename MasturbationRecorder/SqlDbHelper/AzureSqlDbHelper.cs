@@ -46,7 +46,7 @@ namespace MasturbationRecorder.SqlDbHelper {
                         IDataParameter parameter_bytes = cmd.CreateParameter();
                         parameter_bytes.ParameterName = "personData";
                         parameter_bytes.DbType = DbType.Binary;
-                        parameter_bytes.Value = Configuration.SerializeToBytesAsync(configuration);
+                        parameter_bytes.Value = await Configuration.SerializeToBytesAsync(configuration);
 
                         cmd.Parameters.Add(parameter_username);
                         cmd.Parameters.Add(parameter_password);
@@ -101,12 +101,13 @@ namespace MasturbationRecorder.SqlDbHelper {
                          * 
                          * if (reader.GetSqlBinary(2).IsNull == false) {
                          *      byte[] bytes = reader.GetSqlBinary(2).Value;
-                         *      configuration.Avatar = await bytes?.AsStorageFile("Status.png");
+                         *      return await Configuration.DeserializeObjectAsync(bytes);
                          * }
                          */
                         System.Data.SqlTypes.SqlBinary binary = reader.GetSqlBinary(2);
                         if (binary.IsNull == false) {
                             byte[] bytes = binary.Value;
+                            // 从数据库拉取已经序列化的 Configuration
                             return await Configuration.DeserializeObjectAsync(bytes);
                         }
                     }

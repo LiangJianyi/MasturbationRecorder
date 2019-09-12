@@ -9,12 +9,10 @@ using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Shapes;
+using MasturbationRecorder.CommonTool;
+using Windows.UI.Xaml.Navigation;
 
 namespace MasturbationRecorder {
-    using MasturbationRecorder.CommonTool;
-    using Windows.Storage.Streams;
-    using Windows.UI.Xaml.Media.Imaging;
-    using Windows.UI.Xaml.Navigation;
     using Debug = System.Diagnostics.Debug;
 
     enum SaveMode {
@@ -503,7 +501,7 @@ namespace MasturbationRecorder {
                 else {  // 如果 res.Avatar 为空，表明用户还未上传头像，开始使用本地图像
                     Task.WhenAll(Tool.GetDefaultAvatarAsync(res),
                                  Tool.LoadImageFromStreamAsync(Avatar, res.Avatar, Convert.ToInt32(Avatar.Width), Convert.ToInt32(Avatar.Height)));
-                    
+
                 }
             }
             base.OnNavigatedTo(e);

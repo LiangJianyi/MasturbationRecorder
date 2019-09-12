@@ -1,26 +1,13 @@
 ﻿using MasturbationRecorder.SqlDbHelper;
+using MasturbationRecorder.CommonTool;
 using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Runtime.InteropServices.WindowsRuntime;
-using Windows.Foundation;
-using Windows.Foundation.Collections;
-using Windows.Storage.Streams;
+using Windows.Storage;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Controls.Primitives;
-using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Input;
-using Windows.UI.Xaml.Media;
-using Windows.UI.Xaml.Navigation;
 
 namespace MasturbationRecorder {
-    using Windows.Storage;
-    using Debug = System.Diagnostics.Debug;
-
     public sealed partial class RegisterPage : Page {
-        private byte[] _fileBytes;
         private Theme _theme;
         private StorageFile _file;
 
@@ -84,8 +71,7 @@ namespace MasturbationRecorder {
 
             _file = await picker.PickSingleFileAsync();
             if (_file != null) {
-                await StorageFileToBytesAsync(_file);
-                Avatar.Source = await StorageFileToBitmapImageAsync(_file, (int)Avatar.Width, (int)Avatar.Height);
+                Avatar.Source = await Tool.StorageFileToBitmapImageAsync(_file, (int)Avatar.Width, (int)Avatar.Height);
             }
         }
 
