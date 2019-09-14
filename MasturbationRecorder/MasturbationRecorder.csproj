@@ -123,7 +123,7 @@
     <Compile Include="GuidancePage.xaml.cs">
       <DependentUpon>GuidancePage.xaml</DependentUpon>
     </Compile>
-    <Compile Include="GuidancePageViewModel\GuidancePage.xaml.cs" />
+    <Compile Include="GuidancePageViewModel\GuidancePage.cs" />
     <Compile Include="MainPageViewModel\Blink.cs" />
     <Compile Include="MainPageViewModel\Bubble.cs" />
     <Compile Include="MainPageViewModel\MainPageException.cs" />
