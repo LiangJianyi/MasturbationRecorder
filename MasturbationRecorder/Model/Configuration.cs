@@ -40,14 +40,14 @@ namespace MasturbationRecorder {
         /// 转换可序列化版本用于序列化
         /// </summary>
         /// <returns></returns>
-        private async Task<SerializationConfiguration> AsSerializationConfigurationAsync()
-            => new SerializationConfiguration() {
+        private async Task<SerializationConfiguration> AsSerializationConfigurationAsync() =>
+            new SerializationConfiguration() {
                 UserName = this.UserName,
                 Password = this.Password,
                 Title = this.Title,
                 Theme = this.Theme,
-                Avatar = await this.Avatar?.ToBytesAsync(),
-                RecordFile = await this.RecordFile?.ToBytesAsync()
+                Avatar = this.Avatar == null ? null : await this.Avatar.ToBytesAsync(),
+                RecordFile = this.RecordFile == null ? null : await this.RecordFile.ToBytesAsync()
             };
 
         /// <summary>
@@ -106,13 +106,15 @@ namespace MasturbationRecorder {
         /// 转换为 Configuration
         /// </summary>
         /// <returns></returns>
-        public async Task<Configuration> AsConfigurationAsync() => new Configuration(
-            username: this.UserName,
-            password: this.Password,
-            title: this.Title,
-            theme: this.Theme,
-            avatar: await this.Avatar.AsStorageFile("Avatar.png"),
-            record: await this.RecordFile.AsStorageFile("RecordFile.txt")
-        );
+        public async Task<Configuration> AsConfigurationAsync() {
+            return new Configuration(
+                username: this.UserName,
+                password: this.Password,
+                title: this.Title,
+                theme: this.Theme,
+                avatar: this.Avatar == null ? null : await this.Avatar.AsStorageFile("Avatar.png"),
+                record: this.RecordFile == null ? null : await this.RecordFile.AsStorageFile("RecordFile.txt")
+            );
+        }
     }
 }

@@ -23,9 +23,10 @@ namespace ManualTest {
 
             Assembly MasturbationRecorderAssembly = Assembly.LoadFrom(MasturbationRecorder_exe_path);
             Assembly MasturbationRecorderTestAssembly = Assembly.LoadFrom(MasturbationRecorderTest_path);
-            MasturbationRecorder_DatetimeParser_StringToUInt16_Test(MasturbationRecorderAssembly);
-            MasturbationRecorder_MainPageViewModel_GroupDateTimesDiff_SingleNodeTest(MasturbationRecorderAssembly, MasturbationRecorderTestAssembly);
-            MasturbationRecorder_MainPageViewModel_GroupDateTimesDiff_Test(MasturbationRecorderAssembly, MasturbationRecorderTestAssembly);
+            //MasturbationRecorder_DatetimeParser_StringToUInt16_Test(MasturbationRecorderAssembly);
+            //MasturbationRecorder_MainPageViewModel_GroupDateTimesDiff_SingleNodeTest(MasturbationRecorderAssembly, MasturbationRecorderTestAssembly);
+            //MasturbationRecorder_MainPageViewModel_GroupDateTimesDiff_Test(MasturbationRecorderAssembly, MasturbationRecorderTestAssembly);
+            MasturbationRecorder_Configuration_SerializeToBytesAsync_Test(MasturbationRecorderAssembly, MasturbationRecorderTestAssembly);
 
             Console.ReadKey();
         }
@@ -166,6 +167,26 @@ namespace ManualTest {
                     Console.WriteLine(s);
                 }
             }
+        }
+
+        private static void MasturbationRecorder_Configuration_SerializeToBytesAsync_Test(Assembly mastAssembly, Assembly mastTestAssembly) {
+            /*
+             * Configuration configuration = await CommonTestResource.GenerateConfigurationAsync();
+                byte[] bytes = await Configuration.SerializeToBytesAsync(configuration);
+                configuration = await Configuration.DeserializeObjectAsync(bytes);
+                string acutalname = configuration.Avatar.Name;
+             */
+            Type commonTestResourceType = mastTestAssembly.GetType("MasturbationRecorderTest.CommonTestResource");
+            TypeInfo commonTestResourceTypeInfo = commonTestResourceType.GetTypeInfo();
+            object configuration = commonTestResourceTypeInfo.GetMethod("GenerateConfigurationAsync")
+                                                             .Invoke(null, null);
+            Console.WriteLine(configuration.GetType());
+            Console.WriteLine(configuration.GetType().InvokeMember(
+                                                        name: "SerializeToBytesAsync",
+                                                        invokeAttr: BindingFlags.Public | BindingFlags.Static | BindingFlags.InvokeMethod,
+                                                        binder: null,
+                                                        target: null,
+                                                        args: new object[] { configuration }));
         }
     }
 }

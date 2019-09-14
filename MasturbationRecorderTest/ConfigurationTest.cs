@@ -10,14 +10,15 @@ namespace MasturbationRecorderTest {
     [TestClass]
     public class ConfigurationTest {
         [TestMethod]
-        public async void SerializeToBytesAsyncTest() {
+        public async Task SerializeToBytesAsyncTest() {
             Configuration configuration = await CommonTestResource.GenerateConfigurationAsync();
-            var bytes = await Configuration.SerializeToBytesAsync(configuration);
+            byte[] bytes = await Configuration.SerializeToBytesAsync(configuration);
             configuration = await Configuration.DeserializeObjectAsync(bytes);
+            string acutalname = configuration.Avatar.Name;
             Assert.AreEqual<string>("wangyuyan.png", configuration.Avatar.Name);
         }
 
         [TestMethod]
-        public void FuckTest() => Assert.AreEqual(1, 1);
+        public async Task FuckTestAsync() => await Task.Factory.StartNew(()=> Assert.AreEqual(1, 1));
     }
 }
