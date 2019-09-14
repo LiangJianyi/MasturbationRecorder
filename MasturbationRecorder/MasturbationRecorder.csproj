@@ -141,6 +141,8 @@
     </Compile>
     <Compile Include="RegisterPageViewModel\RegisterPage.cs" />
     <Compile Include="SqlDbHelper\AzureSqlDbHelper.cs" />
+    <Compile Include="SqlDbHelper\LocalSqlDbHelper.cs" />
+    <Compile Include="SqlDbHelper\SqlDbHelper.cs" />
   </ItemGroup>
   <ItemGroup>
     <AppxManifest Include="Package.appxmanifest">
