@@ -93,16 +93,21 @@ namespace MasturbationRecorder {
             }
         }
 
+        /// <summary>
+        /// 每个方块都要响应鼠标点击
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void Rect_PointerReleased(object sender, Windows.UI.Xaml.Input.PointerRoutedEventArgs e) {
             Rectangle rectangle = sender as Rectangle;
             Bubble.CreateBubbleRectangle(
                 canvas: RectanglesCanvas,
                 hostRect: rectangle,
-                bubbleName: RectanglesCanvas.Resources["OhhohoRect"] as string,
-                zoom: (minWidth: (double)RectanglesCanvas.Resources["MinWidth"],
-                       minHeight: (double)RectanglesCanvas.Resources["MinHeight"],
-                       maxWidth: (double)RectanglesCanvas.Resources["MaxWidth"],
-                       maxHeight: (double)RectanglesCanvas.Resources["MaxHeight"])
+                bubbleName: VisualEventFrequencyRecorder.Resources["OhhohoRect"] as string,
+                zoom: (minWidth: (double)VisualEventFrequencyRecorder.Resources["MinWidth"],
+                       minHeight: (double)VisualEventFrequencyRecorder.Resources["MinHeight"],
+                       maxWidth: (double)VisualEventFrequencyRecorder.Resources["MaxWidth"],
+                       maxHeight: (double)VisualEventFrequencyRecorder.Resources["MaxHeight"])
             );
             Bubble.CreateBubbleStoryboard(
                 hostPosition: (left: Canvas.GetLeft(rectangle), top: Canvas.GetTop(rectangle)),
@@ -488,8 +493,7 @@ namespace MasturbationRecorder {
         /// </summary>
         /// <param name="e">从 Source Page 传递过来的参数</param>
         protected override void OnNavigatedTo(NavigationEventArgs e) {
-            Configuration res = e.Parameter as Configuration;
-            if (res == null) {
+            if (!(e.Parameter is Configuration res)) {
                 TitleTextBlock.Visibility = Visibility.Collapsed;
                 AvatarStack.Visibility = Visibility.Collapsed;
             }

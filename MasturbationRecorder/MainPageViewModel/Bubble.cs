@@ -5,9 +5,22 @@ using Windows.UI.Xaml.Controls;
 
 namespace MasturbationRecorder {
     static class Bubble {
+        /// <summary>
+        /// 表示气泡的大小，用一个元组表示，该元组包含4个double值指示气泡的最小状态和最大状态
+        /// </summary>
         private static (double minWidth, double minHeight, double maxWidth, double maxHeight) _zoom;
+        /// <summary>
+        /// 表示当前气泡对象
+        /// </summary>
         internal static Rectangle _bubble;
 
+        /// <summary>
+        /// 为相应的方块创建气泡，当鼠标点击该方块时会在它的上层弹出气泡
+        /// </summary>
+        /// <param name="canvas">方块所在的面板</param>
+        /// <param name="hostRect">弹气泡的宿主方块</param>
+        /// <param name="bubbleName">气泡对象名称</param>
+        /// <param name="zoom">气泡大小，用一个元组表示，该元组包含4个double值指示气泡的最小状态和最大状态</param>
         internal static void CreateBubbleRectangle(Canvas canvas, 
                                                    Rectangle hostRect, 
                                                    string bubbleName, 
