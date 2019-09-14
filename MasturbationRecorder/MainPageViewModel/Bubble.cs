@@ -21,9 +21,9 @@ namespace MasturbationRecorder {
         /// <param name="hostRect">弹气泡的宿主方块</param>
         /// <param name="bubbleName">气泡对象名称</param>
         /// <param name="zoom">气泡大小，用一个元组表示，该元组包含4个double值指示气泡的最小状态和最大状态</param>
-        internal static void CreateBubbleRectangle(Canvas canvas, 
-                                                   Rectangle hostRect, 
-                                                   string bubbleName, 
+        internal static void CreateBubbleRectangle(Canvas canvas,
+                                                   Rectangle hostRect,
+                                                   string bubbleName,
                                                    (double minWidth, double minHeight, double maxWidth, double maxHeight) zoom) {
             _zoom = zoom;
             _bubble = new Rectangle() {
@@ -111,6 +111,11 @@ namespace MasturbationRecorder {
         //    storyboard.Begin();
         //}
 
+        /// <summary>
+        /// 创建气泡弹出动画
+        /// </summary>
+        /// <param name="hostPosition">携带气泡的宿主方块的坐标</param>
+        /// <param name="storyboard_Completed">动画结束事件</param>
         internal static void CreateBubbleStoryboard((double left, double top) hostPosition, EventHandler<object> storyboard_Completed) {
 
             #region 与下面代码等价的 XAML
