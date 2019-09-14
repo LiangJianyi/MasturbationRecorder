@@ -8,6 +8,8 @@ using Windows.UI.Xaml.Input;
 
 namespace MasturbationRecorder {
     public sealed partial class RegisterPage : Page {
+        private SqlDbHelper.SqlDbHelper _sqlDbHelper = SqlDbHelper.SqlDbHelper.GetSqlDbHelper(SqlDbHelperType.LocalSqlDbHelper);
+
         private Theme _theme;
         private StorageFile _file;
 
@@ -46,9 +48,9 @@ namespace MasturbationRecorder {
                         theme: this._theme,
                         avatar: _file
                 );
-                if (await AzureSqlDbHelper.RegisterUserAsync(configuration) > 0) {
+                if (await this._sqlDbHelper.RegisterUserAsync(configuration) > 0) {
                     // 注册成功后要用 configuration 再登陆一次
-                    configuration = await AzureSqlDbHelper.LoginAsync(configuration.UserName, configuration.Password);
+                    configuration = await this._sqlDbHelper.LoginAsync(configuration.UserName, configuration.Password);
                     if (configuration != null) {
                         Frame rootFrame = Window.Current.Content as Frame;
                         rootFrame.Navigate(typeof(MainPage), configuration);

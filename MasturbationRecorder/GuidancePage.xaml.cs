@@ -7,6 +7,8 @@ namespace MasturbationRecorder {
     using Debug = System.Diagnostics.Debug;
 
     public sealed partial class GuidancePage : Page {
+        private SqlDbHelper.SqlDbHelper _sqlDbHelper = SqlDbHelper.SqlDbHelper.GetSqlDbHelper(SqlDbHelperType.LocalSqlDbHelper);
+
         public GuidancePage() {
             this.InitializeComponent();
         }
@@ -23,7 +25,7 @@ namespace MasturbationRecorder {
                 PopErrorDialogAsync("账户和密码不能包含空格");
             }
             else {
-                Configuration configuration = await AzureSqlDbHelper.LoginAsync(AccountTextBox.Text, PasswordBox.Password);
+                Configuration configuration = await _sqlDbHelper.LoginAsync(AccountTextBox.Text, PasswordBox.Password);
                 if (configuration != null) {
                     Frame rootFrame = Window.Current.Content as Frame;
                     rootFrame.Navigate(typeof(MainPage), configuration);

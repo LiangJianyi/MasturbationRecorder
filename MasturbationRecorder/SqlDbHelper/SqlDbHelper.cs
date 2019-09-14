@@ -9,10 +9,26 @@ using System.Threading.Tasks;
 namespace MasturbationRecorder.SqlDbHelper {
     using Debug = System.Diagnostics.Debug;
 
+    enum SqlDbHelperType {
+        AzureSqlDbHelper,
+        LocalSqlDbHelper
+    }
+
     class SqlDbHelper {
         protected SqlConnectionStringBuilder Builder { get; set; }
 
         protected SqlDbHelper(SqlConnectionStringBuilder builder) => this.Builder = builder;
+
+        public static SqlDbHelper GetSqlDbHelper(SqlDbHelperType sqlDbHelperType) {
+            switch (sqlDbHelperType) {
+                case SqlDbHelperType.AzureSqlDbHelper:
+                    return new AzureSqlDbHelper();
+                case SqlDbHelperType.LocalSqlDbHelper:
+                    return new LocalSqlDbHelper();
+                default:
+                    throw new Exception("SqlDbHelperType error.");
+            }
+        }
 
         /// <summary>
         /// 注册账户
