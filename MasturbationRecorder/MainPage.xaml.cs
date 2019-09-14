@@ -489,7 +489,11 @@ namespace MasturbationRecorder {
         /// <param name="e">从 Source Page 传递过来的参数</param>
         protected override void OnNavigatedTo(NavigationEventArgs e) {
             Configuration res = e.Parameter as Configuration;
-            if (string.IsNullOrEmpty(res.Title)) {
+            if (res == null) {
+                TitleTextBlock.Visibility = Visibility.Collapsed;
+                AvatarStack.Visibility = Visibility.Collapsed;
+            }
+            else if (string.IsNullOrEmpty(res.Title)) {
                 TitleTextBlock.Visibility = Visibility.Collapsed;
             }
             else {

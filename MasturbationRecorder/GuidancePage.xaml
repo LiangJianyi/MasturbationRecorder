@@ -30,5 +30,6 @@
                 <Button x:Name="RegisterButton" Content="注册" Click="Register_Click"  Margin="20,0,0,0"/>
             </StackPanel>
         </StackPanel>
+        <Button x:Name="SkipButton" Content="跳过登录" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="80" Click="SkipButton_Click"/>
     </Grid>
 </Page>
