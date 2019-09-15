@@ -15,11 +15,6 @@ using Windows.UI.Xaml.Navigation;
 namespace MasturbationRecorder {
     using Debug = System.Diagnostics.Debug;
 
-    enum SaveMode {
-        NewFile,
-        OrginalFile
-    }
-
     public sealed partial class MainPage : Page {
         /// <summary>
         /// 获取当前 Window 对象
@@ -48,6 +43,11 @@ namespace MasturbationRecorder {
             this.RectanglesLayout();
         }
 
+        /// <summary>
+        /// 打开文件选取器
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private async void OpenFileButtonAsync_Click(object sender, RoutedEventArgs e) {
             FileOpenPicker openPicker = new FileOpenPicker {
                 ViewMode = PickerViewMode.Thumbnail,
@@ -165,6 +165,10 @@ namespace MasturbationRecorder {
             }
         }
 
+        /// <summary>
+        /// 弹出错误消息框
+        /// </summary>
+        /// <param name="content"></param>
         private static async void PopErrorDialogAsync(string content) {
             ContentDialog fileOpenFailDialog = new ContentDialog {
                 Title = "Error",
@@ -172,73 +176,6 @@ namespace MasturbationRecorder {
                 CloseButtonText = "Ok"
             };
             ContentDialogResult result = await fileOpenFailDialog.ShowAsync();
-        }
-
-        private void RectanglesLayout() {
-            DateTime today = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day);
-            DateTime todayOfLastyear = new DateTime(today.Year - 1, today.Month, today.Day);
-            TimeSpan pastDay = today - todayOfLastyear;
-            const int rectWidth = 10;
-            const int rectHeight = 10;
-            const int columnDistance = 3;
-            const int rowDistance = 3;
-            const int monthTitleSpace = 40;
-            const int bottomSpace = 20;
-            const int leftSpace = 80;
-            const int topSpace = 37;
-            const int rightSpace = leftSpace;
-            int rectCount = pastDay.Days;
-            int totalWeek = pastDay.Days / 7;
-            this.RectanglesCanvas.Width = totalWeek * columnDistance + leftSpace + rightSpace + totalWeek * rectWidth + rectWidth;
-            this.RectanglesCanvas.Height = rowDistance * 6 + bottomSpace + monthTitleSpace + 7 * rectHeight;
-            DateTime dateOfEachRectangle = today;
-            for (int column = totalWeek; column >= 0; column--) {
-                if (column == totalWeek) {
-                    for (int row = Convert.ToInt32(today.DayOfWeek); row >= 0; row--, dateOfEachRectangle = dateOfEachRectangle.AddDays(-1)) {
-                        CreateRectangle(
-                            rectWidth: rectWidth,
-                            rectHeight: rectHeight,
-                            canvasLeft: column * rectWidth + columnDistance * (column - 1) + leftSpace,
-                            canvasTop: row * rectHeight + row * rowDistance + topSpace,
-                            dateTime: dateOfEachRectangle
-                        );
-                    }
-                }
-                else {
-                    for (int row = 6; row >= 0; row--, dateOfEachRectangle = dateOfEachRectangle.AddDays(-1)) {
-                        CreateRectangle(
-                            rectWidth: rectWidth,
-                            rectHeight: rectHeight,
-                            canvasLeft: column * rectWidth + columnDistance * (column - 1) + leftSpace,
-                            canvasTop: row * rectHeight + row * rowDistance + topSpace,
-                            dateTime: dateOfEachRectangle
-                        );
-                    }
-                }
-            }
-        }
-
-        private void CreateRectangle(int rectWidth, int rectHeight, int canvasLeft, int canvasTop, DateTime dateTime) {
-            Rectangle rect = new Rectangle {
-                Name = dateTime.ToShortDateString(),
-                Width = rectWidth,
-                Height = rectHeight,
-                Fill = new SolidColorBrush(MainPageViewModel.LightGray),
-            };
-            rect.PointerReleased += Rect_PointerReleased;
-#if DEBUG
-            ToolTip toolTip = new ToolTip {
-                Content = rect.Name + $"  Level:0  Total:0  Color:{(rect.Fill as SolidColorBrush).Color}"
-            };
-#else
-            ToolTip toolTip = new ToolTip {
-                Content = dateTime.ToShortDateString()
-            }; 
-#endif
-            ToolTipService.SetToolTip(rect, toolTip);
-            RectanglesCanvas.Children.Add(rect);
-            Canvas.SetLeft(rect, canvasLeft);
-            Canvas.SetTop(rect, canvasTop);
         }
 
         /// <summary>
@@ -253,18 +190,6 @@ namespace MasturbationRecorder {
             UpdateMainPageLayout();
         }
 
-        /// <summary>
-        /// 初始化页面和改变窗体大小都需要调用该方法对 UI 布局进行变更，
-        /// 该方法为设计自适应界面而准备。
-        /// </summary>
-        private void UpdateMainPageLayout() {
-            Menu.Width = this.Window.Bounds.Width;
-            RootGrid.Width = this.Window.Bounds.Width;
-            RootGrid.Height = this.Window.Bounds.Height - ((double)RootCanvas.Resources["CanvasTopForRootGrid"]);
-            Canvas.SetTop(AvatarStack, 80);
-            Canvas.SetLeft(AvatarStack, this.Window.Bounds.Width - AvatarStack.ActualWidth - 50);
-        }
-
         /*
          * 气泡动画结束后从 Canvas 移除气泡方块
          */
@@ -273,82 +198,10 @@ namespace MasturbationRecorder {
         }
 
         /// <summary>
-        /// 绘制方块颜色
+        /// 保存文件
         /// </summary>
-        /// <param name="entries">分级后条目列表</param>
-        /// <param name="haveProgressBoard">是否开启进度条面板，true 为开启，反之不开启</param>
-        private void DrawRectangleColor(List<IGrouping<BigInteger, StatistTotalByDateTime>>[] entries, bool haveProgressBoard) {
-#if DEBUG
-            Debug.WriteLine($"Executing DrawRectangleColor:");
-#endif
-            if (haveProgressBoard) {
-                ProgressBoard.Slide(RectanglesCanvas);
-            }
-            IDictionary<int, SolidColorBrush> colorDic = MainPageViewModel.ClassifyColorByLevelScore(entries.Length);
-
-            Windows.Foundation.IAsyncAction action = Windows.System.Threading.ThreadPool.RunAsync(
-                async (asyncAction) => {
-                    await Windows.ApplicationModel.Core.CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(
-                    priority: Windows.UI.Core.CoreDispatcherPriority.Normal,
-                    agileCallback: () => {
-                        // level 作为 entries 的索引值，值越小对应的 Total 越小
-                        for (int level = 0; level < entries.Length; level++) {
-                            List<IGrouping<BigInteger, StatistTotalByDateTime>> groups = entries[level];
-                            IGrouping<BigInteger, StatistTotalByDateTime> group = null;
-                            for (int groupsIncre = 0; groupsIncre < groups.LongCount(); groupsIncre++) {
-                                group = groups[groupsIncre];
-                                foreach (StatistTotalByDateTime entry in group) {
-                                    // 过滤掉非 Rectangle 的元素（比如 ProgressBoard）
-                                    var rectangles = from rect in RectanglesCanvas.Children
-                                                     where rect is Rectangle
-                                                     select rect;
-                                    foreach (Rectangle rect in rectangles) {
-                                        if (rect.Name == entry.DateTime.ToShortDateString()) {
-                                            rect.Fill = colorDic[level + 1];
-#if DEBUG
-                                            ToolTip toolTip = new ToolTip {
-                                                Content = rect.Name + $"  Level:{level + 1}  Total:{entry.Total}  Color:{(rect.Fill as SolidColorBrush).Color}"
-                                            };
-                                            ToolTipService.SetToolTip(rect, toolTip);
-#endif
-                                            _rectangleRegisteTable.Add(rect);
-                                            break;
-                                        }
-                                        else {
-                                            if (!_rectangleRegisteTable.Contains(rect)) {
-                                                rect.Fill = colorDic[0];
-#if DEBUG
-                                                ToolTip toolTip = new ToolTip {
-                                                    Content = rect.Name + $"  Level:0  Total:0  Color:{(rect.Fill as SolidColorBrush).Color}"
-                                                };
-                                                ToolTipService.SetToolTip(rect, toolTip);
-#endif
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    });
-                });
-
-        }
-
-        /// <summary>
-        /// 重置方块的颜色和闪烁状态
-        /// </summary>
-        private void ResetRectangle() {
-            foreach (var rect in _rectangleRegisteTable) {
-                rect.Fill = new SolidColorBrush(MainPageViewModel.LightGray);
-            }
-            // 重置方块颜色之后要紧接着重新初始化该表
-            _rectangleRegisteTable = new HashSet<Rectangle>();
-            // 停止所有闪烁状态的方块
-            foreach (var rect in Blink.BlinkedRectangles) {
-                Blink.StopBlink(rect.Value.rectangle);
-            }
-        }
-
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private async void SaveFileButtonAsync_Click(object sender, RoutedEventArgs e) {
             /*
              * 把 DrawRectangleColor(_model?.GroupDateTimesByTotal()) 写进下面两个 Save 异步方法
@@ -392,53 +245,6 @@ namespace MasturbationRecorder {
             }
         }
 
-        /// <summary>
-        /// 将变更作为新文件存储
-        /// </summary>
-        /// <returns>
-        /// 返回一个元组，Status 字段代表文件的更新状态，FileIsPick 字段代表用户是否在文件选取器上选取文件，true 为已选取，false 为用户关闭了文件选取器
-        /// </returns>
-        private async Task SaveNewFileAsync() {
-            FileSavePicker savePicker = new FileSavePicker {
-                SuggestedStartLocation = PickerLocationId.DocumentsLibrary,
-                SuggestedFileName = "New Record"
-            };
-            savePicker.FileTypeChoices.Add("Plain Text", new List<string>() { ".txt", ".mast" });
-            StorageFile file = await savePicker.PickSaveFileAsync();
-            if (file != null) {
-                Windows.Storage.Provider.FileUpdateStatus status = await CachedFileManager.CompleteUpdatesAsync(file);
-                switch (status) {
-                    case Windows.Storage.Provider.FileUpdateStatus.Complete:
-                        await FileIO.WriteLinesAsync(file, _model.ToArray());
-                        break;
-                    case Windows.Storage.Provider.FileUpdateStatus.Incomplete:
-                    case Windows.Storage.Provider.FileUpdateStatus.UserInputNeeded:
-                    case Windows.Storage.Provider.FileUpdateStatus.CurrentlyUnavailable:
-                    case Windows.Storage.Provider.FileUpdateStatus.Failed:
-                    case Windows.Storage.Provider.FileUpdateStatus.CompleteAndRenamed:
-                    default:
-                        throw new FilePickFaildException($"Pick a file faild! Windows.Storage.Provider.FileUpdateStatus = {status}");
-                }
-            }
-            DrawRectangleColor(_model?.GroupDateTimesByTotal(), true);
-        }
-
-        /// <summary>
-        /// 将变更覆盖原有文件
-        /// </summary>
-        /// <returns></returns>
-        private async Task SaveOrginalFileAsync() {
-            CachedFileManager.DeferUpdates(_file);
-            await FileIO.WriteLinesAsync(_file, _model.ToArray());
-            Windows.Storage.Provider.FileUpdateStatus status = await CachedFileManager.CompleteUpdatesAsync(_file);
-            if (status == Windows.Storage.Provider.FileUpdateStatus.Complete) {
-                Debug.WriteLine("File " + _file.Name + " was saved.");
-            }
-            else {
-                throw new FileNotSaveException($"File {_file.Name} couldn't be saved.");
-            }
-            DrawRectangleColor(_model?.GroupDateTimesByTotal(), true);
-        }
 
         /// <summary>
         /// 页面加载完成后要对部分控件的视觉状态进行预设
@@ -449,7 +255,7 @@ namespace MasturbationRecorder {
             SaveFileButton.Visibility = Visibility.Collapsed;
             RefreshButton.Visibility = Visibility.Collapsed;
             ClearButton.Visibility = Visibility.Collapsed;
-            MainPageViewModel.DateTag(RectanglesCanvas);
+            DateTag(RectanglesCanvas);
             UpdateMainPageLayout();
         }
 
