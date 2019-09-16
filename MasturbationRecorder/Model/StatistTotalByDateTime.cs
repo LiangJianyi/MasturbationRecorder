@@ -6,6 +6,10 @@ using System.Numerics;
 using Janyee.Utilty;
 
 namespace MasturbationRecorder {
+    /// <summary>
+    /// 记录事件频率的对象，它是事件纪录器的核心对象类型，每一个StatistTotalByDateTime对象代表一条事件记录，
+    /// 事件记录包含两个属性，日期（DateTime）和发生次数（Total）
+    /// </summary>
     class StatistTotalByDateTime : IComparable<StatistTotalByDateTime> {
         public DateTime DateTime;
         public BigInteger Total;
@@ -64,9 +68,23 @@ namespace MasturbationRecorder {
             }
             return $"{month} {DateTime.Day} {DateTime.Year} x{Total}";
         }
-
+        /// <summary>
+        /// 比较两个 StatistTotalByDateTime 对象的相等性
+        /// </summary>
+        /// <param name="other"></param>
+        /// <returns></returns>
         public bool Equivalent(StatistTotalByDateTime other) => this.DateTime.Equals(other.DateTime) && this.Total.Equals(other.Total);
+        /// <summary>
+        /// 如果当前 StatistTotalByDateTime 的发生时间比 other 要早，返回 true，否则返回 false
+        /// </summary>
+        /// <param name="other"></param>
+        /// <returns></returns>
         public bool EarlierThan(StatistTotalByDateTime other) => this.DateTime < other.DateTime;
+        /// <summary>
+        /// 如果当前 StatistTotalByDateTime 的发生时间比 other 要晚，返回 true，否则返回 false
+        /// </summary>
+        /// <param name="other"></param>
+        /// <returns></returns>
         public bool LaterThan(StatistTotalByDateTime other) => this.DateTime > other.DateTime;
         public static bool operator >(StatistTotalByDateTime left, StatistTotalByDateTime right) => left.CompareTo(right) == 1;
         public static bool operator <(StatistTotalByDateTime left, StatistTotalByDateTime right) => left.CompareTo(right) == -1;
