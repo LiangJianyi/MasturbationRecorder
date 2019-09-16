@@ -92,6 +92,9 @@ namespace MasturbationRecorder {
         public static bool operator <=(StatistTotalByDateTime left, StatistTotalByDateTime right) => left.CompareTo(right) <= 0;
     }
 
+    /// <summary>
+    /// StatistTotalByDateTime 模型类，用于存储 StatistTotalByDateTime 对象，并对这些对象进行增删改查
+    /// </summary>
     class StatistTotalByDateTimeModel {
         private LinkedList<StatistTotalByDateTime> _entries;
         public LinkedList<StatistTotalByDateTime> Entries => _entries;
@@ -102,7 +105,7 @@ namespace MasturbationRecorder {
         public StatistTotalByDateTimeModel(IEnumerable<string> lines) {
             this._entries = new LinkedList<StatistTotalByDateTime>();
             foreach (var line in lines) {
-                if (line != "" && line != "\r") {   // 忽略空行
+                if (line != string.Empty || line != "\r") {   // 忽略空行
                     StatistTotalByDateTime statist = DatetimeParser.ParseExpressToStatistTotalByDateTime(line);
                     this._entries.AddLast(statist);
                 }
