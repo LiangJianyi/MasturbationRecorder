@@ -138,6 +138,11 @@ namespace MasturbationRecorder {
                 }
             }
         }
+        /// <summary>
+        /// 根据事件发生的频率进行分组，并以事件频率作为偏序关系进行升序排序，
+        /// 产生一个与 IGrouping<BigInteger, StatistTotalByDateTime> 为单元的有序列表
+        /// </summary>
+        /// <returns></returns>
         public List<IGrouping<BigInteger, StatistTotalByDateTime>>[] GroupDateTimesByTotal() {
             IOrderedEnumerable<IGrouping<BigInteger, StatistTotalByDateTime>> groupingForTotal = from e in _entries
                                                                                                  group e by e.Total into newgroup
@@ -219,9 +224,17 @@ namespace MasturbationRecorder {
                 throw new InvalidOperationException($"Unkown error. Groups is {groups}");
             }
         }
+        /// <summary>
+        /// 添加一个条目
+        /// </summary>
+        /// <param name="rectName">接收一个字符串表达式，格式为“mm dd yyyy x{Total}”或“mm/dd/yyyy”</param>
         public void AddEntry(string rectName) {
             this.AddEntry(DatetimeParser.ParseExpressToStatistTotalByDateTime(rectName, DateMode.DateWithSlash));
         }
+        /// <summary>
+        /// 添加一个条目
+        /// </summary>
+        /// <param name="statistTotalByDateTime"></param>
         public void AddEntry(StatistTotalByDateTime statistTotalByDateTime) {
             this._entries.AddLast(statistTotalByDateTime);
         }
