@@ -37,7 +37,7 @@
                         <x:Double x:Key="MaxHeight">80</x:Double>
                     </ScrollViewer.Resources>
                     <StackPanel x:Name="StackCanvas">
-                        <Canvas x:Name="RectanglesCanvas" Width="300" Height="300">
+                        <Canvas x:Name="CurrentRectanglesCanvas" Width="300" Height="300">
                         </Canvas>
                     </StackPanel>
                 </ScrollViewer>

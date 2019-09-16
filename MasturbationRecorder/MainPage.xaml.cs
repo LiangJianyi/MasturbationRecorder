@@ -61,7 +61,7 @@ namespace MasturbationRecorder {
             if (_file != null) {
                 ResetRectangle();  // 每次选择文件之后都要重置方块颜色
 
-                ProgressBoard.Slide(RectanglesCanvas);
+                ProgressBoard.Slide(CurrentRectanglesCanvas);
                 Windows.Storage.AccessCache.StorageApplicationPermissions.FutureAccessList.Add(_file);
                 string text = await FileIO.ReadTextAsync(_file);
 #if DEBUG
@@ -101,7 +101,7 @@ namespace MasturbationRecorder {
         private void Rect_PointerReleased(object sender, Windows.UI.Xaml.Input.PointerRoutedEventArgs e) {
             Rectangle rectangle = sender as Rectangle;
             Bubble.CreateBubbleRectangle(
-                canvas: RectanglesCanvas,
+                canvas: CurrentRectanglesCanvas,
                 hostRect: rectangle,
                 bubbleName: VisualEventFrequencyRecorder.Resources["OhhohoRect"] as string,
                 zoom: (minWidth: (double)VisualEventFrequencyRecorder.Resources["MinWidth"],
@@ -194,7 +194,7 @@ namespace MasturbationRecorder {
          * 气泡动画结束后从 Canvas 移除气泡方块
          */
         private void RectangleBubbleAnimation_Completed(object sender, object e) {
-            RectanglesCanvas.Children.Remove(Bubble._bubble);
+            CurrentRectanglesCanvas.Children.Remove(Bubble._bubble);
         }
 
         /// <summary>
@@ -255,7 +255,7 @@ namespace MasturbationRecorder {
             SaveFileButton.Visibility = Visibility.Collapsed;
             RefreshButton.Visibility = Visibility.Collapsed;
             ClearButton.Visibility = Visibility.Collapsed;
-            DateTag(RectanglesCanvas);
+            DateTag(CurrentRectanglesCanvas);
             UpdateMainPageLayout();
         }
 

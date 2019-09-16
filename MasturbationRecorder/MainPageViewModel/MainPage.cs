@@ -149,33 +149,36 @@ namespace MasturbationRecorder {
             }
         }
 
-
+        /// <summary>
+        /// 初始化方块矩阵的布局
+        /// </summary>
         private void RectanglesLayout() {
             DateTime today = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day);
             DateTime todayOfLastyear = new DateTime(today.Year - 1, today.Month, today.Day);
             TimeSpan pastDay = today - todayOfLastyear;
-            const int rectWidth = 10;
-            const int rectHeight = 10;
-            const int columnDistance = 3;
-            const int rowDistance = 3;
-            const int monthTitleSpace = 40;
-            const int bottomSpace = 20;
-            const int leftSpace = 80;
-            const int topSpace = 37;
-            const int rightSpace = leftSpace;
+            const int RECT_WIDHT =          10;
+            const int RECT_HEIGHT =         10;
+            const int COLUMN_DISTANCE =     3;
+            const int ROW_DISTANCE =        3;
+            const int MONTH_TITLE_SPACE =   40;
+            const int BOTTOM_SPACE =        20;
+            const int LEFT_SPACE =          80;
+            const int TOP_SPACE =           37;
+            const int RIGHT_SPACE =         LEFT_SPACE;
             int rectCount = pastDay.Days;
             int totalWeek = pastDay.Days / 7;
-            this.RectanglesCanvas.Width = totalWeek * columnDistance + leftSpace + rightSpace + totalWeek * rectWidth + rectWidth;
-            this.RectanglesCanvas.Height = rowDistance * 6 + bottomSpace + monthTitleSpace + 7 * rectHeight;
+            this.CurrentRectanglesCanvas.Width = totalWeek * COLUMN_DISTANCE + LEFT_SPACE + RIGHT_SPACE + totalWeek * RECT_WIDHT + RECT_WIDHT;
+            this.CurrentRectanglesCanvas.Height = ROW_DISTANCE * 6 + BOTTOM_SPACE + MONTH_TITLE_SPACE + 7 * RECT_HEIGHT;
             DateTime dateOfEachRectangle = today;
             for (int column = totalWeek; column >= 0; column--) {
                 if (column == totalWeek) {
                     for (int row = Convert.ToInt32(today.DayOfWeek); row >= 0; row--, dateOfEachRectangle = dateOfEachRectangle.AddDays(-1)) {
                         CreateRectangle(
-                            rectWidth: rectWidth,
-                            rectHeight: rectHeight,
-                            canvasLeft: column * rectWidth + columnDistance * (column - 1) + leftSpace,
-                            canvasTop: row * rectHeight + row * rowDistance + topSpace,
+                            rectanglesCanvas: this.CurrentRectanglesCanvas,
+                            rectWidth: RECT_WIDHT,
+                            rectHeight: RECT_HEIGHT,
+                            canvasLeft: column * RECT_WIDHT + COLUMN_DISTANCE * (column - 1) + LEFT_SPACE,
+                            canvasTop: row * RECT_HEIGHT + row * ROW_DISTANCE + TOP_SPACE,
                             dateTime: dateOfEachRectangle
                         );
                     }
@@ -183,10 +186,11 @@ namespace MasturbationRecorder {
                 else {
                     for (int row = 6; row >= 0; row--, dateOfEachRectangle = dateOfEachRectangle.AddDays(-1)) {
                         CreateRectangle(
-                            rectWidth: rectWidth,
-                            rectHeight: rectHeight,
-                            canvasLeft: column * rectWidth + columnDistance * (column - 1) + leftSpace,
-                            canvasTop: row * rectHeight + row * rowDistance + topSpace,
+                            rectanglesCanvas: this.CurrentRectanglesCanvas,
+                            rectWidth: RECT_WIDHT,
+                            rectHeight: RECT_HEIGHT,
+                            canvasLeft: column * RECT_WIDHT + COLUMN_DISTANCE * (column - 1) + LEFT_SPACE,
+                            canvasTop: row * RECT_HEIGHT + row * ROW_DISTANCE + TOP_SPACE,
                             dateTime: dateOfEachRectangle
                         );
                     }
@@ -194,7 +198,15 @@ namespace MasturbationRecorder {
             }
         }
 
-        private void CreateRectangle(int rectWidth, int rectHeight, int canvasLeft, int canvasTop, DateTime dateTime) {
+        /// <summary>
+        /// 为 RectangleCanvas 创建方块
+        /// </summary>
+        /// <param name="rectWidth">方块的宽度</param>
+        /// <param name="rectHeight">方块的高度</param>
+        /// <param name="canvasLeft">方块的横轴坐标值</param>
+        /// <param name="canvasTop">方块的纵轴坐标值</param>
+        /// <param name="dateTime">方块代表的日期</param>
+        private void CreateRectangle(Canvas rectanglesCanvas, int rectWidth, int rectHeight, int canvasLeft, int canvasTop, DateTime dateTime) {
             Rectangle rect = new Rectangle {
                 Name = dateTime.ToShortDateString(),
                 Width = rectWidth,
@@ -212,7 +224,7 @@ namespace MasturbationRecorder {
             }; 
 #endif
             ToolTipService.SetToolTip(rect, toolTip);
-            RectanglesCanvas.Children.Add(rect);
+            rectanglesCanvas.Children.Add(rect);
             Canvas.SetLeft(rect, canvasLeft);
             Canvas.SetTop(rect, canvasTop);
         }
@@ -239,7 +251,7 @@ namespace MasturbationRecorder {
             Debug.WriteLine($"Executing DrawRectangleColor:");
 #endif
             if (haveProgressBoard) {
-                ProgressBoard.Slide(RectanglesCanvas);
+                ProgressBoard.Slide(CurrentRectanglesCanvas);
             }
             IDictionary<int, SolidColorBrush> colorDic = ClassifyColorByLevelScore(entries.Length);
 
@@ -256,7 +268,7 @@ namespace MasturbationRecorder {
                                 group = groups[groupsIncre];
                                 foreach (StatistTotalByDateTime entry in group) {
                                     // 过滤掉非 Rectangle 的元素（比如 ProgressBoard）
-                                    var rectangles = from rect in RectanglesCanvas.Children
+                                    var rectangles = from rect in CurrentRectanglesCanvas.Children
                                                      where rect is Rectangle
                                                      select rect;
                                     foreach (Rectangle rect in rectangles) {
