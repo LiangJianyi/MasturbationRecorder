@@ -1,31 +1,156 @@
 ﻿using MasturbationRecorder;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using Windows.Storage;
 
 namespace MasturbationRecorderTest {
     static class CommonTestResource {
-        /// <summary>
-        /// 获取指定路径下的文本文件的内容
-        /// </summary>
-        /// <param name="path">路径字符串</param>
-        /// <returns>返回一个字符串数组，每行文本代表一个string</returns>
-        private static string[] GetTextFile(string path) {
-            List<string> textList = new List<string>();
-            using (System.IO.StreamReader reader = System.IO.File.OpenText(path)) {
-                for (string s = reader.ReadLine(); s != null; s = reader.ReadLine()) {
-                    textList.Add(s);
-                }
-            }
-            return textList.ToArray();
-        }
+        public static string EXCEPTED_TEXT =
+                "May 27 2018 x20\n" +
+                "May 29 2018\n" +
+                "May 31 2018\n" +
+                "Jun 12 2018\n" +
+                "Jun 15 2018\n" +
+                "Jun 17 2018\n" +
+                "Jun 20 2018\n" +
+                "Jun 24 2018\n" +
+                "Jun 26 2018\n" +
+                "Jul 04 2018\n" +
+                "Jul 05 2018\n" +
+                "Jul 10 2018 x2\n" +
+                "Jul 11 2018\n" +
+                "Jul 13 2018\n" +
+                "Jul 16 2018\n" +
+                "Jul 17 2018\n" +
+                "Jul 18 2018\n" +
+                "Jul 19 2018\n" +
+                "Jul 22 2018 x2\n" +
+                "Jul 24 2018\n" +
+                "Jul 29 2018\n" +
+                "Jul 31 2018\n" +
+                "Aug 2 2018\n" +
+                "Aug 6 2018\n" +
+                "Aug 8 2018\n" +
+                "Aug 9 2018\n" +
+                "Aug 11 2018\n" +
+                "Aug 12 2018\n" +
+                "Aug 15 2018\n" +
+                "Aug 16 2018\n" +
+                "Aug 21 2018 x2\n" +
+                "Aug 22 2018\n" +
+                "Aug 24 2018\n" +
+                "Aug 25 2018\n" +
+                "Aug 29 2018 x2\n" +
+                "Sep 1 2018\n" +
+                "Sep 3 2018\n" +
+                "Sep 6 2018\n" +
+                "Sep 7 2018\n" +
+                "Sep 9 2018\n" +
+                "Sep 11 2018\n" +
+                "Sep 12 2018\n" +
+                "Sep 14 2018 x2\n" +
+                "Sep 15 2018\n" +
+                "Sep 16 2018\n" +
+                "Sep 19 2018\n" +
+                "Sep 20 2018\n" +
+                "Sep 22 2018\n" +
+                "Sep 25 2018\n" +
+                "Sep 26 2018\n" +
+                "Sep 27 2018 x2\n" +
+                "Sep 30 2018\n" +
+                "Oct 1 2018\n" +
+                "Oct 4 2018\n" +
+                "Oct 5 2018\n" +
+                "Aug 4 2019\n" +
+                "Aug 14 2019\n" +
+                "Aug 14 2019 x3\n" +
+                "Aug 16 2019\n" +
+                "Aug 24 2019 x2\n" +
+                "Aug 25 2019\n" +
+                "Aug 26 2019\n" +
+                "Aug 27 2019\n" +
+                "Aug 30 2019\n" +
+                "Aug 31 2019 x2\n" +
+                "Sep 10 2019\n" +
+                "Sep 11 2019\n" +
+                "Sep 12 2019\n" +
+                "Sep 15 2019\n" +
+                "Sep 16 2019\n" +
+                "Sep 16 2019";
 
-        /// <summary>
-        /// 获取测试文件
-        /// </summary>
-        public static string[] TestTextLine => GetTextFile(@"C:\Users\a124p\Documents\Test Data\masturbation test.txt");
+        public static string[] EXCEPTED_LINE = new string[] {
+                "May 27 2018 x20" ,
+                "May 29 2018" ,
+                "May 31 2018" ,
+                "Jun 12 2018" ,
+                "Jun 15 2018" ,
+                "Jun 17 2018" ,
+                "Jun 20 2018" ,
+                "Jun 24 2018" ,
+                "Jun 26 2018" ,
+                "Jul 04 2018" ,
+                "Jul 05 2018" ,
+                "Jul 10 2018 x2" ,
+                "Jul 11 2018" ,
+                "Jul 13 2018" ,
+                "Jul 16 2018" ,
+                "Jul 17 2018" ,
+                "Jul 18 2018" ,
+                "Jul 19 2018" ,
+                "Jul 22 2018 x2" ,
+                "Jul 24 2018" ,
+                "Jul 29 2018" ,
+                "Jul 31 2018" ,
+                "Aug 2 2018" ,
+                "Aug 6 2018" ,
+                "Aug 8 2018" ,
+                "Aug 9 2018" ,
+                "Aug 11 2018" ,
+                "Aug 12 2018" ,
+                "Aug 15 2018" ,
+                "Aug 16 2018" ,
+                "Aug 21 2018 x2" ,
+                "Aug 22 2018" ,
+                "Aug 24 2018" ,
+                "Aug 25 2018" ,
+                "Aug 29 2018 x2" ,
+                "Sep 1 2018" ,
+                "Sep 3 2018" ,
+                "Sep 6 2018" ,
+                "Sep 7 2018" ,
+                "Sep 9 2018" ,
+                "Sep 11 2018" ,
+                "Sep 12 2018" ,
+                "Sep 14 2018 x2" ,
+                "Sep 15 2018" ,
+                "Sep 16 2018" ,
+                "Sep 19 2018" ,
+                "Sep 20 2018" ,
+                "Sep 22 2018" ,
+                "Sep 25 2018" ,
+                "Sep 26 2018" ,
+                "Sep 27 2018 x2" ,
+                "Sep 30 2018" ,
+                "Oct 1 2018" ,
+                "Oct 4 2018" ,
+                "Oct 5 2018" ,
+                "Aug 4 2019" ,
+                "Aug 14 2019" ,
+                "Aug 14 2019 x3" ,
+                "Aug 16 2019" ,
+                "Aug 24 2019 x2" ,
+                "Aug 25 2019" ,
+                "Aug 26 2019" ,
+                "Aug 27 2019" ,
+                "Aug 30 2019" ,
+                "Aug 31 2019 x2" ,
+                "Sep 10 2019" ,
+                "Sep 11 2019" ,
+                "Sep 12 2019" ,
+                "Sep 15 2019" ,
+                "Sep 16 2019" ,
+                "Sep 16 2019"
+        };
 
         /// <summary>
         /// 生成一个 Configuration

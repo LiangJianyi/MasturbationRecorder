@@ -162,6 +162,10 @@ namespace MasturbationRecorder {
         /// <param name="expr">接收一个字符串表达式，格式为“mm/dd/yyyy”</param>
         /// <param name="dateMode"></param>
         /// <returns></returns>
+        /// <remarks>
+        /// 注意，ParseExpressToDateTime 的设计存在缺陷，DateTime 字符串的格式会随着不同地区文化的差异
+        /// 而有所不同，最终会导致在部分地区下的客户端中出现解析错误，请更正该设计！
+        /// </remarks>
         internal static DateTime ParseExpressToDateTime(string expr, DateMode dateMode = DateMode.DateWithWhiteSpace) {
             string[] tokens = null;
             switch (dateMode) {

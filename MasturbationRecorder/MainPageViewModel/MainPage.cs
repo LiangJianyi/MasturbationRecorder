@@ -150,26 +150,27 @@ namespace MasturbationRecorder {
         }
 
         /// <summary>
-        /// 初始化方块矩阵的布局
+        /// 初始化方块矩阵的布局，并返回方块矩阵中日期最古老的方块
         /// </summary>
-        private void RectanglesLayout() {
+        private Rectangle RectanglesLayout() {
             DateTime today = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day);
             DateTime todayOfLastyear = new DateTime(today.Year - 1, today.Month, today.Day);
             TimeSpan pastDay = today - todayOfLastyear;
-            const int RECT_WIDHT =          10;
-            const int RECT_HEIGHT =         10;
-            const int COLUMN_DISTANCE =     3;
-            const int ROW_DISTANCE =        3;
-            const int MONTH_TITLE_SPACE =   40;
-            const int BOTTOM_SPACE =        20;
-            const int LEFT_SPACE =          80;
-            const int TOP_SPACE =           37;
-            const int RIGHT_SPACE =         LEFT_SPACE;
+            const int RECT_WIDHT = 10;
+            const int RECT_HEIGHT = 10;
+            const int COLUMN_DISTANCE = 3;
+            const int ROW_DISTANCE = 3;
+            const int MONTH_TITLE_SPACE = 40;
+            const int BOTTOM_SPACE = 20;
+            const int LEFT_SPACE = 80;
+            const int TOP_SPACE = 37;
+            const int RIGHT_SPACE = LEFT_SPACE;
             int rectCount = pastDay.Days;
             int totalWeek = pastDay.Days / 7;
             this.CurrentRectanglesCanvas.Width = totalWeek * COLUMN_DISTANCE + LEFT_SPACE + RIGHT_SPACE + totalWeek * RECT_WIDHT + RECT_WIDHT;
             this.CurrentRectanglesCanvas.Height = ROW_DISTANCE * 6 + BOTTOM_SPACE + MONTH_TITLE_SPACE + 7 * RECT_HEIGHT;
             DateTime dateOfEachRectangle = today;
+            Rectangle earliestRectangleDate = null; // 当前方块矩阵中日期最古老的方块
             for (int column = totalWeek; column >= 0; column--) {
                 if (column == totalWeek) {
                     for (int row = Convert.ToInt32(today.DayOfWeek); row >= 0; row--, dateOfEachRectangle = dateOfEachRectangle.AddDays(-1)) {
@@ -185,28 +186,43 @@ namespace MasturbationRecorder {
                 }
                 else {
                     for (int row = 6; row >= 0; row--, dateOfEachRectangle = dateOfEachRectangle.AddDays(-1)) {
-                        CreateRectangle(
-                            rectanglesCanvas: this.CurrentRectanglesCanvas,
-                            rectWidth: RECT_WIDHT,
-                            rectHeight: RECT_HEIGHT,
-                            canvasLeft: column * RECT_WIDHT + COLUMN_DISTANCE * (column - 1) + LEFT_SPACE,
-                            canvasTop: row * RECT_HEIGHT + row * ROW_DISTANCE + TOP_SPACE,
-                            dateTime: dateOfEachRectangle
-                        );
+                        if (row != 0) {
+                            CreateRectangle(
+                                rectanglesCanvas: this.CurrentRectanglesCanvas,
+                                rectWidth: RECT_WIDHT,
+                                rectHeight: RECT_HEIGHT,
+                                canvasLeft: column * RECT_WIDHT + COLUMN_DISTANCE * (column - 1) + LEFT_SPACE,
+                                canvasTop: row * RECT_HEIGHT + row * ROW_DISTANCE + TOP_SPACE,
+                                dateTime: dateOfEachRectangle
+                            );
+                        }
+                        else {
+                            earliestRectangleDate = CreateRectangle(
+                                rectanglesCanvas: this.CurrentRectanglesCanvas,
+                                rectWidth: RECT_WIDHT,
+                                rectHeight: RECT_HEIGHT,
+                                canvasLeft: column * RECT_WIDHT + COLUMN_DISTANCE * (column - 1) + LEFT_SPACE,
+                                canvasTop: row * RECT_HEIGHT + row * ROW_DISTANCE + TOP_SPACE,
+                                dateTime: dateOfEachRectangle
+                            );
+                        }
                     }
                 }
             }
+            return earliestRectangleDate;
         }
 
         /// <summary>
         /// 为 RectangleCanvas 创建方块
         /// </summary>
+        /// <param name="rectanglesCanvas">放置方块的容器</param>
         /// <param name="rectWidth">方块的宽度</param>
         /// <param name="rectHeight">方块的高度</param>
         /// <param name="canvasLeft">方块的横轴坐标值</param>
         /// <param name="canvasTop">方块的纵轴坐标值</param>
         /// <param name="dateTime">方块代表的日期</param>
-        private void CreateRectangle(Canvas rectanglesCanvas, int rectWidth, int rectHeight, int canvasLeft, int canvasTop, DateTime dateTime) {
+        /// <returns>返回创建的方块</returns>
+        private Rectangle CreateRectangle(Canvas rectanglesCanvas, int rectWidth, int rectHeight, int canvasLeft, int canvasTop, DateTime dateTime) {
             Rectangle rect = new Rectangle {
                 Name = dateTime.ToShortDateString(),
                 Width = rectWidth,
@@ -227,6 +243,7 @@ namespace MasturbationRecorder {
             rectanglesCanvas.Children.Add(rect);
             Canvas.SetLeft(rect, canvasLeft);
             Canvas.SetTop(rect, canvasTop);
+            return rect;
         }
 
         /// <summary>
@@ -364,6 +381,22 @@ namespace MasturbationRecorder {
                 throw new FileNotSaveException($"File {_file.Name} couldn't be saved.");
             }
             DrawRectangleColor(_model?.GroupDateTimesByTotal(), true);
+        }
+
+        /// <summary>
+        /// 返回所有的事件记录中含有比 rect 的日期还要早的记录
+        /// </summary>
+        /// <param name="model">存储事件链的模型类</param>
+        /// <param name="rect">用于日期比较的目标方块</param>
+        /// <returns></returns>
+        private static LinkedList<StatistTotalByDateTime> EarlierThanEarliestRectangle(StatistTotalByDateTimeModel model, Rectangle rect) {
+            LinkedList<StatistTotalByDateTime> earlierThanEarliestRectangleLik = new LinkedList<StatistTotalByDateTime>();
+            foreach (var item in model.Entries) {
+                if (item.DateTime < DatetimeParser.ParseExpressToDateTime(rect.Name, DateMode.DateWithSlash)) {
+                    earlierThanEarliestRectangleLik.AddLast(item);
+                }
+            }
+            return earlierThanEarliestRectangleLik;
         }
     }
 }

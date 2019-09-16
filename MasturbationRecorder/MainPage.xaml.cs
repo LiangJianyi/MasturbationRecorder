@@ -21,6 +21,10 @@ namespace MasturbationRecorder {
         /// </summary>
         private Window Window => Window.Current;
         /// <summary>
+        /// 保存方块矩阵中日期最古老的方块
+        /// </summary>
+        private Rectangle _earliestRectangleDate = null;
+        /// <summary>
         /// 注册已经填充颜色的 Rectangle，每个 Rectangle 只能注册一次
         /// </summary>
         private static HashSet<Rectangle> _rectangleRegisteTable = new HashSet<Rectangle>();
@@ -40,7 +44,7 @@ namespace MasturbationRecorder {
         public MainPage() {
             this.Window.SizeChanged += Current_SizeChanged;
             this.InitializeComponent();
-            this.RectanglesLayout();
+            this._earliestRectangleDate = this.RectanglesLayout();
         }
 
         /// <summary>
