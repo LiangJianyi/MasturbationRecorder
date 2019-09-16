@@ -7,11 +7,9 @@ using MasturbationRecorder;
 namespace MasturbationRecorderTest {
     [TestClass]
     public class DatetimeParserTest {
-        private Type _datetimeParser = typeof(DatetimeParser);
-
         [TestMethod]
         public void StringToUInt16Test() {
-            MethodInfo stringToUInt16 = _datetimeParser.GetMethod("StringToUInt16", BindingFlags.NonPublic | BindingFlags.Static); ;
+            MethodInfo stringToUInt16 = typeof(DatetimeParser).GetMethod("StringToUInt16", BindingFlags.NonPublic | BindingFlags.Static); ;
 
             ushort[] expected = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 };
             ushort[] actual = {
