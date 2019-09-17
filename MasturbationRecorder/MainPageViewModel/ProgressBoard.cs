@@ -6,19 +6,20 @@ using System.Diagnostics;
 namespace MasturbationRecorder {
     class ProgressBoard {
         private Canvas _progressBoard;
+        private Storyboard _startStoryboard;
 
         private Canvas CreateProgressBoard(string name) {
             Canvas canvas = new Canvas() {
                 Name = name,
-                Width = 100,
-                Height = 100,
+                Width = 50,
+                Height = 50,
                 Background = new Windows.UI.Xaml.Media.SolidColorBrush(Windows.UI.Colors.LightGray),
                 Opacity = 0.7
             };
             Canvas.SetZIndex(canvas, 2);
             ProgressRing processingRing = new ProgressRing() {
-                Width = 80,
-                Height = 80,
+                Width = 40,
+                Height = 40,
                 Foreground = new Windows.UI.Xaml.Media.SolidColorBrush(Windows.UI.Colors.Black),
                 IsActive = true
             };
@@ -48,24 +49,26 @@ namespace MasturbationRecorder {
         /// 播放进度条模块动画
         /// </summary>
         /// <param name="parentCanvas">承载进度条模块的容器</param>
-        public void SlideOn(Canvas parentCanvas) {
-            _progressBoard = CreateProgressBoard("ProgressBoard");
-            if (parentCanvas.Children.Contains(_progressBoard) == false) {
-                parentCanvas.Children.Add(_progressBoard);
+        /// <param name="progressBoard">进度条模块</param>
+        public static void SlideOn(Canvas parentCanvas, ProgressBoard progressBoard) {
+            progressBoard._progressBoard = progressBoard.CreateProgressBoard("ProgressBoard");
+            if (parentCanvas.Children.Contains(progressBoard._progressBoard) == false) {
+                parentCanvas.Children.Add(progressBoard._progressBoard);
             }
-            HorizontalCenterOnCanvas(_progressBoard, parentCanvas);
+            progressBoard.HorizontalCenterOnCanvas(progressBoard._progressBoard, parentCanvas);
+            VerticalCenterOnCanvas(progressBoard._progressBoard, parentCanvas);
 
-            Storyboard startStoryboard = new Storyboard();
+            progressBoard._startStoryboard = new Storyboard();
             KeyTime startTime = KeyTime.FromTimeSpan(new TimeSpan(0, 0, 0, 0, 0));
             KeyTime endTime = KeyTime.FromTimeSpan(new TimeSpan(0, 0, 0, 0, 300));
             DoubleAnimationUsingKeyFrames slideAnimationUsingKeyFrames = new DoubleAnimationUsingKeyFrames();
 
             slideAnimationUsingKeyFrames.KeyFrames.Add(new LinearDoubleKeyFrame() {
-                Value = Canvas.GetTop(_progressBoard),
+                Value = Canvas.GetTop(progressBoard._progressBoard),
                 KeyTime = startTime
             });
             slideAnimationUsingKeyFrames.KeyFrames.Add(new LinearDoubleKeyFrame() {
-                Value = (parentCanvas.ActualHeight - _progressBoard.Height) / 2,
+                Value = (parentCanvas.ActualHeight - progressBoard._progressBoard.Height) / 2,
                 KeyTime = endTime
             });
 
@@ -74,15 +77,23 @@ namespace MasturbationRecorder {
              * 从而使得 Completed 事件能够在动画播放结束时为 parentCanvas 移除  ProgressBoard._progressBoard
              */
             void StartStoryboard_Completed(object sender, object e) {
-                parentCanvas.Children.Remove(_progressBoard);
+                parentCanvas.Children.Remove(progressBoard._progressBoard);
             }
-            startStoryboard.Completed += StartStoryboard_Completed;
-            startStoryboard.Children.Add(slideAnimationUsingKeyFrames);
-            Storyboard.SetTarget(slideAnimationUsingKeyFrames, _progressBoard);
-            Storyboard.SetTargetName(slideAnimationUsingKeyFrames, _progressBoard.Name);
+            progressBoard._startStoryboard.Completed += StartStoryboard_Completed;
+            progressBoard._startStoryboard.Children.Add(slideAnimationUsingKeyFrames);
+            Storyboard.SetTarget(slideAnimationUsingKeyFrames, progressBoard._progressBoard);
+            Storyboard.SetTargetName(slideAnimationUsingKeyFrames, progressBoard._progressBoard.Name);
             Storyboard.SetTargetProperty(slideAnimationUsingKeyFrames, "(Canvas.Top)");
-            startStoryboard.Begin();
+            progressBoard._startStoryboard.Begin();
         }
 
+        /// <summary>
+        /// 取消进度条模块
+        /// </summary>
+        /// <param name="parentCanvas">承载进度条模块的容器</param>
+        /// <param name="progressBoard">进度条模块</param>
+        public static void CancelOn(Canvas parentCanvas, ProgressBoard progressBoard) {
+            parentCanvas.Children.Remove(progressBoard._progressBoard);
+        }
     }
 }

@@ -278,7 +278,7 @@ namespace MasturbationRecorder {
                     agileCallback: () => {
                         foreach (Canvas canvas in this.StackCanvas.Children) {
                             if (haveProgressBoard) {
-                                new ProgressBoard().SlideOn(canvas);
+                                ProgressBoard.SlideOn(canvas, new ProgressBoard());
                             }
                             // level 作为 entries 的索引值，值越小对应的 Total 越小
                             for (int level = 0; level < entries.Length; level++) {

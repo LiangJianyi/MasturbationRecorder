@@ -63,15 +63,20 @@ namespace MasturbationRecorder {
             _file = await openPicker.PickSingleFileAsync();
 
             if (_file != null) {
+                ProgressBoard progressBoard = new ProgressBoard();
+                ProgressBoard.SlideOn(CurrentRectanglesCanvas, progressBoard);
                 ResetRectangle();  // 每次选择文件之后都要重置方块颜色
 
-                new ProgressBoard().SlideOn(CurrentRectanglesCanvas);
                 Windows.Storage.AccessCache.StorageApplicationPermissions.FutureAccessList.Add(_file);
                 string text = await FileIO.ReadTextAsync(_file);
                 try {
                     IEnumerable<string> lines = DatetimeParser.SplitByLine(text);
                     _model = new StatistTotalByDateTimeModel(lines);
                     ExtendStackCanvasByFilterOldRecorders(EarlierThanEarliestRectangle(_model.Entries, _earliestRectangle), _earliestRectangle);
+                    ProgressBoard.CancelOn(CurrentRectanglesCanvas, progressBoard);
+                    foreach (Canvas canvas in StackCanvas.Children) {
+                        ProgressBoard.SlideOn(canvas, new ProgressBoard());
+                    }
                     List<IGrouping<BigInteger, StatistTotalByDateTime>>[] res = _model.GroupDateTimesByTotal();
 #if DEBUG
                     for (int level = 0; level < res.Length; level++) {
@@ -85,7 +90,7 @@ namespace MasturbationRecorder {
                         }
                     }
 #endif
-                    DrawRectangleColor(res, true);
+                    DrawRectangleColor(res, false);
                 }
                 catch (ArgumentException err) {
                     PopErrorDialogAsync(err.Message);
