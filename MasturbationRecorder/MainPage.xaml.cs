@@ -23,7 +23,7 @@ namespace MasturbationRecorder {
         /// <summary>
         /// 保存方块矩阵中日期最古老的方块
         /// </summary>
-        private Rectangle _earliestRectangleDate = null;
+        private Rectangle _earliestRectangle = null;
         /// <summary>
         /// 注册已经填充颜色的 Rectangle，每个 Rectangle 只能注册一次
         /// </summary>
@@ -44,7 +44,7 @@ namespace MasturbationRecorder {
         public MainPage() {
             this.Window.SizeChanged += Current_SizeChanged;
             this.InitializeComponent();
-            this._earliestRectangleDate = this.RectanglesLayout();
+            this._earliestRectangle = this.RectanglesLayout(this.CurrentRectanglesCanvas, new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day));
         }
 
         /// <summary>
@@ -68,13 +68,10 @@ namespace MasturbationRecorder {
                 ProgressBoard.Slide(CurrentRectanglesCanvas);
                 Windows.Storage.AccessCache.StorageApplicationPermissions.FutureAccessList.Add(_file);
                 string text = await FileIO.ReadTextAsync(_file);
-#if DEBUG
-                Debug.WriteLine(text);
-                Debug.WriteLine($"line count:{(from t in text where t == '\n' select t).Count() + 1}");
-#endif
                 try {
                     IEnumerable<string> lines = DatetimeParser.SplitByLine(text);
                     _model = new StatistTotalByDateTimeModel(lines);
+                    ExtendStackCanvasByFilterOldRecorders(EarlierThanEarliestRectangle(_model.Entries, _earliestRectangle), _earliestRectangle);
                     List<IGrouping<BigInteger, StatistTotalByDateTime>>[] res = _model.GroupDateTimesByTotal();
 #if DEBUG
                     for (int level = 0; level < res.Length; level++) {

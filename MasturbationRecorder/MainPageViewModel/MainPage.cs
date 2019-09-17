@@ -150,10 +150,15 @@ namespace MasturbationRecorder {
         }
 
         /// <summary>
-        /// 初始化方块矩阵的布局，并返回方块矩阵中日期最古老的方块
+        /// 初始化方块矩阵面板的布局，并返回方块矩阵中日期最古老的方块
         /// </summary>
-        private Rectangle RectanglesLayout() {
-            DateTime today = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day);
+        /// <param name="rectanglesCanvas">方块矩阵面板</param>
+        /// <param name="today">
+        /// 方块矩阵的布局方式以传入的日期作为起点，然后时间线不断地往过去回溯，
+        /// 以此产生新的行和列
+        /// </param>
+        /// <returns>返回方块矩阵中日期最古老的方块</returns>
+        private Rectangle RectanglesLayout(Canvas rectanglesCanvas, DateTime today) {
             DateTime todayOfLastyear = new DateTime(today.Year - 1, today.Month, today.Day);
             TimeSpan pastDay = today - todayOfLastyear;
             const int RECT_WIDHT = 10;
@@ -167,15 +172,15 @@ namespace MasturbationRecorder {
             const int RIGHT_SPACE = LEFT_SPACE;
             int rectCount = pastDay.Days;
             int totalWeek = pastDay.Days / 7;
-            this.CurrentRectanglesCanvas.Width = totalWeek * COLUMN_DISTANCE + LEFT_SPACE + RIGHT_SPACE + totalWeek * RECT_WIDHT + RECT_WIDHT;
-            this.CurrentRectanglesCanvas.Height = ROW_DISTANCE * 6 + BOTTOM_SPACE + MONTH_TITLE_SPACE + 7 * RECT_HEIGHT;
+            rectanglesCanvas.Width = totalWeek * COLUMN_DISTANCE + LEFT_SPACE + RIGHT_SPACE + totalWeek * RECT_WIDHT + RECT_WIDHT;
+            rectanglesCanvas.Height = ROW_DISTANCE * 6 + BOTTOM_SPACE + MONTH_TITLE_SPACE + 7 * RECT_HEIGHT;
             DateTime dateOfEachRectangle = today;
             Rectangle earliestRectangleDate = null; // 当前方块矩阵中日期最古老的方块
             for (int column = totalWeek; column >= 0; column--) {
                 if (column == totalWeek) {
                     for (int row = Convert.ToInt32(today.DayOfWeek); row >= 0; row--, dateOfEachRectangle = dateOfEachRectangle.AddDays(-1)) {
                         CreateRectangle(
-                            rectanglesCanvas: this.CurrentRectanglesCanvas,
+                            rectanglesCanvas: rectanglesCanvas,
                             rectWidth: RECT_WIDHT,
                             rectHeight: RECT_HEIGHT,
                             canvasLeft: column * RECT_WIDHT + COLUMN_DISTANCE * (column - 1) + LEFT_SPACE,
@@ -188,7 +193,7 @@ namespace MasturbationRecorder {
                     for (int row = 6; row >= 0; row--, dateOfEachRectangle = dateOfEachRectangle.AddDays(-1)) {
                         if (row != 0) {
                             CreateRectangle(
-                                rectanglesCanvas: this.CurrentRectanglesCanvas,
+                                rectanglesCanvas: rectanglesCanvas,
                                 rectWidth: RECT_WIDHT,
                                 rectHeight: RECT_HEIGHT,
                                 canvasLeft: column * RECT_WIDHT + COLUMN_DISTANCE * (column - 1) + LEFT_SPACE,
@@ -198,7 +203,7 @@ namespace MasturbationRecorder {
                         }
                         else {
                             earliestRectangleDate = CreateRectangle(
-                                rectanglesCanvas: this.CurrentRectanglesCanvas,
+                                rectanglesCanvas: rectanglesCanvas,
                                 rectWidth: RECT_WIDHT,
                                 rectHeight: RECT_HEIGHT,
                                 canvasLeft: column * RECT_WIDHT + COLUMN_DISTANCE * (column - 1) + LEFT_SPACE,
@@ -259,69 +264,68 @@ namespace MasturbationRecorder {
         }
 
         /// <summary>
-        /// 绘制方块颜色
+        /// 根据记录给每个方块面板中的方块绘制颜色。
         /// </summary>
         /// <param name="entries">分级后条目列表</param>
         /// <param name="haveProgressBoard">是否开启进度条面板，true 为开启，反之不开启</param>
         private void DrawRectangleColor(List<IGrouping<BigInteger, StatistTotalByDateTime>>[] entries, bool haveProgressBoard) {
-#if DEBUG
-            Debug.WriteLine($"Executing DrawRectangleColor:");
-#endif
-            if (haveProgressBoard) {
-                ProgressBoard.Slide(CurrentRectanglesCanvas);
-            }
-            IDictionary<int, SolidColorBrush> colorDic = ClassifyColorByLevelScore(entries.Length);
+            foreach (Canvas canvas in this.StackCanvas.Children) {
+                if (haveProgressBoard) {
+                    ProgressBoard.Slide(canvas);
+                }
+                IDictionary<int, SolidColorBrush> colorDic = ClassifyColorByLevelScore(entries.Length);
 
-            Windows.Foundation.IAsyncAction action = Windows.System.Threading.ThreadPool.RunAsync(
-                async (asyncAction) => {
-                    await Windows.ApplicationModel.Core.CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(
-                    priority: Windows.UI.Core.CoreDispatcherPriority.Normal,
-                    agileCallback: () => {
-                        // level 作为 entries 的索引值，值越小对应的 Total 越小
-                        for (int level = 0; level < entries.Length; level++) {
-                            List<IGrouping<BigInteger, StatistTotalByDateTime>> groups = entries[level];
-                            IGrouping<BigInteger, StatistTotalByDateTime> group = null;
-                            for (int groupsIncre = 0; groupsIncre < groups.LongCount(); groupsIncre++) {
-                                group = groups[groupsIncre];
-                                foreach (StatistTotalByDateTime entry in group) {
-                                    // 过滤掉非 Rectangle 的元素（比如 ProgressBoard）
-                                    var rectangles = from rect in CurrentRectanglesCanvas.Children
-                                                     where rect is Rectangle
-                                                     select rect;
-                                    foreach (Rectangle rect in rectangles) {
-                                        if (rect.Name == entry.DateTime.ToShortDateString()) {
-                                            rect.Fill = colorDic[level + 1];
-#if DEBUG
-                                            ToolTip toolTip = new ToolTip {
-                                                Content = rect.Name + $"  Level:{level + 1}  Total:{entry.Total}  Color:{(rect.Fill as SolidColorBrush).Color}"
-                                            };
-                                            ToolTipService.SetToolTip(rect, toolTip);
-#endif
-                                            _rectangleRegisteTable.Add(rect);
-                                            break;
-                                        }
-                                        else {
-                                            if (!_rectangleRegisteTable.Contains(rect)) {
-                                                rect.Fill = colorDic[0];
+                Windows.Foundation.IAsyncAction action = Windows.System.Threading.ThreadPool.RunAsync(
+                    async (asyncAction) => {
+                        await Windows.ApplicationModel.Core.CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(
+                        priority: Windows.UI.Core.CoreDispatcherPriority.Normal,
+                        agileCallback: () => {
+                            // level 作为 entries 的索引值，值越小对应的 Total 越小
+                            for (int level = 0; level < entries.Length; level++) {
+                                List<IGrouping<BigInteger, StatistTotalByDateTime>> groups = entries[level];
+                                IGrouping<BigInteger, StatistTotalByDateTime> group = null;
+                                for (int groupsIncre = 0; groupsIncre < groups.LongCount(); groupsIncre++) {
+                                    group = groups[groupsIncre];
+                                    foreach (StatistTotalByDateTime entry in group) {
+                                        // 过滤掉非 Rectangle 的元素（比如 ProgressBoard）
+                                        var rectangles = from rect in canvas.Children
+                                                         where rect is Rectangle
+                                                         select rect;
+                                        foreach (Rectangle rect in rectangles) {
+                                            if (rect.Name == entry.DateTime.ToShortDateString()) {
+                                                rect.Fill = colorDic[level + 1];
 #if DEBUG
                                                 ToolTip toolTip = new ToolTip {
-                                                    Content = rect.Name + $"  Level:0  Total:0  Color:{(rect.Fill as SolidColorBrush).Color}"
+                                                    Content = rect.Name + $"  Level:{level + 1}  Total:{entry.Total}  Color:{(rect.Fill as SolidColorBrush).Color}"
                                                 };
                                                 ToolTipService.SetToolTip(rect, toolTip);
 #endif
+                                                _rectangleRegisteTable.Add(rect);
+                                                break;
+                                            }
+                                            else {
+                                                if (!_rectangleRegisteTable.Contains(rect)) {
+                                                    rect.Fill = colorDic[0];
+#if DEBUG
+                                                    ToolTip toolTip = new ToolTip {
+                                                        Content = rect.Name + $"  Level:0  Total:0  Color:{(rect.Fill as SolidColorBrush).Color}"
+                                                    };
+                                                    ToolTipService.SetToolTip(rect, toolTip);
+#endif
+                                                }
                                             }
                                         }
                                     }
                                 }
                             }
-                        }
+                        });
                     });
-                });
+            }
 
         }
 
         /// <summary>
-        /// 重置方块的颜色和闪烁状态
+        /// 重置方块的颜色和闪烁状态。
         /// </summary>
         private void ResetRectangle() {
             foreach (var rect in _rectangleRegisteTable) {
@@ -336,7 +340,7 @@ namespace MasturbationRecorder {
         }
 
         /// <summary>
-        /// 将变更作为新文件存储
+        /// 将变更作为新文件存储。
         /// </summary>
         /// <returns>
         /// 返回一个元组，Status 字段代表文件的更新状态，FileIsPick 字段代表用户是否在文件选取器上选取文件，true 为已选取，false 为用户关闭了文件选取器
@@ -367,7 +371,7 @@ namespace MasturbationRecorder {
         }
 
         /// <summary>
-        /// 将变更覆盖原有文件
+        /// 将变更覆盖原有文件。
         /// </summary>
         /// <returns></returns>
         private async Task SaveOrginalFileAsync() {
@@ -384,19 +388,36 @@ namespace MasturbationRecorder {
         }
 
         /// <summary>
-        /// 返回所有的事件记录中含有比 rect 的日期还要早的记录
+        /// 返回所有的事件记录中含有比 rect 的日期还要早的记录。
         /// </summary>
-        /// <param name="model">存储事件链的模型类</param>
+        /// <param name="entries">存储事件链的模型类</param>
         /// <param name="rect">用于日期比较的目标方块</param>
         /// <returns></returns>
-        private static LinkedList<StatistTotalByDateTime> EarlierThanEarliestRectangle(StatistTotalByDateTimeModel model, Rectangle rect) {
+        private static LinkedList<StatistTotalByDateTime> EarlierThanEarliestRectangle(LinkedList<StatistTotalByDateTime> entries, Rectangle rect) {
             LinkedList<StatistTotalByDateTime> earlierThanEarliestRectangleLik = new LinkedList<StatistTotalByDateTime>();
-            foreach (var item in model.Entries) {
+            foreach (var item in entries) {
                 if (item.DateTime < DatetimeParser.ParseExpressToDateTime(rect.Name, DateMode.DateWithSlash)) {
                     earlierThanEarliestRectangleLik.AddLast(item);
                 }
             }
             return earlierThanEarliestRectangleLik;
+        }
+
+        /// <summary>
+        /// 筛选出没有在当前 RectanglesCanvas 面板中显示的、日期更久远的记录，
+        /// 然后根据这些记录在 StackCanvas 面板中生成新的方块面板，接着在这些
+        /// 新生成的面板中着色日期更久远的记录。
+        /// </summary>
+        private void ExtendStackCanvasByFilterOldRecorders(LinkedList<StatistTotalByDateTime> oldRecorders, Rectangle earliestRectangle, int canvasOrdinal = 1) {
+            Canvas oldRectanglesCanvas = new Canvas() {
+                Name = $"OldRectanglesCanvas_{canvasOrdinal}"
+            };
+            Rectangle oldRect = this.RectanglesLayout(oldRectanglesCanvas, DatetimeParser.ParseExpressToDateTime(earliestRectangle.Name, DateMode.DateWithSlash).AddDays(-1));
+            this.StackCanvas.Children.Insert(0, oldRectanglesCanvas);
+            LinkedList<StatistTotalByDateTime> newOldRecorders = EarlierThanEarliestRectangle(oldRecorders, oldRect);
+            if (newOldRecorders != null) {
+                ExtendStackCanvasByFilterOldRecorders(newOldRecorders, oldRect, canvasOrdinal + 1);
+            }
         }
     }
 }
