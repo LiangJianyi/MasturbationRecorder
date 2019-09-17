@@ -269,11 +269,11 @@ namespace MasturbationRecorder {
         /// <param name="entries">分级后条目列表</param>
         /// <param name="haveProgressBoard">是否开启进度条面板，true 为开启，反之不开启</param>
         private void DrawRectangleColor(List<IGrouping<BigInteger, StatistTotalByDateTime>>[] entries, bool haveProgressBoard) {
+            IDictionary<int, SolidColorBrush> colorDic = ClassifyColorByLevelScore(entries.Length);
             foreach (Canvas canvas in this.StackCanvas.Children) {
                 if (haveProgressBoard) {
                     ProgressBoard.Slide(canvas);
                 }
-                IDictionary<int, SolidColorBrush> colorDic = ClassifyColorByLevelScore(entries.Length);
 
                 Windows.Foundation.IAsyncAction action = Windows.System.Threading.ThreadPool.RunAsync(
                     async (asyncAction) => {
@@ -415,7 +415,7 @@ namespace MasturbationRecorder {
             Rectangle oldRect = this.RectanglesLayout(oldRectanglesCanvas, DatetimeParser.ParseExpressToDateTime(earliestRectangle.Name, DateMode.DateWithSlash).AddDays(-1));
             this.StackCanvas.Children.Insert(0, oldRectanglesCanvas);
             LinkedList<StatistTotalByDateTime> newOldRecorders = EarlierThanEarliestRectangle(oldRecorders, oldRect);
-            if (newOldRecorders != null) {
+            if (newOldRecorders.Count > 0) {
                 ExtendStackCanvasByFilterOldRecorders(newOldRecorders, oldRect, canvasOrdinal + 1);
             }
         }

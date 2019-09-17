@@ -105,7 +105,7 @@ namespace MasturbationRecorder {
         public StatistTotalByDateTimeModel(IEnumerable<string> lines) {
             this._entries = new LinkedList<StatistTotalByDateTime>();
             foreach (var line in lines) {
-                if (line != string.Empty || line != "\r") {   // 忽略空行
+                if (line != string.Empty && line != "\r") {   // 忽略空行
                     StatistTotalByDateTime statist = DatetimeParser.ParseExpressToStatistTotalByDateTime(line);
                     this._entries.AddLast(statist);
                 }
