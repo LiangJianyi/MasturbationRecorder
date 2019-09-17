@@ -270,16 +270,16 @@ namespace MasturbationRecorder {
         /// <param name="haveProgressBoard">是否开启进度条面板，true 为开启，反之不开启</param>
         private void DrawRectangleColor(List<IGrouping<BigInteger, StatistTotalByDateTime>>[] entries, bool haveProgressBoard) {
             IDictionary<int, SolidColorBrush> colorDic = ClassifyColorByLevelScore(entries.Length);
-            foreach (Canvas canvas in this.StackCanvas.Children) {
-                if (haveProgressBoard) {
-                    ProgressBoard.Slide(canvas);
-                }
 
-                Windows.Foundation.IAsyncAction action = Windows.System.Threading.ThreadPool.RunAsync(
-                    async (asyncAction) => {
-                        await Windows.ApplicationModel.Core.CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(
-                        priority: Windows.UI.Core.CoreDispatcherPriority.Normal,
-                        agileCallback: () => {
+            Windows.Foundation.IAsyncAction action = Windows.System.Threading.ThreadPool.RunAsync(
+                async (asyncAction) => {
+                    await Windows.ApplicationModel.Core.CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(
+                    priority: Windows.UI.Core.CoreDispatcherPriority.Normal,
+                    agileCallback: () => {
+                        foreach (Canvas canvas in this.StackCanvas.Children) {
+                            if (haveProgressBoard) {
+                                new ProgressBoard().SlideOn(canvas);
+                            }
                             // level 作为 entries 的索引值，值越小对应的 Total 越小
                             for (int level = 0; level < entries.Length; level++) {
                                 List<IGrouping<BigInteger, StatistTotalByDateTime>> groups = entries[level];
@@ -318,9 +318,12 @@ namespace MasturbationRecorder {
                                     }
                                 }
                             }
-                        });
+                            if (haveProgressBoard) {
+                                //ProgressBoard.Stop
+                            }
+                        }
                     });
-            }
+                });
 
         }
 
@@ -413,6 +416,7 @@ namespace MasturbationRecorder {
                 Name = $"OldRectanglesCanvas_{canvasOrdinal}"
             };
             Rectangle oldRect = this.RectanglesLayout(oldRectanglesCanvas, DatetimeParser.ParseExpressToDateTime(earliestRectangle.Name, DateMode.DateWithSlash).AddDays(-1));
+            DateTag(oldRectanglesCanvas);
             this.StackCanvas.Children.Insert(0, oldRectanglesCanvas);
             LinkedList<StatistTotalByDateTime> newOldRecorders = EarlierThanEarliestRectangle(oldRecorders, oldRect);
             if (newOldRecorders.Count > 0) {

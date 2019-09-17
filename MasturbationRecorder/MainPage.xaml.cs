@@ -65,7 +65,7 @@ namespace MasturbationRecorder {
             if (_file != null) {
                 ResetRectangle();  // 每次选择文件之后都要重置方块颜色
 
-                ProgressBoard.Slide(CurrentRectanglesCanvas);
+                new ProgressBoard().SlideOn(CurrentRectanglesCanvas);
                 Windows.Storage.AccessCache.StorageApplicationPermissions.FutureAccessList.Add(_file);
                 string text = await FileIO.ReadTextAsync(_file);
                 try {
@@ -85,7 +85,7 @@ namespace MasturbationRecorder {
                         }
                     }
 #endif
-                    DrawRectangleColor(res, false);
+                    DrawRectangleColor(res, true);
                 }
                 catch (ArgumentException err) {
                     PopErrorDialogAsync(err.Message);
