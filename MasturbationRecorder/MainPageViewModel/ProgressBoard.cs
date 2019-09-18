@@ -57,7 +57,7 @@ namespace MasturbationRecorder {
         }
 
         /// <summary>
-        /// 将进度条控件以进度条面板为基准进行水平居中
+        /// 将进度条控件以进度条面板为基准进行垂直居中
         /// </summary>
         /// <param name="control"></param>
         /// <param name="progressBoardCanvas"></param>
