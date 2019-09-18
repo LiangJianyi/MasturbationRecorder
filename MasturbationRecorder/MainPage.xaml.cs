@@ -14,6 +14,7 @@ using Windows.UI.Xaml.Navigation;
 
 namespace MasturbationRecorder {
     using Debug = System.Diagnostics.Debug;
+    using TioSalamanca = List<IGrouping<BigInteger, StatistTotalByDateTime>>;
 
     public sealed partial class MainPage : Page {
         /// <summary>
@@ -72,12 +73,12 @@ namespace MasturbationRecorder {
                 try {
                     IEnumerable<string> lines = DatetimeParser.SplitByLine(text);
                     _model = new StatistTotalByDateTimeModel(lines);
-                    ExtendStackCanvasByFilterOldRecorders(EarlierThanEarliestRectangle(_model.Entries, _earliestRectangle), _earliestRectangle);
+                    ExtendStackCanvasByFilterOldRecorders(EarlierThanEarliestRectangle(_model.ToStatistTotalByDateTimeArray().ToList(), _earliestRectangle), _earliestRectangle);
                     ProgressBoard.CancelOn(CurrentRectanglesCanvas, progressBoard);
                     foreach (Canvas canvas in StackCanvas.Children) {
                         ProgressBoard.SlideOn(canvas, new ProgressBoard());
                     }
-                    List<IGrouping<BigInteger, StatistTotalByDateTime>>[] res = _model.GroupDateTimesByTotal();
+                    TioSalamanca[] res = _model.GroupDateTimesByTotal();
 #if DEBUG
                     for (int level = 0; level < res.Length; level++) {
                         Debug.WriteLine($"level: {level + 1}");
@@ -126,13 +127,13 @@ namespace MasturbationRecorder {
                 // 如果 x.Count() > 0 为 true 证明存在，否则添加新条目。
                 // 注意：x.Count() 和 x.First() 可能会导致两次查询，具体详情参见 MSDN
                 var x = from entry in _model.Entries
-                        where entry.DateTime.ToShortDateString() == rectangle.Name
+                        where entry.Value.DateTime.ToShortDateString() == rectangle.Name
                         select entry;
                 if (x.Count() > 0) { // 点击绿色方块
-                    x.First().Total += 1;
+                    x.First().Value.Total += 1;
 #if DEBUG
                     ToolTip toolTip = new ToolTip {
-                        Content = rectangle.Name + $"  Level:0  Total:{x.First().Total}  Color:{(rectangle.Fill as SolidColorBrush).Color}"
+                        Content = rectangle.Name + $"  Level:0  Total:{x.First().Value.Total}  Color:{(rectangle.Fill as SolidColorBrush).Color}"
                     };
                     ToolTipService.SetToolTip(rectangle, toolTip);
 #endif

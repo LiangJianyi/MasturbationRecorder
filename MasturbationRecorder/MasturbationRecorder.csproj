@@ -126,6 +126,7 @@
     <Compile Include="GuidancePageViewModel\GuidancePage.cs" />
     <Compile Include="MainPageViewModel\Blink.cs" />
     <Compile Include="MainPageViewModel\Bubble.cs" />
+    <Compile Include="MainPageViewModel\GusFring.cs" />
     <Compile Include="MainPageViewModel\MainPageException.cs" />
     <Compile Include="Model\Configuration.cs" />
     <Compile Include="Model\DatetimeParser.cs" />

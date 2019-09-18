@@ -6,6 +6,8 @@ using System.Numerics;
 using Janyee.Utilty;
 
 namespace MasturbationRecorder {
+    using TioSalamanca = List<IGrouping<BigInteger, StatistTotalByDateTime>>;
+
     /// <summary>
     /// 记录事件频率的对象，它是事件纪录器的核心对象类型，每一个StatistTotalByDateTime对象代表一条事件记录，
     /// 事件记录包含两个属性，日期（DateTime）和发生次数（Total）
@@ -96,32 +98,44 @@ namespace MasturbationRecorder {
     /// StatistTotalByDateTime 模型类，用于存储 StatistTotalByDateTime 对象，并对这些对象进行增删改查
     /// </summary>
     class StatistTotalByDateTimeModel {
-        private LinkedList<StatistTotalByDateTime> _entries;
-        public LinkedList<StatistTotalByDateTime> Entries => _entries;
+        private readonly SortedList<DateTime, StatistTotalByDateTime> _entries = new SortedList<DateTime, StatistTotalByDateTime>();
+        public SortedList<DateTime, StatistTotalByDateTime> Entries => _entries;
         /// <summary>
         /// 该构造器接收一个字符串序列，把它转换成StatistTotalByDateTime链表
         /// </summary>
         /// <param name="lines">文本序列</param>
         public StatistTotalByDateTimeModel(IEnumerable<string> lines) {
-            this._entries = new LinkedList<StatistTotalByDateTime>();
             foreach (var line in lines) {
                 if (line != string.Empty && line != "\r") {   // 忽略空行
                     StatistTotalByDateTime statist = DatetimeParser.ParseExpressToStatistTotalByDateTime(line);
-                    this._entries.AddLast(statist);
+                    this.Add(statist);
                 }
             }
         }
+
+        /// <summary>
+        /// 添加 StatistTotalByDateTime，如果存在相同日期的事件，则累加该事件的 Total
+        /// </summary>
+        /// <param name="statist"></param>
+        private void Add(StatistTotalByDateTime statist) {
+            try {
+                this._entries.Add(statist.DateTime, statist);
+            }
+            catch (ArgumentException) {
+                this._entries[statist.DateTime].Total += statist.Total;
+            }
+        }
+
         /// <summary>
         /// 该构造器接收一个字符串序列，把它转换成StatistTotalByDateTime链表，同时接收一个 DateMode 指示日期字符串的分割方式
         /// </summary>
         /// <param name="lines">文本序列</param>
         /// <param name="dateMode">指示日期字符串的分割方式</param>
         public StatistTotalByDateTimeModel(IEnumerable<string> lines, DateMode dateMode) {
-            this._entries = new LinkedList<StatistTotalByDateTime>();
             foreach (var line in lines) {
                 if (line != "" && line != "\r") {   // 忽略空行
                     StatistTotalByDateTime statist = DatetimeParser.ParseExpressToStatistTotalByDateTime(line, dateMode);
-                    this._entries.AddLast(statist);
+                    this.Add(statist);
                 }
             }
         }
@@ -132,12 +146,11 @@ namespace MasturbationRecorder {
         /// <param name="total">指定每个StatistTotalByDateTime的Tota</param>
         /// <param name="dateMode">指示日期字符串的分割方式</param>
         public StatistTotalByDateTimeModel(IEnumerable<string> lines, BigInteger total, DateMode dateMode) {
-            this._entries = new LinkedList<StatistTotalByDateTime>();
             foreach (var line in lines) {
                 if (line != "" && line != "\r") {   // 忽略空行
                     StatistTotalByDateTime statist = DatetimeParser.ParseExpressToStatistTotalByDateTime(line, dateMode);
                     statist.Total = total;
-                    this._entries.AddLast(statist);
+                    this.Add(statist);
                 }
             }
         }
@@ -146,9 +159,9 @@ namespace MasturbationRecorder {
         /// 产生一个与 IGrouping<BigInteger, StatistTotalByDateTime> 为单元的有序列表
         /// </summary>
         /// <returns></returns>
-        public List<IGrouping<BigInteger, StatistTotalByDateTime>>[] GroupDateTimesByTotal() {
+        public TioSalamanca[] GroupDateTimesByTotal() {
             IOrderedEnumerable<IGrouping<BigInteger, StatistTotalByDateTime>> groupingForTotal = from e in _entries
-                                                                                                 group e by e.Total into newgroup
+                                                                                                 group e.Value by e.Value.Total into newgroup
                                                                                                  orderby newgroup.Key
                                                                                                  select newgroup;
 
@@ -163,7 +176,7 @@ namespace MasturbationRecorder {
 #endif
             // 一个级别有若干个Key；一个Key有若干条记录
             // levelByTotal 指示每个级别有多少个 Key（groupingForTotal根据Total分组出来的Key）
-            List<IGrouping<BigInteger, StatistTotalByDateTime>> levels = null;
+            TioSalamanca levels = null;
 
             // groups 代表 dateTimes 根据每个元素的 Total 分组之后 groups（item.Key） 的总数
             BigInteger groups = groupingForTotal.LongCount();
@@ -179,7 +192,7 @@ namespace MasturbationRecorder {
                 Debug.WriteLine($"remain: {remain}");
 #endif
 
-                List<IGrouping<BigInteger, StatistTotalByDateTime>>[] entries = new List<IGrouping<BigInteger, StatistTotalByDateTime>>[5];
+                TioSalamanca[] entries = new TioSalamanca[5];
                 BigInteger keyIncre = 0;
                 // entriesIncre 没有必要使用 BigInteger，因为不管有多少个 Key，分成多少个 group，
                 // entries 的长度永远为 5，因为纪录器最多只能分五级
@@ -204,7 +217,7 @@ namespace MasturbationRecorder {
                         }
                     }
                     else if (levels == null) {
-                        levels = new List<IGrouping<BigInteger, StatistTotalByDateTime>> { item };
+                        levels = new TioSalamanca { item };
                     }
                     else {
                         levels.Add(item);
@@ -214,10 +227,10 @@ namespace MasturbationRecorder {
                 return entries;
             }
             else if (groups <= 5 && groups > 0) {
-                List<IGrouping<BigInteger, StatistTotalByDateTime>>[] entries = new List<IGrouping<BigInteger, StatistTotalByDateTime>>[groups.BigIntegerToInt32()];
-                List<IGrouping<BigInteger, StatistTotalByDateTime>> temp = groupingForTotal.ToList();
+                TioSalamanca[] entries = new TioSalamanca[groups.BigIntegerToInt32()];
+                TioSalamanca temp = groupingForTotal.ToList();
                 for (int i = 0; i < entries.Length; i++) {
-                    entries[i] = new List<IGrouping<BigInteger, StatistTotalByDateTime>>(1) {
+                    entries[i] = new TioSalamanca(1) {
                         temp[i]
                     };
                 }
@@ -239,8 +252,17 @@ namespace MasturbationRecorder {
         /// </summary>
         /// <param name="statistTotalByDateTime"></param>
         public void AddEntry(StatistTotalByDateTime statistTotalByDateTime) {
-            this._entries.AddLast(statistTotalByDateTime);
+            this.Add(statistTotalByDateTime);
         }
-        public string[] ToArray() => (from statistTotalByDateTime in this._entries select statistTotalByDateTime.ToString()).ToArray();
+        /// <summary>
+        /// 转换为 StatistTotalByDateTime.ToString() 数组
+        /// </summary>
+        /// <returns></returns>
+        public string[] ToStringArray() => (from statistTotalByDateTime in this._entries select statistTotalByDateTime.Value.ToString()).ToArray();
+        /// <summary>
+        /// 转换为 StatistTotalByDateTime 数组
+        /// </summary>
+        /// <returns></returns>
+        public StatistTotalByDateTime[] ToStatistTotalByDateTimeArray()=> (from statistTotalByDateTime in this._entries select statistTotalByDateTime.Value).ToArray();
     }
 }
