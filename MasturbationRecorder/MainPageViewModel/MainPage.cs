@@ -282,69 +282,29 @@ namespace MasturbationRecorder {
                                 if (haveProgressBoard) {
                                     ProgressBoard.SlideOn(canvas, new ProgressBoard());
                                 }
-                                foreach (var item in canvas.Children) {
+                                foreach (var item in canvas.Children) { // 过滤掉非 Rectangle 的元素（比如 ProgressBoard 和 DateTag）
                                     if (item is Rectangle rect) {
-                                        rect.Fill = gusFring[rect.Name]; 
+#if DEBUG
+                                        (int Level, BigInteger Total, SolidColorBrush Color) = gusFring[rect.Name];
+                                        rect.Fill = Color;
+                                        ToolTip toolTip = new ToolTip {
+                                            Content = rect.Name + $"  Level:{Level}  Total:{Total}  Color:{Color}"
+                                        };
+                                        ToolTipService.SetToolTip(rect, toolTip);
+#endif
+#if DEBUG == false
+                                        rect.Fill = gusFring[rect.Name];
+                                        ToolTip toolTip = new ToolTip {
+                                            Content = rect.Name"
+                                        };
+                                        ToolTipService.SetToolTip(rect, toolTip);
+#endif
+                                        _rectangleRegisteTable.Add(rect);
                                     }
                                 }
                             }
                         });
                 });
-
-            //            Windows.Foundation.IAsyncAction action = Windows.System.Threading.ThreadPool.RunAsync(
-            //                async (asyncAction) => {
-            //                    await Windows.ApplicationModel.Core.CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(
-            //                    priority: Windows.UI.Core.CoreDispatcherPriority.Normal,
-            //                    agileCallback: () => {
-            //                        foreach (Canvas canvas in this.StackCanvas.Children) {
-            //                            if (haveProgressBoard) {
-            //                                ProgressBoard.SlideOn(canvas, new ProgressBoard());
-            //                            }
-            //                            // level 作为 entries 的索引值，值越小对应的 Total 越小
-            //                            for (int level = 0; level < entries.Length; level++) {
-            //                                TioSalamanca groups = entries[level];
-            //                                IGrouping<BigInteger, StatistTotalByDateTime> group = null;
-            //                                for (int groupsIncre = 0; groupsIncre < groups.LongCount(); groupsIncre++) {
-            //                                    group = groups[groupsIncre];
-            //                                    foreach (StatistTotalByDateTime entry in group) {
-            //                                        // 过滤掉非 Rectangle 的元素（比如 ProgressBoard）
-            //                                        var rectangles = from rect in canvas.Children
-            //                                                         where rect is Rectangle
-            //                                                         select rect;
-            //                                        foreach (Rectangle rect in rectangles) {
-            //                                            if (rect.Name == entry.DateTime.ToShortDateString()) {
-            //                                                rect.Fill = colorDic[level + 1];
-            //#if DEBUG
-            //                                                ToolTip toolTip = new ToolTip {
-            //                                                    Content = rect.Name + $"  Level:{level + 1}  Total:{entry.Total}  Color:{(rect.Fill as SolidColorBrush).Color}"
-            //                                                };
-            //                                                ToolTipService.SetToolTip(rect, toolTip);
-            //#endif
-            //                                                _rectangleRegisteTable.Add(rect);
-            //                                                break;
-            //                                            }
-            //                                            else {
-            //                                                if (!_rectangleRegisteTable.Contains(rect)) {
-            //                                                    rect.Fill = colorDic[0];
-            //#if DEBUG
-            //                                                    ToolTip toolTip = new ToolTip {
-            //                                                        Content = rect.Name + $"  Level:0  Total:0  Color:{(rect.Fill as SolidColorBrush).Color}"
-            //                                                    };
-            //                                                    ToolTipService.SetToolTip(rect, toolTip);
-            //#endif
-            //                                                }
-            //                                            }
-            //                                        }
-            //                                    }
-            //                                }
-            //                            }
-            //                            if (haveProgressBoard) {
-            //                                //ProgressBoard.Stop
-            //                            }
-            //                        }
-            //                    });
-            //                });
-
         }
 
         /// <summary>
