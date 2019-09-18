@@ -34,8 +34,8 @@ namespace MasturbationRecorder {
         /// </summary>
         /// <param name="progressBoardCanvas">进度条面板</param>
         /// <param name="parentCanvas">父级面板</param>
-        private void HorizontalCenterOnCanvas(Canvas progressBoardCanvas, Canvas parentCanvas) {
-            Canvas.SetLeft(progressBoardCanvas, (parentCanvas.ActualWidth - progressBoardCanvas.Width) / 2);
+        private static void HorizontalCenterOnCanvas(Canvas progressBoardCanvas, Canvas parentCanvas) {
+            Canvas.SetLeft(progressBoardCanvas, (parentCanvas.Width - progressBoardCanvas.Width) / 2);
         }
 
         /// <summary>
@@ -53,7 +53,7 @@ namespace MasturbationRecorder {
         /// <param name="progressBoardCanvas">进度条面板</param>
         /// <param name="parentCanvas">父级面板</param>
         private static void VerticalCenterOnCanvas(Canvas progressBoardCanvas, Canvas parentCanvas) {
-            Canvas.SetTop(progressBoardCanvas, (parentCanvas.ActualHeight - progressBoardCanvas.Height) / 2);
+            Canvas.SetTop(progressBoardCanvas, (parentCanvas.Height - progressBoardCanvas.Height) / 2);
         }
 
         /// <summary>
@@ -75,8 +75,7 @@ namespace MasturbationRecorder {
             if (parentCanvas.Children.Contains(progressBoard._progressBoard) == false) {
                 parentCanvas.Children.Add(progressBoard._progressBoard);
             }
-            progressBoard.HorizontalCenterOnCanvas(progressBoard._progressBoard, parentCanvas);
-            VerticalCenterOnCanvas(progressBoard._progressBoard, parentCanvas);
+            HorizontalCenterOnCanvas(progressBoard._progressBoard, parentCanvas);
 
             progressBoard._startStoryboard = new Storyboard();
             KeyTime startTime = KeyTime.FromTimeSpan(new TimeSpan(0, 0, 0, 0, 0));
@@ -88,7 +87,7 @@ namespace MasturbationRecorder {
                 KeyTime = startTime
             });
             slideAnimationUsingKeyFrames.KeyFrames.Add(new LinearDoubleKeyFrame() {
-                Value = (parentCanvas.ActualHeight - progressBoard._progressBoard.Height) / 2,
+                Value = (parentCanvas.Height - progressBoard._progressBoard.Height) / 2,
                 KeyTime = endTime
             });
 
