@@ -108,7 +108,7 @@ namespace MasturbationRecorder {
         private void Rect_PointerReleased(object sender, Windows.UI.Xaml.Input.PointerRoutedEventArgs e) {
             Rectangle rectangle = sender as Rectangle;
             Bubble.CreateBubbleRectangle(
-                canvas: CurrentRectanglesCanvas,
+                canvas: (sender as Rectangle).Parent as Canvas,
                 hostRect: rectangle,
                 bubbleName: VisualEventFrequencyRecorder.Resources["OhhohoRect"] as string,
                 zoom: (minWidth: (double)VisualEventFrequencyRecorder.Resources["MinWidth"],
@@ -116,6 +116,17 @@ namespace MasturbationRecorder {
                        maxWidth: (double)VisualEventFrequencyRecorder.Resources["MaxWidth"],
                        maxHeight: (double)VisualEventFrequencyRecorder.Resources["MaxHeight"])
             );
+
+            /*
+             * 气泡动画结束后从 Canvas 移除气泡方块。
+             * 把 RectangleBubbleAnimation_Completed 作为局部方法的原因是：
+             * 能够让 handler 在事件触发时捕获外部的 sender，让触发动画播放的
+             * UI 对象能进入此 handler 的作用域，达到动画播放结束后移除该 UI 对象的效果。
+             */
+            void RectangleBubbleAnimation_Completed(object animation, object animationEventArg) {
+                ((sender as Rectangle).Parent as Canvas).Children.Remove(Bubble._bubble);
+            }
+
             Bubble.CreateBubbleStoryboard(
                 hostPosition: (left: Canvas.GetLeft(rectangle), top: Canvas.GetTop(rectangle)),
                 storyboard_Completed: RectangleBubbleAnimation_Completed
@@ -195,13 +206,6 @@ namespace MasturbationRecorder {
             Debug.WriteLine($"{this.Window.Bounds.Width} , {this.Window.Bounds.Height}");
 #endif
             UpdateMainPageLayout();
-        }
-
-        /*
-         * 气泡动画结束后从 Canvas 移除气泡方块
-         */
-        private void RectangleBubbleAnimation_Completed(object sender, object e) {
-            CurrentRectanglesCanvas.Children.Remove(Bubble._bubble);
         }
 
         /// <summary>
