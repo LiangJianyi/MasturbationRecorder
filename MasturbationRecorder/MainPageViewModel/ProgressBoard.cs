@@ -29,20 +29,40 @@ namespace MasturbationRecorder {
             return canvas;
         }
 
-        private void HorizontalCenterOnCanvas(Canvas subCanvas, Canvas parentCanvas) {
-            Canvas.SetLeft(subCanvas, (parentCanvas.Width - subCanvas.Width) / 2);
+        /// <summary>
+        /// 将进度条面板以父级面板为基准进行水平居中
+        /// </summary>
+        /// <param name="progressBoardCanvas">进度条面板</param>
+        /// <param name="parentCanvas">父级面板</param>
+        private void HorizontalCenterOnCanvas(Canvas progressBoardCanvas, Canvas parentCanvas) {
+            Canvas.SetLeft(progressBoardCanvas, (parentCanvas.ActualWidth - progressBoardCanvas.Width) / 2);
         }
 
-        private static void HorizontalCenterOnCanvas(Control control, Canvas panel) {
-            Canvas.SetLeft(control, (panel.ActualWidth - control.Width) / 2);
+        /// <summary>
+        /// 将进度条控件以进度条面板为基准进行水平居中
+        /// </summary>
+        /// <param name="control">控件</param>
+        /// <param name="progressBoardCanvas">进度条面板</param>
+        private static void HorizontalCenterOnCanvas(Control control, Canvas progressBoardCanvas) {
+            Canvas.SetLeft(control, (progressBoardCanvas.ActualWidth - control.Width) / 2);
         }
 
-        private static void VerticalCenterOnCanvas(Canvas subCanvas, Canvas parentCanvas) {
-            Canvas.SetTop(subCanvas, -subCanvas.Height);
+        /// <summary>
+        /// 将进度条面板以父级面板为基准进行垂直居中
+        /// </summary>
+        /// <param name="progressBoardCanvas">进度条面板</param>
+        /// <param name="parentCanvas">父级面板</param>
+        private static void VerticalCenterOnCanvas(Canvas progressBoardCanvas, Canvas parentCanvas) {
+            Canvas.SetTop(progressBoardCanvas, (parentCanvas.ActualHeight - progressBoardCanvas.Height) / 2);
         }
 
-        private static void VerticalCenterOnCanvas(Control control, Canvas panel) {
-            Canvas.SetTop(control, (panel.ActualHeight - control.Width) / 2);
+        /// <summary>
+        /// 将进度条控件以进度条面板为基准进行水平居中
+        /// </summary>
+        /// <param name="control"></param>
+        /// <param name="progressBoardCanvas"></param>
+        private static void VerticalCenterOnCanvas(Control control, Canvas progressBoardCanvas) {
+            Canvas.SetTop(control, (progressBoardCanvas.ActualHeight - control.Width) / 2);
         }
 
         /// <summary>
